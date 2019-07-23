@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <p name='nickname' id="nickname"></p>
+    <div id="coords"></div></br>
+    <input type='text' name='name' id="name" placeholder='Name Group' /><br /><br />
+    <input type='submit' value='Add group' onclick="return createGroup();">
+</body>
+
+</html>
+
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script>
+    const Http = new XMLHttpRequest();
+    const url = 'http://localhost:3000/api/';
+    var currentUrl = new URL(window.location.href);
+    var x = currentUrl.searchParams.get("x");
+    var y = currentUrl.searchParams.get("y");
+    var nickname = currentUrl.searchParams.get("nickname");
+    document.getElementById("nickname").innerHTML = "Nickname: " + nickname
+    document.getElementById("coords").innerHTML = "Create the group here: (" + x + "," + y + ")"
+
+    function createGroup() {
+        var groupName = document.getElementById("name").value
+        if (groupName == "") {
+            alert("Insert a group name")
+            return
+        }
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y }
+        })
+        Http.open("POST", url + 'group/create', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    window.location.href = "http://localhost:3000"
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+</script>
