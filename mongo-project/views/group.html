@@ -79,6 +79,7 @@
         height: calc(100vh - 165px);
         background: white;
         padding: 5px 10px;
+        overflow-y: scroll;
     }
 
     .chat p {
@@ -113,6 +114,7 @@
     var nick = currentUrl.searchParams.get("nickname");
     var action = currentUrl.searchParams.get("action");
     var limit = 0;
+    var prevLengthMessages = 0;
     var lastTime = 0;
     // var idChat;
     var groupName;
@@ -165,10 +167,10 @@
         });
     }
 
-    function loadMoreMessages(nameGroup, update=false){
+    function loadMoreMessages(nameGroup=groupName, update=false){
         if(update == true){
-            limit = 0
-            document.getElementById("chat").innerHTML = ""
+            limit -= 9
+            prevLengthMessages = 0
         }
         limit += 10
 
@@ -186,13 +188,29 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 response = JSON.parse(Http.responseText)
 
-                if(response["messages"].length > 0){
-                    lastTime = response["messages"][0]["time"]
-                }
-                
-                let chat = document.getElementById("chat")
                 if (response["confirmation"] == "success") {
-                    response["messages"].forEach(function (element) {
+                    if (response["messages"].length > 0) {
+                        lastTime = response["messages"][0]["time"]
+                    }
+
+                    document.getElementById("chat").innerHTML = ""
+                    
+                    if(prevLengthMessages < response["messages"].length){
+                        console.log(prevLengthMessages)
+                        let chat = document.getElementById("chat")
+                        let a = document.createElement("a");
+                        let href = "javascript: void (0)"
+                        a.setAttribute('href', href);
+                        let loadMoreText = document.createTextNode("Load more messages");
+                        a.setAttribute('onclick', "loadMoreMessages();")
+                        a.appendChild(loadMoreText)
+                        chat.appendChild(a)
+
+                        prevLengthMessages = response["messages"].length
+                    }
+
+                    for (let i = response["messages"].length - 1; i >= 0; i--) {
+                        let element = response["messages"][i]
                         let p = document.createElement("p");
                         let strong = document.createElement("strong");
                         let sender = document.createTextNode(element["sender"]);
@@ -201,7 +219,7 @@
                         p.appendChild(strong);
                         p.appendChild(data)
                         chat.appendChild(p)
-                    })
+                    }
                 } else {
                     console.log(response)
                 }
@@ -224,9 +242,13 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 response = JSON.parse(Http.responseText)
                 
-                if (response["messages"].length > 0) {
-                    lastTime = response["messages"][0]["time"]
-                    loadMoreMessages(groupName, true)
+                if (response["confirmation"] == "success") {
+                    if (response["messages"].length > 0) {
+                        lastTime = response["messages"][0]["time"]
+                        loadMoreMessages(groupName, true)
+                    }
+                } else {
+                    console.log(response)
                 }
             }
         }
