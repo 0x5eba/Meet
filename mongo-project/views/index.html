@@ -15,8 +15,8 @@
 
 <body>
     <!-- sidenav -->
-    <div id="boxPos"> 
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <div id="boxPos">
+        <a href="javascript:void(0)" id="exist" class="closebtn" onclick="closeNav()">&times;</a>
     </div>
 
     <div id='cntnr'>
@@ -51,8 +51,13 @@
         font-family: "Lato", sans-serif;
     }
 
+    html, body{
+        height: 99%;
+        margin:0;
+    }
+
     #boxPos {
-        top: 30%;
+        top: 30%; 
         left: 40%;
         width: 35%;
         height: 50%;
@@ -62,21 +67,23 @@
         background: rgba(13, 19, 13, 0.6);
         position:fixed;
         display: none;
-        overflow-y: scroll; 
+        overflow-y: scroll;
+        overflow: auto;
     }
 
-    /* #boxPos a {
+    #exist {
         padding: 8px 8px 8px 32px;
         text-decoration: none;
         font-size: 25px;
         color: #818181;
         display: block;
         transition: 0.3s;
+        text-align: right;
     }
 
-    #boxPos a:hover {
+    #exist :hover {
         color: #f1f1f1;
-    } */
+    }
 
 
     #titles {
@@ -90,7 +97,7 @@
     #profiles {
         padding: 8px 8px 8px 32px;
         text-decoration: none;
-        font-size: 30px;
+        font-size: 25px;
         color: red;
         display: block;
         transition: 0.3s;
@@ -98,7 +105,7 @@
     #groups {
         padding: 8px 8px 8px 32px;
         text-decoration: none;
-        font-size: 30px;
+        font-size: 25px;
         color: blue;
         display: block;
         transition: 0.3s;
@@ -106,7 +113,7 @@
     #questions {
         padding: 8px 8px 8px 32px;
         text-decoration: none;
-        font-size: 30px;
+        font-size: 25px;
         color: green;
         display: block;
         transition: 0.3s;
@@ -184,14 +191,14 @@
     $("#items > li").click(function () {
         if ($(this).text() == "Create a group here") {
             let nick = document.getElementById("nickname").value
-            window.location.href = "http://localhost:3000/create_group" + '?nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y;
+            window.location.href = "http://localhost:3000/create_group" + '?action=show&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
         if ($(this).text() == "Ask a question here") {
-            window.location.href = "http://localhost:3000/ask_question" + '?nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y;
+            window.location.href = "http://localhost:3000/ask_question" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
     });
 
-
+    var navOpen = false
     function openNav() {
         let div = document.getElementById("boxPos");
         if (div.style.display === "block") {
@@ -199,6 +206,7 @@
         } else {
             div.style.display = "block";
         }
+        navOpen = true
     }
     function closeNav() {
         let div = document.getElementById("boxPos");
@@ -207,7 +215,8 @@
         } else {
             div.style.display = "none";
         }
-        document.getElementById("boxPos").innerHTML = '<a href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
+        document.getElementById("boxPos").innerHTML = '<a id="exist" href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
+        navOpen = false
     }
 
 
@@ -251,60 +260,6 @@
         let multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
     }
-
-    // function getLocation() {
-    //     if (navigator.geolocation) {
-    //         navigator.geolocation.getCurrentPosition(initPosition);
-    //     }
-    // }
-    // function initPosition(position) {
-    //     let x = round(position.coords.latitude, 3);
-    //     let y = round(position.coords.longitude, 3);
-    //     realPos = { x: x, y: y }
-    //     myPosInMap = coordsToMap(x, y)
-
-    //     let nick = document.getElementById("nickname").value
-    //     let fake = Array.from(document.getElementsByName("fake")).find(r => r.checked).value;
-    //     var params = {};
-    //     if(fake == "true"){
-    //         fakePos = createFakePos(realPos.x, realPos.y)
-    //         params = JSON.stringify({ "search": { "nickname": nick }, "update": { "$set": { real_position : { x: realPos.x, y: realPos.y }, fake_position : { x: fakePos.x, y: fakePos.y } } }, "extra" : {} })
-    //     } else {
-    //         params = JSON.stringify({ "search": { "nickname": nick }, "update": { "$set": { real_position: { x: realPos.x, y: realPos.y } } }, "extra": {} })
-    //     }
-
-    //     Http.open("POST", url + 'profile/update', true);
-    //     Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-    //     Http.send(params); 
-    //     Http.onreadystatechange = (e) => {
-    //      if (Http.readyState == 4 && Http.status == 200) {
-    //         console.log(Http.responseText)
-    //     }
-
-    //     drawCoordinates(myPosInMap.x, myPosInMap.y)
-    // }
-    // getLocation();
-
-    // function coordsToMap(x, y){
-    //     new_x = 25 * (12.3 - y) + 933
-    //     new_y = 50 * (50 - x) + 1280
-
-    //     return { x:new_x, y:new_y }
-    // }
-
-    // function mapToCoords(x, y){
-    //     new_x = Math.abs((307.5 + 933 - y) / 25)
-    //     new_y = Math.abs((1280 + 2500 - x) / 50)
-
-    //     return { x:new_x, y:new_y }
-    // }
-
-    // function getPosition(event) {
-    //     let rect = canvas.getBoundingClientRect();
-    //     let x = event.clientX - rect.left;
-    //     let y = event.clientY - rect.top;
-    //     drawCoordinates(x, y);
-    // }
 
     function setMyPosition(event) {
         let rect = canvas.getBoundingClientRect();
@@ -381,36 +336,71 @@
         console.log(x, y)
 
         // let originalCoords = mapToCoords(x, y)
-        
-        let boxPos = document.getElementById("boxPos")
 
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'pos/profiles', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        let params = JSON.stringify({ x: x, y: y })
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
-                let profiles = JSON.parse(Http.responseText)
-                
-                let p = document.createElement("p");
-                let textnode = document.createTextNode("Profiles");
-                p.setAttribute('id', 'titles')
-                p.appendChild(textnode);
-                boxPos.appendChild(p)
+        if (navOpen == false) {
+            let boxPos = document.getElementById("boxPos")
 
-                profiles["profiles"].forEach(function (element) {
-                    let a = document.createElement("a");
-                    a.setAttribute('href', '#');
-                    a.setAttribute('id', 'profiles')
-                    let textnode = document.createTextNode(element['nickname']);
-                    a.appendChild(textnode);
-                    boxPos.appendChild(a)
-                });
+            let Http = new XMLHttpRequest();
+            Http.open("POST", url + 'pos/profiles', true);
+            Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            let params = JSON.stringify({ x: x, y: y })
+            Http.send(params);
+            Http.onreadystatechange = (e) => {
+                if (Http.readyState == 4 && Http.status == 200) {
+                    let profiles = JSON.parse(Http.responseText)
+                    
+                    if(profiles["profiles"].length > 0){
+                        let p = document.createElement("p");
+                        let textnode = document.createTextNode("Profiles");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode);
+                        boxPos.appendChild(p)
+                    }
+
+                    profiles["profiles"].forEach(function (element) {
+                        let a = document.createElement("a");
+                        a.setAttribute('href', '#');
+                        a.setAttribute('id', 'profiles')
+                        let textnode = document.createTextNode(element['nickname']);
+                        a.appendChild(textnode);
+                        boxPos.appendChild(a)
+                    });
+                }
             }
-        }
 
-        openNav()
+            let Http2 = new XMLHttpRequest();
+            Http2.open("POST", url + 'pos/groups', true);
+            Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            let params2 = JSON.stringify({ x: x, y: y })
+            Http2.send(params2);
+            Http2.onreadystatechange = (e) => {
+                if (Http2.readyState == 4 && Http2.status == 200) {
+                    let groups = JSON.parse(Http2.responseText)
+                    
+                    if(groups["groups"].length > 0){
+                        let p = document.createElement("p");
+                        let textnode = document.createTextNode("Groups");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode);
+                        boxPos.appendChild(p)
+                    }
+
+                    groups["groups"].forEach(function (element) {
+                        console.log(element)
+                        let a = document.createElement("a");
+                        a.setAttribute('href', '#');
+                        a.setAttribute('id', 'groups')
+                        let textnode = document.createTextNode(element['name']);
+                        a.appendChild(textnode);
+                        boxPos.appendChild(a)
+                    });
+                }
+            }
+
+            openNav()
+        } else {
+            closeNav()
+        }
     }
 
     function initProfiles() {

@@ -15,13 +15,111 @@
 </head>
 
 <body>
-    <p name='nickname' id="nickname"></p>
-    <div id="coords"></div></br>
-    <input type='text' name='name' id="name" placeholder='Name Group' /><br /><br />
-    <input type='submit' value='Add group' onclick="return createGroup();">
+    <div id='createGroup' style="display:none;">
+        <p name='nickname' id="nickname"></p>
+        <div id="coords"></div></br>
+        <input type='text' name='name' id="name" placeholder='Name Group' /><br /><br />
+        <input type='submit' value='Add group' onclick="return createGroup();">
+    </div>
+
+    <div id='showGroup' style="display:none;">
+        <main>
+            <header>
+                <div class="user-count">0</div>
+                <h1>Europe Chat</h1>
+            </header>
+
+            <section class="chat">
+                <p><strong>Pepito</strong>: Hey everyone!</p>
+                <p><strong>Seba</strong>: Hey</p>
+            </section>
+
+            <form>
+                <input type="text" placeholder="Say something nice" />
+                <button>Send</button>
+            </form>
+        </main>
+    </div>
+
 </body>
 
 </html>
+
+<style>
+    * {
+        box-sizing: border-box;
+        transition: all .3s ease;
+    }
+
+    html,
+    body {
+        background: #eee;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    main {
+        width: calc(100% - 20px);
+        max-width: 500px;
+        margin: 0 auto;
+        font-family: Helvetica, Arial, Sans, sans-serif;
+    }
+
+    h1,
+    .user-count {
+        margin: 0;
+        padding: 10px 0;
+        font-size: 32px;
+    }
+
+    .user-count {
+        float: right;
+    }
+
+    .chat {
+        content: '';
+        width: 100%;
+        height: calc(100vh - 165px);
+        background: white;
+        padding: 5px 10px;
+    }
+
+    .chat p {
+        margin: 0 0 5px 0;
+    }
+
+    input,
+    button {
+        width: 100%;
+        font: inherit;
+        background: #fff;
+        border: none;
+        margin-top: 10px;
+        padding: 5px 10px;
+    }
+
+    button:hover {
+        cursor: pointer;
+        background: #ddd;
+    }
+
+    @media all and (min-width: 500px) {
+        .chat {
+            height: calc(100vh - 140px);
+        }
+
+        input {
+            width: calc(100% - 160px);
+        }
+
+        button {
+            float: right;
+            width: 150px;
+        }
+    }
+</style>
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script>
@@ -31,8 +129,24 @@
     var x = currentUrl.searchParams.get("x");
     var y = currentUrl.searchParams.get("y");
     var nickname = currentUrl.searchParams.get("nickname");
-    document.getElementById("nickname").innerHTML = "Nickname: " + nickname
-    document.getElementById("coords").innerHTML = "Create the group here: (" + x + "," + y + ")"
+    var action = currentUrl.searchParams.get("action");
+
+    if (action == "create") {
+        document.getElementById("createGroup").style.display = "block"
+
+        document.getElementById("nickname").innerHTML = "Nickname: " + nickname
+        document.getElementById("coords").innerHTML = "Create the group here: (" + x + "," + y + ")"
+    }
+    if (action == "show") {
+        $('form').submit(e => {
+            e.preventDefault();
+            console.log($(e.target).find('input').val());
+            e.target.reset();
+        });
+        document.getElementById("showGroup").style.display = "block"
+        window.history.replaceState(null, null, window.location.pathname);
+    }
+
 
     function createGroup() {
         var groupName = document.getElementById("name").value

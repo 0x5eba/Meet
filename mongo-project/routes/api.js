@@ -178,6 +178,7 @@ router.post('/pos/profiles', (req, res) => {
 				confirmation: 'fail',
 				message: err.message
 			})
+			return
 		})
 
 	Profile.find({ use_fake_position: false, online: true })
@@ -258,6 +259,28 @@ router.post('/group/create', (req, res) => {
 				confirmation: 'success',
 				data: group,
 				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/pos/groups', (req, res) => {
+	const query = req.body
+	const search_x = query.x
+	const search_y = query.y
+
+	Group.find()
+		.then(groups => {
+			let res_groups = groups.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
+			res.json({
+				confirmation: 'success',
+				groups: res_groups,
+				query: query,
 			})
 		})
 		.catch(err => {
