@@ -46,7 +46,7 @@ router.get('/register', function (req, res) {
 router.get('/ask_question', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/question.html'));
 });
-router.get('/create_group', function (req, res) {
+router.get('/group', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/group.html'));
 });
 

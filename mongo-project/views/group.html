@@ -26,18 +26,13 @@
         <main>
             <header>
                 <div class="user-count">0</div>
-                <h1>Europe Chat</h1>
+                <h1 id="nameGroup"></h1>
             </header>
 
-            <section class="chat">
-                <p><strong>Pepito</strong>: Hey everyone!</p>
-                <p><strong>Seba</strong>: Hey</p>
+            <section class="chat" id='chat'>
             </section>
 
-            <form>
-                <input type="text" placeholder="Say something nice" />
-                <button>Send</button>
-            </form>
+            <input type="text" id="write" placeholder="Write something" />
         </main>
     </div>
 
@@ -51,8 +46,7 @@
         transition: all .3s ease;
     }
 
-    html,
-    body {
+    html, body {
         background: #eee;
         width: 100%;
         height: 100%;
@@ -61,21 +55,22 @@
     }
 
     main {
-        width: calc(100% - 20px);
-        max-width: 500px;
+        width: 50%;
+        /* width: calc(100% - 20px);
+        max-width: 500px; */
         margin: 0 auto;
         font-family: Helvetica, Arial, Sans, sans-serif;
     }
 
-    h1,
-    .user-count {
+    /* h1, .user-count {
         margin: 0;
         padding: 10px 0;
         font-size: 32px;
-    }
+    } */
 
     .user-count {
         float: right;
+        font-size: 32px;
     }
 
     .chat {
@@ -90,8 +85,7 @@
         margin: 0 0 5px 0;
     }
 
-    input,
-    button {
+    input {
         width: 100%;
         font: inherit;
         background: #fff;
@@ -100,53 +94,169 @@
         padding: 5px 10px;
     }
 
-    button:hover {
-        cursor: pointer;
-        background: #ddd;
-    }
-
     @media all and (min-width: 500px) {
         .chat {
             height: calc(100vh - 140px);
-        }
-
-        input {
-            width: calc(100% - 160px);
-        }
-
-        button {
-            float: right;
-            width: 150px;
         }
     }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script>
-    const Http = new XMLHttpRequest();
+    
     const url = 'http://localhost:3000/api/';
     var currentUrl = new URL(window.location.href);
     var x = currentUrl.searchParams.get("x");
+    x = parseFloat(x)
     var y = currentUrl.searchParams.get("y");
-    var nickname = currentUrl.searchParams.get("nickname");
+    y = parseFloat(y)
+    var nick = currentUrl.searchParams.get("nickname");
     var action = currentUrl.searchParams.get("action");
+    var limit = 0;
+    var lastTime = 0;
+    // var idChat;
+    var groupName;
 
     if (action == "create") {
         document.getElementById("createGroup").style.display = "block"
 
-        document.getElementById("nickname").innerHTML = "Nickname: " + nickname
+        document.getElementById("nickname").innerHTML = "Nickname: " + nick
         document.getElementById("coords").innerHTML = "Create the group here: (" + x + "," + y + ")"
     }
+    
     if (action == "show") {
-        $('form').submit(e => {
-            e.preventDefault();
-            console.log($(e.target).find('input').val());
-            e.target.reset();
-        });
+        var write = document.getElementById("write");
+        groupName = currentUrl.searchParams.get("groupname")
+        document.getElementById("nameGroup").innerHTML = groupName + " chat"
         document.getElementById("showGroup").style.display = "block"
-        window.history.replaceState(null, null, window.location.pathname);
+        // window.history.replaceState(null, null, window.location.pathname);
+
+        loadMoreMessages(groupName)
+        // getIdChat(groupName)
+
+        write.addEventListener("keyup", function (event) {
+            if (event.keyCode === 13) {
+                
+                let params = JSON.stringify({
+                    name: groupName,
+                    pos: { x: x, y: y },
+                    sender: nick,
+                    time: Date.now(),
+                    message: write.value,
+                })
+
+                const Http = new XMLHttpRequest();
+                Http.open("POST", url + 'chat/write', true);
+                Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                Http.send(params);
+                Http.onreadystatechange = (e) => {
+                    if (Http.readyState == 4 && Http.status == 200) {
+                        response = JSON.parse(Http.responseText)
+                        if (response["confirmation"] == "success") {
+                            // TODO add message to showGroup
+                        } else {
+                            console.log(response)
+                        }
+                    }
+                }
+
+                write.value = ""
+            }
+        });
     }
 
+    function loadMoreMessages(nameGroup, update=false){
+        if(update == true){
+            limit = 0
+            document.getElementById("chat").innerHTML = ""
+        }
+        limit += 10
+
+        let params = JSON.stringify({
+            name: nameGroup,
+            pos: { x: x, y: y },
+            limit: limit,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'chat/messages', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+
+                if(response["messages"].length > 0){
+                    lastTime = response["messages"][0]["time"]
+                }
+                
+                let chat = document.getElementById("chat")
+                if (response["confirmation"] == "success") {
+                    response["messages"].forEach(function (element) {
+                        let p = document.createElement("p");
+                        let strong = document.createElement("strong");
+                        let sender = document.createTextNode(element["sender"]);
+                        let data = document.createTextNode(": " + element["message"]);
+                        strong.appendChild(sender)
+                        p.appendChild(strong);
+                        p.appendChild(data)
+                        chat.appendChild(p)
+                    })
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function checkNewMessage(){
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y },
+            lastTime: lastTime,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'chat/update', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                
+                if (response["messages"].length > 0) {
+                    lastTime = response["messages"][0]["time"]
+                    loadMoreMessages(groupName, true)
+                }
+            }
+        }
+    }
+    window.setInterval(function () {
+        checkNewMessage()
+    }, 1000);
+
+    // function getIdChat(nameGroup){
+    //     let params = JSON.stringify({
+    //         name: nameGroup,
+    //         pos: { x: x, y: y },
+    //     })
+
+    //     const Http = new XMLHttpRequest();
+    //     Http.open("POST", url + 'group/id', true);
+    //     Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    //     Http.send(params);
+    //     Http.onreadystatechange = (e) => {
+    //         if (Http.readyState == 4 && Http.status == 200) {
+    //             response = JSON.parse(Http.responseText)
+    //             if (response["confirmation"] == "success") {
+    //                 idChat = response["data"][0]["_id"]
+    //             } else {
+    //                 console.log(response)
+    //             }
+    //         }
+    //     }
+    // }
+    
 
     function createGroup() {
         var groupName = document.getElementById("name").value
@@ -154,10 +264,15 @@
             alert("Insert a group name")
             return
         }
+        if(groupName.length > 15 || !groupName.match(/^[0-9a-zA-Z]+$/)){
+            alert("Only Alphanumerical and max 15 lenght")
+            return
+        }
         let params = JSON.stringify({
             name: groupName,
             pos: { x: x, y: y }
         })
+        const Http = new XMLHttpRequest();
         Http.open("POST", url + 'group/create', true);
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);

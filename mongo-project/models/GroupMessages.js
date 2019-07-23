@@ -1,11 +1,13 @@
 const mongoose = require('mongoose')
+require('mongoose-double')(mongoose);
 
+var SchemaTypes = mongoose.Schema.Types;
 const GroupMessages = new mongoose.Schema({
     name_group: { type: String, default: "" },
-    pos: { x: { type: Number, default: 0 }, y: { type: Number, default: 0 } },
+    pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
 
     sender: { type: String, default: "" },
-    time: { type: Date, default: Date.now },
+    time: { type: Number, default: 0 },
     message: { type: String, default: "" },
 })
 

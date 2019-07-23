@@ -43,6 +43,10 @@
     <div id="MyContainer" width="300" height="300" style="width:500;height:500;">
         <canvas id="canvas" width="2000" height="2000" style="cursor:crosshair;background:url(https://i.imgur.com/jT4fbXr.jpg)"></canvas>
     </div>
+
+    <!-- <div style="display:none;">
+        <canvas id="hiddenCanvas"  width="2000" height="2000"></canvas>
+    </div> -->
 </body>
 
 </html>
@@ -162,6 +166,19 @@
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script>
+
+    /*
+
+    Una bella idea sarebbe prendere tutti i punti (o un modo per controllare se un punto appartiene a uno specifico stato) e,
+    avendo la posizione "vera" (presa dal gps), controllo se al doppio click ha effettivamente rispettato il suo stato.
+    Facendo in modo anche che si possano creare gruppi e domande solo nel proprio stato
+
+    quando clicchi sulla mappa, mi faccio restituire il colore, e nel db controllo il colore associato a quello stato.
+    Devo escludere il colore azzurro (mare) e il nero (scritte)
+
+    */
+
+
     const url = 'http://localhost:3000/api/';
     // const delt = 0.202217
     const delt = 8
@@ -191,7 +208,7 @@
     $("#items > li").click(function () {
         if ($(this).text() == "Create a group here") {
             let nick = document.getElementById("nickname").value
-            window.location.href = "http://localhost:3000/create_group" + '?action=show&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
+            window.location.href = "http://localhost:3000/group" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
         if ($(this).text() == "Ask a question here") {
             window.location.href = "http://localhost:3000/ask_question" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
@@ -253,6 +270,8 @@
         document.getElementById('canvas').height = height;
         document.getElementById('MyContainer').style.width = width;
         document.getElementById('MyContainer').style.height = height;
+
+        // document.getElementById("hiddenCanvas").getContext("2d").drawImage(img, width, height);
     }
     img.src = 'https://i.imgur.com/jT4fbXr.jpg';
 
@@ -261,12 +280,23 @@
         return Math.round(value * multiplier) / multiplier;
     }
 
+    // function rgbToHex(r, g, b) {
+    //     if (r > 255 || g > 255 || b > 255)
+    //         throw "Invalid color component";
+    //     return ((r << 16) | (g << 8) | b).toString(16);
+    // }
+
     function setMyPosition(event) {
         let rect = canvas.getBoundingClientRect();
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
         myPosInMap = { x: x, y: y }
         fakePos = createFakePos(myPosInMap.x, myPosInMap.y)
+
+        // var c = document.getElementById("hiddenCanvas").getContext('2d');
+        // var p = c.getImageData(x, y, 1, 1).data;
+        // var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
+        
 
         let nick = document.getElementById("nickname").value
         let fake = Array.from(document.getElementsByName("fake")).find(r => r.checked).value;
@@ -339,6 +369,7 @@
 
         if (navOpen == false) {
             let boxPos = document.getElementById("boxPos")
+            let nick = document.getElementById("nickname").value
 
             let Http = new XMLHttpRequest();
             Http.open("POST", url + 'pos/profiles', true);
@@ -359,6 +390,7 @@
 
                     profiles["profiles"].forEach(function (element) {
                         let a = document.createElement("a");
+                        // let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
                         a.setAttribute('href', '#');
                         a.setAttribute('id', 'profiles')
                         let textnode = document.createTextNode(element['nickname']);
@@ -386,9 +418,9 @@
                     }
 
                     groups["groups"].forEach(function (element) {
-                        console.log(element)
                         let a = document.createElement("a");
-                        a.setAttribute('href', '#');
+                        let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
+                        a.setAttribute('href', href);
                         a.setAttribute('id', 'groups')
                         let textnode = document.createTextNode(element['name']);
                         a.appendChild(textnode);
