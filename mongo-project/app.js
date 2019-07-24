@@ -49,6 +49,11 @@ router.get('/ask_question', function (req, res) {
 router.get('/group', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/group.html'));
 });
+router.get('/profile', function (req, res) {
+	res.sendFile(path.join(__dirname + '/views/profile.html'));
+});
+
+// app.use(express.static(__dirname + '/views'));
 
 // set routes
 app.use('/', router)

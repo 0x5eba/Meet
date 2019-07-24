@@ -1,0 +1,199 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+        crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+</head>
+
+<body>
+    <section class="hero-section">
+        <div class="container-fluid">
+            <div class="col-xl-10 offset-xl-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="hero-text">
+                            <h2 id='nickname'></h2>
+                            <h3 id='name-surname'></h3>
+                            <p id='bio'></p>
+                        </div>
+                        <div class="hero-info">
+                            <h2>General Info</h2>
+                            <ul>
+                                <li id='lastseen'><span>Last seen</span></li>
+                                <li id='position'><span>Last position</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>
+
+<style>
+    html,body {
+        height: 100%;
+        background: #f2f7f8;
+        font-family: 'Josefin Sans', sans-serif;
+    }
+
+    h1,h2,h3,h4,h5,h6 {
+        color: #40424a;
+        margin: 0;
+        font-weight: 600;
+        font-family: 'Josefin Sans', sans-serif;
+    }
+
+    h2 {
+        font-size: 48px;
+    }
+
+    h3 {
+        font-size: 30px;
+    }
+
+    p {
+        font-size: 18px;
+        color: #808181;
+        line-height: 1.8;
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus,
+    textarea:focus {
+        outline: none;
+    }
+
+    a:hover,
+    a:focus {
+        text-decoration: none;
+        outline: none;
+    }
+
+    ul,
+    ol {
+        padding: 0;
+        margin: 0;
+    }
+
+    .hero-section {
+        background: #f2f7f8;
+    }
+
+    .hero-text {
+        margin-bottom: 80px;
+    }
+
+    .hero-text h2 {
+        font-size: 100px;
+        line-height: normal;
+        /* margin-bottom: 20px; */
+    }
+
+    .hero-text h3 {
+        font-size: 50px;
+        line-height: normal;
+        margin-bottom: 20px;
+    }
+
+    .hero-text p {
+        font-size: 33px;
+        line-height: 1.3;
+    }
+
+    .hero-image {
+        padding-top: 70px;
+    }
+
+    .hero-info h2 {
+        margin-bottom: 30px;
+    }
+
+    .hero-info ul {
+        list-style: none;
+    }
+
+    .hero-info ul li {
+        font-size: 24px;
+        color: #808181;
+        margin-bottom: 15px;
+    }
+
+    .hero-info ul li span {
+        color: #40424a;
+        display: inline-block;
+        min-width: 220px;
+    }
+
+    .hero-info ul li:last-child {
+        margin-bottom: 0;
+    }
+</style>
+
+<script>
+    const url = 'http://localhost:3000/api/';
+    var currentUrl = new URL(window.location.href);
+    var id = currentUrl.searchParams.get("id");
+    if(id != null){
+        getProfile()
+    } else {
+        console.log("No id");
+    }
+
+    function getProfile() {
+        let params = JSON.stringify({
+            id: id,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/id', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    let profile = response["profile"]
+                    document.getElementById("nickname").innerHTML = profile["nickname"]
+                    document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
+                    document.getElementById("bio").innerHTML = profile["bio"]
+                    if(profile["online"] == true){
+                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
+                    } else {
+                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + profile["lastSeen"]
+                    }
+                    if (profile["position"] == true) {
+                        document.getElementById("position").innerHTML = "<span>Last position</span>" + "(" + profile["fake_position"].x + "," + profile["fake_position"].y + ")"
+                    } else {
+                        document.getElementById("position").innerHTML = "<span>Last position</span>" + "(" + profile["real_position"].x + "," + profile["real_position"].y + ")"
+                    }
+                    
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+</script>

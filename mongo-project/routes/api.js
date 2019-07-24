@@ -54,7 +54,7 @@ router.post('/profile/id', (req, res) => {
 		.then(profile => {
 			res.json({
 				confirmation: 'success',
-				data: profile,
+				profile: profile,
 			})
 		})
 		.catch(err => {

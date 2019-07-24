@@ -22,10 +22,11 @@
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script>
-    var url = new URL(window.location.href);
-    var x = url.searchParams.get("x");
-    var y = url.searchParams.get("y");
-    var nickname = url.searchParams.get("nickname");
+    const url = 'http://localhost:3000/api/';
+    var currentUrl = new URL(window.location.href);
+    var x = currentUrl.searchParams.get("x");
+    var y = currentUrl.searchParams.get("y");
+    var nickname = currentUrl.searchParams.get("nickname");
     document.getElementById("nickname").innerHTML = nickname
     console.log(nickname, x, y)
 

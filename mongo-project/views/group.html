@@ -418,7 +418,7 @@
                     response["groups"][0]["peopleOnline"].forEach(function (element) {
                         let a = document.createElement("a");
                         let textnode = document.createTextNode(element["nickname"])
-                        a.setAttribute('href', element["id"])
+                        a.setAttribute('href', "http://localhost:3000/profile?id=" + element["id"])
                         a.setAttribute('id', "profiles")
                         a.appendChild(textnode)
                         boxPos.appendChild(a)
