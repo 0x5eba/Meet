@@ -47,8 +47,8 @@ router.post('/profile/getId', (req, res) => {
 		})
 })
 
-router.get('/profile/:id', (req, res) => {
-	const id = req.params.id
+router.post('/profile/id', (req, res) => {
+	const id = req.body.id
 
 	Profile.findById(id)
 		.then(profile => {
@@ -93,7 +93,7 @@ router.post('/profile/update', (req, res) => {
 	const update = query.update
 	const extra = query.extra
 
-	Profile.update(search, update, extra)
+	Profile.updateMany(search, update, extra)
 		.then(profile => {
 			res.json({
 				confirmation: 'success',
@@ -343,8 +343,9 @@ router.post('/group/updateOnline', (req, res) => {
 	// {search: {name: , pos: }, update: {$inc:{nOnline: -1}, $pull: {peopleOnline : {nickname: , id} }}}
 	const search = query.search
 	const update = query.update
+	const extra = query.extra
 
-	Group.update(search, update)
+	Group.updateMany(search, update, extra)
 		.then(groups => {
 			res.json({
 				confirmation: 'success',
@@ -364,11 +365,30 @@ router.post('/group/peopleOnline', (req, res) => {
 	const name = req.body.name
 	const pos = req.body.pos
 
-	Group.find({ name: name, pos: pos }, { nOnline: 1, peopleOnline: 1, _id: 0 })
+	Group.find({ name: name, pos: pos }, { peopleOnline: 1, _id: 0 })
 		.then(group => {
 			res.json({
 				confirmation: 'success',
 				groups: group,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/group/nOnline', (req, res) => {
+	const name = req.body.name
+	const pos = req.body.pos
+
+	Group.aggregate([{ $match: { name: name, pos: pos } }, { $project: { nOnline: { $size: '$peopleOnline'} } }])
+		.then(nOnline => {
+			res.json({
+				confirmation: 'success',
+				nOnline: nOnline,
 			})
 		})
 		.catch(err => {

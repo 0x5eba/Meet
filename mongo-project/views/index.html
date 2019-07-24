@@ -1,3 +1,8 @@
+<!-- 
+    Ho iniziato a pensarci il 19 luglio
+    Ho iniziato a lavorarci su il 21 luglio
+ -->
+
 <html lang="en">
 
 <head>
@@ -16,7 +21,7 @@
 <body>
     <!-- sidenav -->
     <div id="boxPos">
-        <a href="javascript:void(0)" id="exist" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="javascript:void(0)" id="exit" class="closebtn" onclick="closeNav()">&times;</a>
     </div>
 
     <div id='cntnr'>
@@ -75,7 +80,7 @@
         overflow: auto;
     }
 
-    #exist {
+    #exit {
         padding: 8px 8px 8px 32px;
         text-decoration: none;
         font-size: 25px;
@@ -85,7 +90,7 @@
         text-align: right;
     }
 
-    #exist :hover {
+    #exit :hover {
         color: #f1f1f1;
     }
 
@@ -102,7 +107,7 @@
         padding: 8px 8px 8px 32px;
         text-decoration: none;
         font-size: 25px;
-        color: red;
+        color: #FF3333;
         display: block;
         transition: 0.3s;
     }
@@ -232,7 +237,7 @@
         } else {
             div.style.display = "none";
         }
-        document.getElementById("boxPos").innerHTML = '<a id="exist" href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
+        document.getElementById("boxPos").innerHTML = '<a id="exit" href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
         navOpen = false
     }
 
@@ -473,6 +478,6 @@
     setTimeout(function () { 
         initProfiles()
         initGroups()
-    }, 100);
+    }, 200);
 
 </script>

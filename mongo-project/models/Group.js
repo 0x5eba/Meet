@@ -5,8 +5,7 @@ var SchemaTypes = mongoose.Schema.Types;
 const Group = new mongoose.Schema({
     name: { type: String, default: "" },
     pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
-    nOnline: { type: Number, default: 0 },
-    peopleOnline: { type: [{ nickname: String, id: String }], default: [] }
+    peopleOnline: { type: [{ _id: false, nickname: String, id: String }], default: [] }
 })
 
 module.exports = mongoose.model('Group', Group)
