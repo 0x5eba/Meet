@@ -28,4 +28,30 @@
     var nickname = url.searchParams.get("nickname");
     document.getElementById("nickname").innerHTML = nickname
     console.log(nickname, x, y)
+
+    /*
+
+    Fai un albero, con collegamenti parent->childs
+    In cui se root ha 4 rispose, creo una riga nel db in cui ha una lista di risposte [risposa1, risposta2, ...]
+    Ad ogni risposta, cerco se esiste come campo parent di altre righe del db
+
+    dic = dict()
+    for relation in relations:
+    val,pval,left = relation
+    if val not in dic:
+        node = Node(val)
+        dic[val] = node
+    if pval is None:
+        root = node
+        continue
+    if pval not in dic:
+        parent = Node(pval)
+        dic[val] = parent
+    if left:
+        parent.left = node
+    else:
+        parent.right = node
+    return root
+
+    */
 </script>
