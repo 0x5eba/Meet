@@ -30,6 +30,23 @@ router.get('/profiles', (req, res) => {
 		})
 })
 
+router.post('/profile/getId', (req, res) => {
+	const nick = req.body.nickname
+	Profile.find({ nickname: nick }, { _id: 1 })
+		.then(profile => {
+			res.json({
+				confirmation: 'success',
+				data: profile,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 router.get('/profile/:id', (req, res) => {
 	const id = req.params.id
 
@@ -320,6 +337,48 @@ router.post('/group/create', (req, res) => {
 })
 
 
+router.post('/group/updateOnline', (req, res) => {
+	const query = req.body
+	// {search: {name: , pos: }, update: {$inc:{nOnline: 1}, $push: {peopleOnline : {nickname: , id} }}}
+	// {search: {name: , pos: }, update: {$inc:{nOnline: -1}, $pull: {peopleOnline : {nickname: , id} }}}
+	const search = query.search
+	const update = query.update
+
+	Group.update(search, update)
+		.then(groups => {
+			res.json({
+				confirmation: 'success',
+				data: groups,
+				query: query
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/group/peopleOnline', (req, res) => {
+	const name = req.body.name
+	const pos = req.body.pos
+
+	Group.find({ name: name, pos: pos }, { nOnline: 1, peopleOnline: 1, _id: 0 })
+		.then(group => {
+			res.json({
+				confirmation: 'success',
+				groups: group,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 /*************************
 *     GROUP MESSAGES     *
 **************************/
@@ -347,7 +406,7 @@ router.post('/chat/messages', (req, res) => {
 
 	GroupMessages.find({ name_group: name, pos: pos }, { sender: 1, time: 1, message: 1, _id: 0 }).sort({ 'time': 'desc' }).limit(limit)
 		.exec(function (err, message) {
-			if(err != null){
+			if (err != null) {
 				res.json({
 					confirmation: 'fail',
 					message: err.message
