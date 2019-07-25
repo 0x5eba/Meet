@@ -10,12 +10,47 @@
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+        crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <p id="nickname"></p>
+    <div id='askQuestion' style="display:none;">
+        <div class="container-fluid">
+            <input type='text' id="title" placeholder='Title' /><br /><br />
+            <div class="row">
+                <div class="col-lg-12">
+                    <ul id="tabs" class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab1" aria-controls="tab1" role="tab" data-toggle="tab">Text</a></li>
+                        <li role="presentation"><a href="#tab2" aria-controls="tab2" role="tab" data-toggle="tab">Images</a></li>
+                        <li role="presentation"><a href="#tab3" aria-controls="tab3" role="tab" data-toggle="tab">Links</a></li>
+                        <li role="presentation"><a href="#tab4" aria-controls="tab4" role="tab" data-toggle="tab">Hashtags</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="tab1"><br>
+                            <input type='text' id="details" placeholder='Text' /><br /><br />
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="tab2"><br>
+                            <input type='text' id="imgUrl" placeholder='Url image' /><br /><br />
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="tab3"><br>
+                            <input type='text' id="url" placeholder='Url' /><br /><br />
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="tab4"><br>
+                            <input type='text' id="hashtags" placeholder='Hashtags' /><br /><br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </br>
+            <input type='submit' value='Ask this question' onclick="return createGroup();">
+        </div>
+        
+    </div>
 </body>
 
 </html>
@@ -26,9 +61,13 @@
     var currentUrl = new URL(window.location.href);
     var x = currentUrl.searchParams.get("x");
     var y = currentUrl.searchParams.get("y");
+    var action = currentUrl.searchParams.get("action");
     var nickname = currentUrl.searchParams.get("nickname");
-    document.getElementById("nickname").innerHTML = nickname
-    console.log(nickname, x, y)
+    // document.getElementById("nickname").innerHTML = nickname
+
+    if (action == "create") {
+        document.getElementById("askQuestion").style.display = "block"
+    }
 
     /*
 
@@ -38,21 +77,21 @@
 
     dic = dict()
     for relation in relations:
-    val,pval,left = relation
-    if val not in dic:
-        node = Node(val)
-        dic[val] = node
-    if pval is None:
-        root = node
-        continue
-    if pval not in dic:
-        parent = Node(pval)
-        dic[val] = parent
-    if left:
-        parent.left = node
-    else:
-        parent.right = node
-    return root
+        val,pval,left = relation
+        if val not in dic:
+            node = Node(val)
+            dic[val] = node
+        if pval is None:
+            root = node
+            continue
+        if pval not in dic:
+            parent = Node(pval)
+            dic[val] = parent
+        if left:
+            parent.left = node
+        else:
+            parent.right = node
+        return root
 
     */
 </script>

@@ -16,8 +16,8 @@
 
 <body>
     <div id='createGroup' style="display:none;">
-        <p name='nickname' id="nickname"></p>
-        <div id="coords"></div></br>
+        <!-- <p name='nickname' id="nickname"></p>
+        <div id="coords"></div></br> -->
         <input type='text' name='name' id="name" placeholder='Name Group' /><br /><br />
         <input type='submit' value='Add group' onclick="return createGroup();">
     </div>
@@ -171,8 +171,8 @@
     if (action == "create") {
         document.getElementById("createGroup").style.display = "block"
 
-        document.getElementById("nickname").innerHTML = "Nickname: " + nick
-        document.getElementById("coords").innerHTML = "Create the group here: (" + x + "," + y + ")"
+        // document.getElementById("nickname").innerHTML = "Nickname: " + nick
+        // document.getElementById("coords").innerHTML = "Create the group here: (" + x + "," + y + ")"
     }
 
     if (action == "show") {

@@ -29,10 +29,11 @@
     </div>
 
     <div id='cntnr'>
-        <ul id='items'>
+        <ul id='coordsMenu' style="border-bottom: 3px solid black;">
+        </ul>
+        <ul id='items' style="border-bottom: 3px solid black;">
             <li>Create a group here</li>
         </ul>
-        <hr />
         <ul id="items">
             <li>Ask a question here</li>
         </ul>
@@ -133,7 +134,7 @@
     }
 
 
-    #items {
+    #items, #coordsMenu {
         list-style: none;
         margin: 0px;
         margin-top: 4px;
@@ -155,7 +156,7 @@
         display: none;
         position: fixed;
         border: 1px solid #B2B2B2;
-        width: 150px;
+        width: 15%;
         background: #F9F9F9;
         box-shadow: 3px 3px 2px #E9E9E9;
         border-radius: 4px;
@@ -203,6 +204,7 @@
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
         coordsQuestionOrGroup = { x: x, y: y }
+        document.getElementById("coordsMenu").innerHTML = "<li>Here is (" + x + ", " + y + ")</li>"
 
         // $("#cntnr").css("left", e.pageX);
         // $("#cntnr").css("top", e.pageY);
@@ -215,8 +217,8 @@
         });
     }
     $("#items > li").click(function () {
+        let nick = document.getElementById("nickname").value
         if ($(this).text() == "Create a group here") {
-            let nick = document.getElementById("nickname").value
             window.location.href = "http://localhost:3000/group" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
         if ($(this).text() == "Ask a question here") {
@@ -323,7 +325,7 @@
             params = JSON.stringify({
                 "search": { "nickname": nick }, "update": {
                     "$set": {
-                        online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
+                        use_fake_position: false, online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
                         fake_position: { x: fakePos.x, y: fakePos.y }
                     }
                 }, "extra": {}
@@ -400,7 +402,7 @@
                     profiles["profiles"].forEach(function (element) {
                         let a = document.createElement("a");
                         // let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
-                        a.setAttribute('href', '#');
+                        a.setAttribute('href', "http://localhost:3000/profile?id=" + element["_id"]);
                         a.setAttribute('id', 'profiles')
                         let textnode = document.createTextNode(element['nickname']);
                         a.appendChild(textnode);
