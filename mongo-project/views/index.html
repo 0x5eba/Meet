@@ -128,7 +128,7 @@
         padding: 8px 8px 8px 32px;
         text-decoration: none;
         font-size: 25px;
-        color: green;
+        color: #32CD32;
         display: block;
         transition: 0.3s;
     }
@@ -222,7 +222,7 @@
             window.location.href = "http://localhost:3000/group" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
         if ($(this).text() == "Ask a question here") {
-            window.location.href = "http://localhost:3000/ask_question" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
+            window.location.href = "http://localhost:3000/question" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
     });
 
@@ -440,6 +440,39 @@
                 }
             }
 
+            let Http3 = new XMLHttpRequest();
+            Http3.open("POST", url + 'pos/questions', true);
+            Http3.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            let params3 = JSON.stringify({ x: x, y: y })
+            Http3.send(params3);
+            Http3.onreadystatechange = (e) => {
+                if (Http3.readyState == 4 && Http3.status == 200) {
+                    let questions = JSON.parse(Http3.responseText)
+
+                    if (questions["questions"].length > 0) {
+                        let p = document.createElement("p");
+                        let textnode = document.createTextNode("Questions");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode);
+                        boxPos.appendChild(p)
+                    }
+
+                    questions["questions"].forEach(function (element) {
+                        let a = document.createElement("a");
+                        let href = "http://localhost:3000/question" + '?action=show&title=' + element['title'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
+                        a.setAttribute('href', href);
+                        a.setAttribute('id', 'questions')
+                        let text = element['title']
+                        if(element['title'].length > 10){
+                            element['title'].substring(0, 10) + "..."
+                        }
+                        let textnode = document.createTextNode(text);
+                        a.appendChild(textnode);
+                        boxPos.appendChild(a)
+                    });
+                }
+            }
+
             openNav()
         } else {
             closeNav()
@@ -448,7 +481,7 @@
 
     function initProfiles() {
         let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'pos/allProfiles', true);
+        Http.open("POST", url + 'profile/allProfiles', true);
         Http.send();
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
@@ -481,9 +514,24 @@
         }
     }
 
+    function initQuestions() {
+            let Http = new XMLHttpRequest();
+            Http.open("GET", url + 'question/allQuestions', true);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+                if (Http.readyState == 4 && Http.status == 200) {
+                    let questions = JSON.parse(Http.responseText)
+                    questions["questions"].forEach(function (element) {
+                        drawCoordinates(element.pos.x, element.pos.y, '#32CD32');
+                    });
+                }
+            }
+        }
+
     setTimeout(function () { 
         initProfiles()
         initGroups()
+        initQuestions()
     }, 200);
 
 </script>

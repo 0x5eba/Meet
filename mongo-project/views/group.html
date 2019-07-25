@@ -236,7 +236,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    idProfile = response["data"][0]["_id"]
+                    idProfile = response["data"]["_id"]
                     iamOnline()
                 } else {
                     console.log(response)

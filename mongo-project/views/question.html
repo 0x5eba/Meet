@@ -25,7 +25,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <ul id="tabs" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#tab1" aria-controls="tab1" role="tab" data-toggle="tab">Text</a></li>
+                        <li role="presentation" class="active"><a href="#tab1" aria-controls="tab1" role="tab"
+                                data-toggle="tab">Text</a></li>
                         <li role="presentation"><a href="#tab2" aria-controls="tab2" role="tab" data-toggle="tab">Images</a></li>
                         <li role="presentation"><a href="#tab3" aria-controls="tab3" role="tab" data-toggle="tab">Links</a></li>
                         <li role="presentation"><a href="#tab4" aria-controls="tab4" role="tab" data-toggle="tab">Hashtags</a></li>
@@ -38,7 +39,7 @@
                             <input type='text' id="imgUrl" placeholder='Url image' /><br /><br />
                         </div>
                         <div role="tabpanel" class="tab-pane" id="tab3"><br>
-                            <input type='text' id="url" placeholder='Url' /><br /><br />
+                            <input type='text' id="urls" placeholder='Urls (separated by comma)' /><br /><br />
                         </div>
                         <div role="tabpanel" class="tab-pane" id="tab4"><br>
                             <input type='text' id="hashtags" placeholder='Hashtags' /><br /><br />
@@ -47,9 +48,45 @@
                 </div>
             </div>
             </br>
-            <input type='submit' value='Ask this question' onclick="return createGroup();">
+            <input type='submit' value='Ask this question' onclick="return askQuestion();">
         </div>
-        
+    </div>
+
+
+    <div id='showQuestion' style="display:none;">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-1" style="text-align: center;">
+                    <div class="row" style="margin: 0 auto;">
+                        <a href="javascript:console.log(1);">
+                            <img src="Upvote.png" width="20" height="20">
+                        </a>
+                    </div>
+                    <div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div>
+                    <div class="row" style="margin: 0 auto;">
+                        <a href="javascript:console.log(1);">
+                            <img src="Downvote.png" width="20" height="20">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-11">
+                    <div class="row" id="title_show"></div></br>
+                    <div class="row" id="details_show"></div></br>
+                    <div class="row">
+                        <img id="img_show" width="400" height="400"></br>
+                    </div>
+                    <button onclick="">Save</button>
+                    <div class="row" id='hashtags_show'></div>
+                    <div class="row" id='urls_show'></div>
+                </div>
+            </div>
+            </br>
+
+            <div class="row" id='root'>
+                <!-- <div class="col" style="margin: 50px;">
+                </div> -->
+            </div>
+        </div>
     </div>
 </body>
 
@@ -60,13 +97,203 @@
     const url = 'http://localhost:3000/api/';
     var currentUrl = new URL(window.location.href);
     var x = currentUrl.searchParams.get("x");
+    x = parseFloat(x)
     var y = currentUrl.searchParams.get("y");
+    y = parseFloat(y)
     var action = currentUrl.searchParams.get("action");
-    var nickname = currentUrl.searchParams.get("nickname");
-    // document.getElementById("nickname").innerHTML = nickname
+    var nick = currentUrl.searchParams.get("nickname");
+    var title = "";
+    var question = {};
+    var answers = [];
 
     if (action == "create") {
         document.getElementById("askQuestion").style.display = "block"
+    }
+
+    if (action == "show") {
+        document.getElementById("showQuestion").style.display = "block"
+        title = currentUrl.searchParams.get("title");
+
+        getQuestionAndAnswers()
+    }
+
+    function askQuestion() {
+        let title = document.getElementById("title").value
+        if (title.length < 5) {
+            alert("Question too short")
+            return
+        }
+        let details = document.getElementById("details").value
+        let imgUrl = document.getElementById("imgUrl").value
+        let urls = document.getElementById("urls").value
+        let hashtags = document.getElementById("hashtags").value
+
+        let urls_split_tmp = urls.split(",");
+        let urls_split = []
+        urls_split_tmp.forEach(element => {
+            urls_split.push(element.replace(/^\s+|\s+$/g, ''))
+        });
+        let hashtags_split_tmp = hashtags.split(",");
+        let hashtags_split = []
+        hashtags_split_tmp.forEach(element => {
+            hashtags_split.push(element.replace(/^\s+|\s+$/g, ''))
+        });
+
+        let params = JSON.stringify({
+            nickname: nick,
+            pos: { x: x, y: y },
+            title: title,
+            details: details,
+            time: Date.now(),
+            imgUrl: imgUrl,
+            urls: urls_split,
+            hashtags: hashtags_split,
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'question/create', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    window.location.href = "http://localhost:3000"
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function getQuestionAndAnswers() {
+        let params = JSON.stringify({
+            title: title,
+            pos: { x: x, y: y },
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'question/getQuestion', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    question = response["question"]
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+
+
+        let params2 = JSON.stringify({
+            title: title,
+            pos: { x: x, y: y },
+        })
+        const Http2 = new XMLHttpRequest();
+        Http2.open("POST", url + 'answer/group', true);
+        Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http2.send(params2);
+        Http2.onreadystatechange = (e) => {
+            if (Http2.readyState == 4 && Http2.status == 200) {
+                response = JSON.parse(Http2.responseText)
+                if (response["confirmation"] == "success") {
+                    answers = response["answers"]
+                    fillData()
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function fillData() {
+        document.getElementById("title_show").innerHTML = question["title"]
+        document.getElementById("details_show").innerHTML = question["details"]
+        document.getElementById("img_show").src = question["imgUrl"]
+        document.getElementById("details_show").innerHTML = question["details"]
+        
+        
+        let treeLevel = 0
+        let rootDiv = document.getElementById("root")
+        if(answers.length == 0){
+
+            // <div class="col-lg-1" style="text-align: center;">
+            //     <div class="row" style="margin: 0 auto;">
+            //         <a href="javascript:console.log(1);">
+            //             <img src="Upvote.png" width="20" height="20">
+            //             </a>
+            //         </div>
+            //         <div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div>
+            //         <div class="row" style="margin: 0 auto;">
+            //             <a href="javascript:console.log(1);">
+            //                 <img src="Downvote.png" width="20" height="20">
+            //             </a>
+            //         </div>
+            //         </div>
+
+            let input = document.createElement("input");
+            input.setAttribute("type", "text")
+            input.setAttribute("level", 0)
+            input.setAttribute("idParent", "root")
+            input.addEventListener("keyup", function (event) {
+                if (event.keyCode === 13) {
+                    createAnswer(this.getAttribute("level"), this.getAttribute("idParent"), this.value, this)
+                }
+            })
+            rootDiv.appendChild(input)
+            
+        } else {
+            console.log(answers)
+            rootDiv.innerHTML = ""
+            var queue = [];
+            // questo loop mi serve solo per gli elementi di livello 0
+            answers.forEach(element => {
+                queue.push(element["_id"])
+                // devo cercare il primo elemento con livello+1 e che abbia come parent l'id di questo element
+                while (true) {
+                    let idElement = queue.shift()
+                    answers.forEach(findUpLevel => {
+                        if(findUpLevel["parent"] == idElement && findUpLevel["level"] == treeLevel+1){
+                            // crea un div, e mettilo sotto al parent, e crea un input sotto (che poi deve essere tolto se ci sono altri elementi)
+                            queue.push(findUpLevel["_id"]) // forse c'e' un problema con la priority, perche' dovrebbe essere il primo ad entrare ad essere servito
+                            // ma forse no
+                        }
+                    })
+                }
+            });
+        }
+    }
+
+    function createAnswer(level, idParent, data, input){
+        let params = JSON.stringify({
+            title: title,
+            data: data,
+            pos: { x: x, y: y },
+            time: Date.now(),
+            level: level, 
+            vote: 0,
+            parent: idParent,
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'answer/create', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    console.log(response)
+                    input.setAttribute("myId", response["data"]["_id"])
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function addImageVote(){
+        return '<div class="row" style="margin: 0 auto;">< a href = "javascript:console.log(1);" ><img src="Upvote.png" width="20" height="20"></a></div ><div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div><div class="row" style="margin: 0 auto;"><a href="javascript:console.log(1);"><img src="Downvote.png" width="20" height="20"></a></div>'
     }
 
     /*

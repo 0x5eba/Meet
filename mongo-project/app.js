@@ -43,7 +43,7 @@ router.get('/', function (req, res) {
 router.get('/register', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/register.html'));
 });
-router.get('/ask_question', function (req, res) {
+router.get('/question', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/question.html'));
 });
 router.get('/group', function (req, res) {

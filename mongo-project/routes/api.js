@@ -32,7 +32,7 @@ router.get('/profiles', (req, res) => {
 
 router.post('/profile/getId', (req, res) => {
 	const nick = req.body.nickname
-	Profile.find({ nickname: nick }, { _id: 1 })
+	Profile.findOne({ nickname: nick }, { _id: 1 })
 		.then(profile => {
 			res.json({
 				confirmation: 'success',
@@ -110,24 +110,24 @@ router.post('/profile/update', (req, res) => {
 		})
 })
 
-router.get('/profile/remove/:id', (req, res) => {
-	// const id = req.query.id
-	const id = req.params.id
+// router.get('/profile/remove/:id', (req, res) => {
+// 	// const id = req.query.id
+// 	const id = req.params.id
 
-	Profile.findByIdAndRemove(id)
-		.then(data => {
-			res.json({
-				confirmation: 'success',
-				data: id + ' removed',
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
+// 	Profile.findByIdAndRemove(id)
+// 		.then(data => {
+// 			res.json({
+// 				confirmation: 'success',
+// 				data: id + ' removed',
+// 			})
+// 		})
+// 		.catch(err => {
+// 			res.json({
+// 				confirmation: 'fail',
+// 				message: err.message
+// 			})
+// 		})
+// })
 
 router.post('/profile/create', (req, res) => {
 	const nick = req.body.nickname
@@ -165,11 +165,7 @@ router.post('/profile/create', (req, res) => {
 		})
 })
 
-/*************************
-*           POS          *
-**************************/
-
-router.post('/pos/allProfiles', (req, res) => {
+router.post('/profile/allProfiles', (req, res) => {
 	Profile.find({ online: true }, { real_position: 1, fake_position: 1, use_fake_position: 1, _id: 0 })
 		.then(profiles => {
 			res.json({
@@ -185,6 +181,10 @@ router.post('/pos/allProfiles', (req, res) => {
 		})
 })
 
+/*************************
+*           POS          *
+**************************/
+
 router.post('/pos/profiles', (req, res) => {
 	const query = req.body
 	const search_x = query.x
@@ -192,6 +192,7 @@ router.post('/pos/profiles', (req, res) => {
 
 	var res_profile = []
 
+	// TODO invece di calcolare io il +- 10 della pos, fallo calcolare nel find, con i $gt etc.
 	Profile.find({ use_fake_position: true, online: true })
 		.then(profiles => {
 			res_profile = profiles.filter(function (item) { return (item.fake_position.x > search_x - 10 && item.fake_position.x < search_x + 10) && (item.fake_position.y > search_y - 10 && item.fake_position.y < search_y + 10); })
@@ -232,6 +233,29 @@ router.post('/pos/groups', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				groups: res_groups,
+				query: query,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+
+router.post('/pos/questions', (req, res) => {
+	const query = req.body
+	const search_x = query.x
+	const search_y = query.y
+
+	Question.find()
+		.then(question => {
+			let res_question = question.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
+			res.json({
+				confirmation: 'success',
+				questions: res_question,
 				query: query,
 			})
 		})
@@ -493,5 +517,132 @@ router.post('/chat/write', (req, res) => {
 			})
 		})
 })
+
+/*************************
+*        QUESTION        *
+**************************/
+
+router.get('/questions', (req, res) => {
+	Question.find()
+		.then(questions => {
+			res.json({
+				confirmation: 'success',
+				data: questions,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/question/create', (req, res) => {
+	Question.create(req.body)
+		.then(question => {
+			res.json({
+				confirmation: 'success',
+				data: question,
+				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.get('/question/allQuestions', (req, res) => {
+	Question.find({}, { pos: 1, _id: 0 })
+		.then(questions => {
+			res.json({
+				confirmation: 'success',
+				questions: questions,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/question/getQuestion', (req, res) => {
+	const title = req.body.title
+	const pos = req.body.pos
+	Question.findOne({ title: title, pos: pos })
+		.then(question => {
+			res.json({
+				confirmation: 'success',
+				question: question,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+/*************************
+*         ANSWERS        *
+**************************/
+
+router.post('/answer/group', (req, res) => {
+	const title = req.body.title
+	const pos = req.body.pos
+	Answer.find({ title: title, pos: pos }).sort({ level: 'desc', vote: 'desc', time: 'asc' })
+		.then(answers => {
+			res.json({
+				confirmation: 'success',
+				answers: answers,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/answer/create', (req, res) => {
+	Answer.create(req.body)
+		.then(answer => {
+			res.json({
+				confirmation: 'success',
+				data: answer,
+				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.get('/answers', (req, res) => {
+	Answer.find()
+		.then(answers => {
+			res.json({
+				confirmation: 'success',
+				answers: answers,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 
 module.exports = router
