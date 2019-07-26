@@ -13,6 +13,7 @@ const Question = new mongoose.Schema({
     urls: { type: [String], default: [] },
     hashtags: { type: [String], default: [] },
     vote: { type: Number, default: 0 }
+    // views
 })
 
 module.exports = mongoose.model('Question', Question)

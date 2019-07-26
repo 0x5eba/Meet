@@ -247,19 +247,50 @@
             console.log(answers)
             rootDiv.innerHTML = ""
             var queue = [];
+            var stack = [];
+            var dict = {}
             // questo loop mi serve solo per gli elementi di livello 0
             answers.forEach(element => {
-                queue.push(element["_id"])
+                queue.push(element)
+                stack.push(element)
+                if(element["level"] != 0){
+                    break
+                }
+                dict[element["_id"]] = 0
+                
                 // devo cercare il primo elemento con livello+1 e che abbia come parent l'id di questo element
                 while (true) {
-                    let idElement = queue.shift()
+                    let Element;
+                    if(queue.length == 0){
+                        if(stack.length == 0){ // done
+                            break
+                        }
+                        Element = stack[stack.length-1]
+                    } else {
+                        Element = queue.shift()
+                    }
+                    
+                    let idElement = Element["_id"]
+                    let ElementLevel = Element["level"]
+                    let find = false
+
                     answers.forEach(findUpLevel => {
-                        if(findUpLevel["parent"] == idElement && findUpLevel["level"] == treeLevel+1){
+                        if(findUpLevel["_id"] in dict){
+                            continue
+                        }
+                        if(findUpLevel["parent"] == idElement && findUpLevel["level"] == ElementLevel+1){
                             // crea un div, e mettilo sotto al parent, e crea un input sotto (che poi deve essere tolto se ci sono altri elementi)
-                            queue.push(findUpLevel["_id"]) // forse c'e' un problema con la priority, perche' dovrebbe essere il primo ad entrare ad essere servito
-                            // ma forse no
+                            queue.push(findUpLevel)
+                            stack.push(findUpLevel)
+                            dict[findUpLevel] = 0
+                            find = true
+                            break
                         }
                     })
+                    // in questo caso dovrei togliere definitivamente l'elemento dalla queue
+                    if(find == false){
+                        stack.pop()
+                    }
                 }
             });
         }
