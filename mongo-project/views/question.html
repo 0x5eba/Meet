@@ -82,7 +82,8 @@
             </div>
             </br>
 
-            <div class="row" id='root'>
+            <!-- class="row" -->
+            <div id='root'>
                 <!-- <div class="col" style="margin: 50px;">
                 </div> -->
             </div>
@@ -199,7 +200,7 @@
                 response = JSON.parse(Http2.responseText)
                 if (response["confirmation"] == "success") {
                     answers = response["answers"]
-                    fillData()
+                    createDivAnswers()
                 } else {
                     console.log(response)
                 }
@@ -207,16 +208,31 @@
         }
     }
 
-    function fillData() {
+    function createDivAnswers() {
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["details"]
         document.getElementById("img_show").src = question["imgUrl"]
         document.getElementById("details_show").innerHTML = question["details"]
-        
-        
+
+
         let treeLevel = 0
         let rootDiv = document.getElementById("root")
-        if(answers.length == 0){
+        rootDiv.innerHTML = ""
+
+        let input = document.createElement("input");
+        input.setAttribute("type", "text")
+        input.setAttribute("level", 0)
+        input.setAttribute("idParent", "root")
+        input.addEventListener("keyup", function (event) {
+            if (event.keyCode === 13) {
+                createAnswer(this.getAttribute("level"), this.getAttribute("idParent"), this.value, this)
+            }
+        })
+        let br = document.createElement("br")
+        rootDiv.appendChild(input)
+        // rootDiv.appendChild(br)
+
+        if (answers.length > 0) {
 
             // <div class="col-lg-1" style="text-align: center;">
             //     <div class="row" style="margin: 0 auto;">
@@ -232,77 +248,119 @@
             //         </div>
             //         </div>
 
-            let input = document.createElement("input");
+            var queue = [];
+            var stack = [];
+            var dict = {}
+            // questo loop mi serve solo per gli elementi di livello 0
+            for (var i = 0; i < answers.length; i++) {
+                var element = answers[i]
+                queue.push(element)
+                stack.push(element)
+                if (element["level"] != 0) {
+                    break
+                }
+                dict[element["_id"]] = 0
+
+                createDiv(element)
+
+                // devo cercare il primo elemento con livello+1 e che abbia come parent l'id di questo element
+                while (true) {
+                    let Element;
+                    if (queue.length == 0) {
+                        // console.log("queue.length == 0")
+                        if (stack.length == 0) { // done
+                            break
+                        }
+                        Element = stack[stack.length - 1]
+                    } else {
+                        // console.log("queue shift")
+                        Element = queue.shift()
+                    }
+
+                    // console.log(Element)
+                    // console.log("queue ", queue)
+                    // console.log("stack ", stack)
+
+                    let idElement = Element["_id"]
+                    let ElementLevel = Element["level"]
+                    let find = false
+
+                    for (var j = 0; j < answers.length; j++) {
+                        var findUpLevel = answers[j]
+                        if (findUpLevel["_id"] in dict) {
+                            continue
+                        }
+                        if (findUpLevel["parent"] == idElement && findUpLevel["level"] == ElementLevel + 1) {
+
+                            queue.push(findUpLevel)
+                            stack.push(findUpLevel)
+                            dict[findUpLevel["_id"]] = 0
+                            find = true
+
+                            // console.log("findUpLevel ", findUpLevel)
+
+                            // crea un div, e mettilo sotto al parent, e ci aggiungo un bottone replay
+                            createDiv(findUpLevel)
+
+                            break
+                        }
+                    }
+                    // tolgo definitivamente l'elemento
+                    if (find == false) {
+                        stack.pop()
+                    }
+                }
+            }
+        }
+    }
+
+    function createDiv(element) {
+        let rootDiv = document.getElementById(element['parent'])
+        let div = document.createElement("div")
+        div.setAttribute("id", element["_id"])
+        let p = document.createElement("p")
+        p.innerHTML = element["data"]
+        let button = document.createElement("button")
+        button.innerHTML = "replay"
+        button.setAttribute("parentDiv", element["_id"])
+        button.setAttribute("parentLevel", element["level"])
+        button.onclick = function () { 
+            let parenId = this.getAttribute("parentDiv")
+            let parentDiv = document.getElementById(parenId)
+            let parentLevel = parseInt(this.getAttribute("parentLevel"), 10)
+            let input = document.createElement("input")
+
             input.setAttribute("type", "text")
-            input.setAttribute("level", 0)
-            input.setAttribute("idParent", "root")
+            input.setAttribute("level", parentLevel+1)
+            input.setAttribute("idParent", parenId)
             input.addEventListener("keyup", function (event) {
                 if (event.keyCode === 13) {
                     createAnswer(this.getAttribute("level"), this.getAttribute("idParent"), this.value, this)
                 }
             })
-            rootDiv.appendChild(input)
-            
-        } else {
-            console.log(answers)
-            rootDiv.innerHTML = ""
-            var queue = [];
-            var stack = [];
-            var dict = {}
-            // questo loop mi serve solo per gli elementi di livello 0
-            answers.forEach(element => {
-                queue.push(element)
-                stack.push(element)
-                if(element["level"] != 0){
-                    break
-                }
-                dict[element["_id"]] = 0
-                
-                // devo cercare il primo elemento con livello+1 e che abbia come parent l'id di questo element
-                while (true) {
-                    let Element;
-                    if(queue.length == 0){
-                        if(stack.length == 0){ // done
-                            break
-                        }
-                        Element = stack[stack.length-1]
-                    } else {
-                        Element = queue.shift()
-                    }
-                    
-                    let idElement = Element["_id"]
-                    let ElementLevel = Element["level"]
-                    let find = false
 
-                    answers.forEach(findUpLevel => {
-                        if(findUpLevel["_id"] in dict){
-                            continue
-                        }
-                        if(findUpLevel["parent"] == idElement && findUpLevel["level"] == ElementLevel+1){
-                            // crea un div, e mettilo sotto al parent, e crea un input sotto (che poi deve essere tolto se ci sono altri elementi)
-                            queue.push(findUpLevel)
-                            stack.push(findUpLevel)
-                            dict[findUpLevel] = 0
-                            find = true
-                            break
-                        }
-                    })
-                    // in questo caso dovrei togliere definitivamente l'elemento dalla queue
-                    if(find == false){
-                        stack.pop()
-                    }
-                }
-            });
+            parentDiv.insertBefore(input, parentDiv.childNodes[1])
+            this.style.visibility = 'hidden';
         }
+
+        let br = document.createElement("br")
+        let marginLeft = 10 * (element["level"] + 1)
+        div.style.marginLeft = marginLeft + "px"
+        div.style.marginTop = "20px"
+        div.appendChild(p)
+        div.appendChild(button)
+        div.appendChild(br)
+        rootDiv.appendChild(div)
     }
 
-    function createAnswer(level, idParent, data, input){
+
+    function createAnswer(level, idParent, data, input) {
         let params = JSON.stringify({
             title: title,
             data: data,
             pos: { x: x, y: y },
             time: Date.now(),
-            level: level, 
+            level: level,
             vote: 0,
             parent: idParent,
         })
@@ -314,16 +372,16 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    console.log(response)
                     input.setAttribute("myId", response["data"]["_id"])
                 } else {
                     console.log(response)
                 }
             }
         }
+        getQuestionAndAnswers()
     }
 
-    function addImageVote(){
+    function addImageVote() {
         return '<div class="row" style="margin: 0 auto;">< a href = "javascript:console.log(1);" ><img src="Upvote.png" width="20" height="20"></a></div ><div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div><div class="row" style="margin: 0 auto;"><a href="javascript:console.log(1);"><img src="Downvote.png" width="20" height="20"></a></div>'
     }
 

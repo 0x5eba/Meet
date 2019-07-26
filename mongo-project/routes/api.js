@@ -596,7 +596,7 @@ router.post('/question/getQuestion', (req, res) => {
 router.post('/answer/group', (req, res) => {
 	const title = req.body.title
 	const pos = req.body.pos
-	Answer.find({ title: title, pos: pos }).sort({ level: 'desc', vote: 'desc', time: 'asc' })
+	Answer.find({ title: title, pos: pos }).sort({ level: 'asc', vote: 'desc', time: 'asc' })
 		.then(answers => {
 			res.json({
 				confirmation: 'success',
