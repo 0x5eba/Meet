@@ -173,7 +173,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     let profile = response["profile"]
                     document.getElementById("nickname").innerHTML = profile["nickname"]

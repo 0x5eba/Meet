@@ -27,6 +27,9 @@
     </div>
 
     <div id='showGroup' style="display:none;">
+        <div class="row">
+            <button onclick="saveGroup();">Save</button>
+        </div>
         <main>
             <header>
                 <a href="javascript:void(0)" class="user-count" id="user-count" onclick="updatePeopleOnline(); openNav();">0</a>
@@ -167,6 +170,7 @@
     var groupName = "";
     var nOnline = 0;
     var peopleOnline = [];
+    var idGroup = "";
 
     if (action == "create") {
         document.getElementById("createGroup").style.display = "block"
@@ -185,6 +189,7 @@
         loadMoreMessages(groupName)
         // getIdChat(groupName)
         getIdProfile()
+        getIdGroup(groupName)
 
         window.setInterval(function () {
             checkNewMessage()
@@ -209,7 +214,7 @@
                 Http.send(params);
                 Http.onreadystatechange = (e) => {
                     if (Http.readyState == 4 && Http.status == 200) {
-                        response = JSON.parse(Http.responseText)
+                        let response = JSON.parse(Http.responseText)
                         if (response["confirmation"] == "success") {
                             // Risolto il problema di dover inserire manualmente il messaggio nell'interfaccia
                             checkNewMessage()
@@ -224,6 +229,57 @@
         });
     }
 
+    function getIdGroup(groupName) {
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y },
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/getGroup', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    console.log("idGroup ", response)
+                    idGroup = response["group"]["_id"]
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function saveGroup(){
+        let params = JSON.stringify({
+            search: {
+                name: nick,
+            },
+            update: {
+                $addToSet: { savedGroup: { name: groupName, pos: {x: x, y:y} } }
+            },
+            extra: {
+                upsert: true, new: true
+            }
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/update/saved', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
     function getIdProfile() {
         let params = JSON.stringify({
             nickname: nick,
@@ -234,7 +290,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     idProfile = response["data"]["_id"]
                     iamOnline()
@@ -276,7 +332,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
 
                 } else {
@@ -302,7 +358,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
 
                 } else {
@@ -331,7 +387,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
 
                 if (response["confirmation"] == "success") {
                     if (response["messages"].length > 0) {
@@ -384,7 +440,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
 
                 if (response["confirmation"] == "success") {
                     if (response["messages"].length > 0) {
@@ -409,7 +465,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
 
                 if (response["confirmation"] == "success") {
                     let boxPos = document.getElementById("boxPos");
@@ -442,7 +498,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
 
                 if (response["confirmation"] == "success") {
                     document.getElementById("user-count").innerHTML = response["nOnline"][0]["nOnline"]
@@ -482,7 +538,7 @@
     //     Http.send(params);
     //     Http.onreadystatechange = (e) => {
     //         if (Http.readyState == 4 && Http.status == 200) {
-    //             response = JSON.parse(Http.responseText)
+    //             let response = JSON.parse(Http.responseText)
     //             if (response["confirmation"] == "success") {
     //                 idChat = response["data"][0]["_id"]
     //             } else {
@@ -513,7 +569,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     window.location.href = "http://localhost:3000"
                 } else {

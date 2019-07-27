@@ -74,7 +74,6 @@
             </div>
             </br>
 
-            <!-- class="row" -->
             <div id='root'>
             </div>
         </div>
@@ -116,7 +115,32 @@
     }
 
     function saveQuestion(){
-        // TODO 
+        let params = JSON.stringify({
+            search: {
+                name: nick,
+            },
+            update: {
+                $addToSet: { savedQuestion: { question: question["title"], pos : {x:x, y:y}} }
+            },
+            extra: {
+                upsert: true, new: true
+            }
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/update/saved', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+
+                } else {
+                    console.log(response)
+                }
+            }
+        }
     }
 
     function askQuestion() {
@@ -157,7 +181,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     window.location.href = "http://localhost:3000"
                 } else {
@@ -178,7 +202,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     question = response["question"]
                     createDivVoteForQuestion(question)
@@ -232,8 +256,6 @@
         let divUrls = document.getElementById("urls_show")
         divUrls.innerHTML = ""
         question["urls"].forEach(element => {
-            console.log(element)
-            console.log(validURL(element))
             if(validURL(element) == true){
                 let a = document.createElement("a")
                 let br = document.createElement("br")
@@ -342,18 +364,6 @@
         }
     }
 
-    // <div class="row" style="margin: 0 auto;">
-    // <a href="javascript:console.log(1);">
-    //     <img src="Upvote.png" width="20" height="20">
-    //             </a>
-    //         </div>
-    // <div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div>
-    // <div class="row" style="margin: 0 auto;">
-    //     <a href="javascript:console.log(1);">
-    //         <img src="Downvote.png" width="20" height="20">
-    //             </a>
-    //         </div>
-
     function createDivVoteForQuestion(question) {
         let divVoteQuestion = document.getElementById("divVoteQuestion")
         divVoteQuestion.innerHTML = ""
@@ -459,7 +469,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     getQuestionAndAnswers()
                 } else {
@@ -480,7 +490,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     getQuestionAndAnswers()
                 } else {
@@ -559,7 +569,7 @@
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
-                response = JSON.parse(Http.responseText)
+                let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     input.setAttribute("myId", response["data"]["_id"])
                     getQuestionAndAnswers()
