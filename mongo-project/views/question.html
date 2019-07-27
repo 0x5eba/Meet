@@ -56,18 +56,8 @@
     <div id='showQuestion' style="display:none;">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-1" style="text-align: center;">
-                    <div class="row" style="margin: 0 auto;">
-                        <a href="javascript:console.log(1);">
-                            <img src="Upvote.png" width="20" height="20">
-                        </a>
-                    </div>
-                    <div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div>
-                    <div class="row" style="margin: 0 auto;">
-                        <a href="javascript:console.log(1);">
-                            <img src="Downvote.png" width="20" height="20">
-                        </a>
-                    </div>
+                <div class="col-lg-1" id="divVoteQuestion" style="text-align: center;">
+                    
                 </div>
                 <div class="col-lg-11">
                     <div class="row" id="title_show"></div></br>
@@ -76,10 +66,10 @@
                         <img id="img_show" width="400" height="400"></br>
                     </div>
                     <div class="row">
-                        <button onclick="">Save</button>
+                        <button onclick="saveQuestion();">Save</button>
                     </div>
-                    <div class="row" id='hashtags_show'></div>
-                    <div class="row" id='urls_show'></div>
+                    <div id='hashtags_show'></div>
+                    <div id='urls_show'></div>
                 </div>
             </div>
             </br>
@@ -94,9 +84,9 @@
 </html>
 
 <style>
-    .padding-0 {
-        padding-right: 0;
-        padding-left: 0;
+    #title_show {
+        font-weight: bold;
+        font-size: large;
     }
 </style>
 
@@ -123,6 +113,10 @@
         title = currentUrl.searchParams.get("title");
 
         getQuestionAndAnswers()
+    }
+
+    function saveQuestion(){
+        // TODO 
     }
 
     function askQuestion() {
@@ -187,6 +181,7 @@
                 response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     question = response["question"]
+                    createDivVoteForQuestion(question)
                 } else {
                     console.log(response)
                 }
@@ -215,15 +210,52 @@
         }
     }
 
+    function validURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+        return !!pattern.test(str);
+    }
+
     function createDivAnswers() {
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["details"]
-        if (question["imgUrl"] != "") {
+        if (question["imgUrl"] != "" && validURL(question["imgUrl"]) == true) {
             document.getElementById("img_show").src = question["imgUrl"]
         } else {
             document.getElementById("img_show").style.display = 'none'
         }
         document.getElementById("details_show").innerHTML = question["details"]
+        let divUrls = document.getElementById("urls_show")
+        divUrls.innerHTML = ""
+        question["urls"].forEach(element => {
+            console.log(element)
+            console.log(validURL(element))
+            if(validURL(element) == true){
+                let a = document.createElement("a")
+                let br = document.createElement("br")
+                a.href = element
+                a.innerHTML = element
+                
+                divUrls.appendChild(a)
+                divUrls.appendChild(br)
+            }
+        })
+        let divHashtags = document.getElementById("hashtags_show")
+        divHashtags.innerHTML = ""
+        question["hashtags"].forEach(element => {
+            if (/\s/.test(element) == false) {
+                let a = document.createElement("a")
+                let br = document.createElement("br")
+                a.href = element 
+                a.innerHTML = element
+                divHashtags.appendChild(br)
+                divHashtags.appendChild(a)
+            }
+        })
 
 
         let treeLevel = 0
@@ -310,6 +342,64 @@
         }
     }
 
+    // <div class="row" style="margin: 0 auto;">
+    // <a href="javascript:console.log(1);">
+    //     <img src="Upvote.png" width="20" height="20">
+    //             </a>
+    //         </div>
+    // <div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div>
+    // <div class="row" style="margin: 0 auto;">
+    //     <a href="javascript:console.log(1);">
+    //         <img src="Downvote.png" width="20" height="20">
+    //             </a>
+    //         </div>
+
+    function createDivVoteForQuestion(question) {
+        let divVoteQuestion = document.getElementById("divVoteQuestion")
+        divVoteQuestion.innerHTML = ""
+
+        let voteUp = document.createElement("div")
+        voteUp.setAttribute("class", "row")
+        voteUp.style.margin = "0 auto"
+        let aUp = document.createElement("a")
+        aUp.setAttribute("element", JSON.stringify(question))
+        aUp.addEventListener("click", function (event) {
+            let el = JSON.parse(this.getAttribute("element"))
+            updateVoteQuestion(el, 1)
+        })
+        aUp.href = "javascript:"
+        let imgUp = document.createElement("img")
+        imgUp.src = "Upvote.png"
+        imgUp.width = "20"
+        imgUp.height = "20"
+        aUp.appendChild(imgUp)
+        voteUp.appendChild(aUp)
+
+        let vote = document.createElement("div")
+        vote.innerHTML = question["vote"]
+
+        let voteDown = document.createElement("div")
+        voteDown.setAttribute("class", "row")
+        voteDown.style.margin = "0 auto"
+        let aDown = document.createElement("a")
+        aDown.setAttribute("element", JSON.stringify(question))
+        aDown.addEventListener("click", function (event) {
+            let el = JSON.parse(this.getAttribute("element"))
+            updateVoteQuestion(el, -1)
+        })
+        aDown.href = "javascript:"
+        let imgDown = document.createElement("img")
+        imgDown.src = "Downvote.png"
+        imgDown.width = "20"
+        imgDown.height = "20"
+        aDown.appendChild(imgDown)
+        voteDown.appendChild(aDown)
+
+        divVoteQuestion.appendChild(voteUp)
+        divVoteQuestion.appendChild(vote)
+        divVoteQuestion.appendChild(voteDown)
+    }
+
     function addVoteToDiv(voteElement, element) {
         let voteDiv = document.createElement("div")
         voteDiv.setAttribute("class", "col-xs-1")
@@ -321,7 +411,7 @@
         aUp.setAttribute("element", JSON.stringify(element))
         aUp.addEventListener("click", function (event) {
             let el = JSON.parse(this.getAttribute("element"))
-            updateVote(el, 1)
+            updateVoteAnswer(el, 1)
         })
         aUp.href = "javascript:"
         let imgUp = document.createElement("img")
@@ -341,7 +431,7 @@
         aDown.setAttribute("element", JSON.stringify(element))
         aDown.addEventListener("click", function (event) {
             let el = JSON.parse(this.getAttribute("element"))
-            updateVote(el, -1)
+            updateVoteAnswer(el, -1)
         })
         aDown.href = "javascript:"
         let imgDown = document.createElement("img")
@@ -358,7 +448,7 @@
         return voteDiv
     }
 
-    function updateVote(el, vote) {
+    function updateVoteAnswer(el, vote) {
         let params = JSON.stringify({
             search: el,
             update: { $inc: { vote: vote } },
@@ -371,7 +461,28 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
+                    getQuestionAndAnswers()
+                } else {
                     console.log(response)
+                }
+            }
+        }
+    }
+
+    function updateVoteQuestion(el, vote){
+        let params = JSON.stringify({
+            search: el,
+            update: { $inc: { vote: vote } },
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'question/updateVote', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    getQuestionAndAnswers()
                 } else {
                     console.log(response)
                 }
@@ -451,12 +562,12 @@
                 response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     input.setAttribute("myId", response["data"]["_id"])
+                    getQuestionAndAnswers()
                 } else {
                     console.log(response)
                 }
             }
         }
-        getQuestionAndAnswers()
     }
 
 </script>

@@ -589,6 +589,26 @@ router.post('/question/getQuestion', (req, res) => {
 		})
 })
 
+router.post('/question/updateVote', (req, res) => {
+	const query = req.body
+	const search = query.search
+	const update = query.update
+	Question.updateOne(search, update)
+		.then(question => {
+			res.json({
+				confirmation: 'success',
+				data: question,
+				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 /*************************
 *         ANSWERS        *
 **************************/
@@ -646,7 +666,6 @@ router.get('/answers', (req, res) => {
 
 router.post('/answer/updateVote', (req, res) => {
 	const query = req.body
-	// {"search": {"online": "false"}, "update": {"$set":{"online": "true"}}, "extra":{"multi":"true"}}
 	const search = query.search
 	const update = query.update
 	Answer.updateOne(search, update)

@@ -12,6 +12,7 @@ const Answer = new mongoose.Schema({
     vote: { type: Number, default: 0 },
     data: { type: String, default: "" },
     parent: { type: String, default: "" },
+    whoVoted: { type: [String], default: [] },
 })
 
 module.exports = mongoose.model('Answer', Answer)
