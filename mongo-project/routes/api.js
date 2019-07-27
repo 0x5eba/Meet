@@ -644,5 +644,26 @@ router.get('/answers', (req, res) => {
 		})
 })
 
+router.post('/answer/updateVote', (req, res) => {
+	const query = req.body
+	// {"search": {"online": "false"}, "update": {"$set":{"online": "true"}}, "extra":{"multi":"true"}}
+	const search = query.search
+	const update = query.update
+	Answer.updateOne(search, update)
+		.then(answer => {
+			res.json({
+				confirmation: 'success',
+				data: answer,
+				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 
 module.exports = router

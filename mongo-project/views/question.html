@@ -75,7 +75,9 @@
                     <div class="row">
                         <img id="img_show" width="400" height="400"></br>
                     </div>
-                    <button onclick="">Save</button>
+                    <div class="row">
+                        <button onclick="">Save</button>
+                    </div>
                     <div class="row" id='hashtags_show'></div>
                     <div class="row" id='urls_show'></div>
                 </div>
@@ -84,14 +86,19 @@
 
             <!-- class="row" -->
             <div id='root'>
-                <!-- <div class="col" style="margin: 50px;">
-                </div> -->
             </div>
         </div>
     </div>
 </body>
 
 </html>
+
+<style>
+    .padding-0 {
+        padding-right: 0;
+        padding-left: 0;
+    }
+</style>
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script>
@@ -211,7 +218,11 @@
     function createDivAnswers() {
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["details"]
-        document.getElementById("img_show").src = question["imgUrl"]
+        if (question["imgUrl"] != "") {
+            document.getElementById("img_show").src = question["imgUrl"]
+        } else {
+            document.getElementById("img_show").style.display = 'none'
+        }
         document.getElementById("details_show").innerHTML = question["details"]
 
 
@@ -233,20 +244,6 @@
         // rootDiv.appendChild(br)
 
         if (answers.length > 0) {
-
-            // <div class="col-lg-1" style="text-align: center;">
-            //     <div class="row" style="margin: 0 auto;">
-            //         <a href="javascript:console.log(1);">
-            //             <img src="Upvote.png" width="20" height="20">
-            //             </a>
-            //         </div>
-            //         <div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div>
-            //         <div class="row" style="margin: 0 auto;">
-            //             <a href="javascript:console.log(1);">
-            //                 <img src="Downvote.png" width="20" height="20">
-            //             </a>
-            //         </div>
-            //         </div>
 
             var queue = [];
             var stack = [];
@@ -296,7 +293,6 @@
                             stack.push(findUpLevel)
                             dict[findUpLevel["_id"]] = 0
                             find = true
-
                             // console.log("findUpLevel ", findUpLevel)
 
                             // crea un div, e mettilo sotto al parent, e ci aggiungo un bottone replay
@@ -314,42 +310,124 @@
         }
     }
 
+    function addVoteToDiv(voteElement, element) {
+        let voteDiv = document.createElement("div")
+        voteDiv.setAttribute("class", "col-xs-1")
+
+        let voteUp = document.createElement("div")
+        voteUp.setAttribute("class", "row")
+        voteUp.style.margin = "0 auto"
+        let aUp = document.createElement("a")
+        aUp.setAttribute("element", JSON.stringify(element))
+        aUp.addEventListener("click", function (event) {
+            let el = JSON.parse(this.getAttribute("element"))
+            updateVote(el, 1)
+        })
+        aUp.href = "javascript:"
+        let imgUp = document.createElement("img")
+        imgUp.src = "Upvote.png"
+        imgUp.width = "20"
+        imgUp.height = "20"
+        aUp.appendChild(imgUp)
+        voteUp.appendChild(aUp)
+
+        let vote = document.createElement("div")
+        vote.innerHTML = voteElement
+
+        let voteDown = document.createElement("div")
+        voteDown.setAttribute("class", "row")
+        voteDown.style.margin = "0 auto"
+        let aDown = document.createElement("a")
+        aDown.setAttribute("element", JSON.stringify(element))
+        aDown.addEventListener("click", function (event) {
+            let el = JSON.parse(this.getAttribute("element"))
+            updateVote(el, -1)
+        })
+        aDown.href = "javascript:"
+        let imgDown = document.createElement("img")
+        imgDown.src = "Downvote.png"
+        imgDown.width = "20"
+        imgDown.height = "20"
+        aDown.appendChild(imgDown)
+        voteDown.appendChild(aDown)
+
+        voteDiv.appendChild(voteUp)
+        voteDiv.appendChild(vote)
+        voteDiv.appendChild(voteDown)
+
+        return voteDiv
+    }
+
+    function updateVote(el, vote) {
+        let params = JSON.stringify({
+            search: el,
+            update: { $inc: { vote: vote } },
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'answer/updateVote', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    console.log(response)
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
     function createDiv(element) {
-        let rootDiv = document.getElementById(element['parent'])
+        // let rootDiv = document.getElementById(element['parent'])
+        let rootDiv = document.getElementById("root")
         let div = document.createElement("div")
+        div.setAttribute("class", "row")
         div.setAttribute("id", element["_id"])
+
+        let voteDiv = addVoteToDiv(element["vote"], element)
+
+        let textDiv = document.createElement("div")
+        textDiv.setAttribute("class", "col-xs-11")
+
         let p = document.createElement("p")
         p.innerHTML = element["data"]
         let button = document.createElement("button")
         button.innerHTML = "replay"
         button.setAttribute("parentDiv", element["_id"])
         button.setAttribute("parentLevel", element["level"])
-        button.onclick = function () { 
+        button.onclick = function () {
             let parenId = this.getAttribute("parentDiv")
             let parentDiv = document.getElementById(parenId)
             let parentLevel = parseInt(this.getAttribute("parentLevel"), 10)
             let input = document.createElement("input")
 
             input.setAttribute("type", "text")
-            input.setAttribute("level", parentLevel+1)
+            input.setAttribute("level", parentLevel + 1)
             input.setAttribute("idParent", parenId)
+            input.style.marginLeft = "8%"
             input.addEventListener("keyup", function (event) {
                 if (event.keyCode === 13) {
                     createAnswer(this.getAttribute("level"), this.getAttribute("idParent"), this.value, this)
                 }
             })
 
-            parentDiv.insertBefore(input, parentDiv.childNodes[1])
+            parentDiv.insertBefore(input, parentDiv.childNodes[2])
             this.style.visibility = 'hidden';
         }
 
         let br = document.createElement("br")
-        let marginLeft = 10 * (element["level"] + 1)
+        let marginLeft = 60 * (element["level"] + 1)
         div.style.marginLeft = marginLeft + "px"
         div.style.marginTop = "20px"
-        div.appendChild(p)
-        div.appendChild(button)
+        textDiv.appendChild(p)
+        textDiv.appendChild(button)
+
+        div.appendChild(voteDiv)
+        div.appendChild(textDiv)
         div.appendChild(br)
+
         rootDiv.appendChild(div)
     }
 
@@ -381,33 +459,4 @@
         getQuestionAndAnswers()
     }
 
-    function addImageVote() {
-        return '<div class="row" style="margin: 0 auto;">< a href = "javascript:console.log(1);" ><img src="Upvote.png" width="20" height="20"></a></div ><div class="row" id="vote" style="margin: 0 auto; text-align: center;">0</div><div class="row" style="margin: 0 auto;"><a href="javascript:console.log(1);"><img src="Downvote.png" width="20" height="20"></a></div>'
-    }
-
-    /*
-
-    Fai un albero, con collegamenti parent->childs
-    In cui se root ha 4 rispose, creo una riga nel db in cui ha una lista di risposte [risposa1, risposta2, ...]
-    Ad ogni risposta, cerco se esiste come campo parent di altre righe del db
-
-    dic = dict()
-    for relation in relations:
-        val,pval,left = relation
-        if val not in dic:
-            node = Node(val)
-            dic[val] = node
-        if pval is None:
-            root = node
-            continue
-        if pval not in dic:
-            parent = Node(pval)
-            dic[val] = parent
-        if left:
-            parent.left = node
-        else:
-            parent.right = node
-        return root
-
-    */
 </script>
