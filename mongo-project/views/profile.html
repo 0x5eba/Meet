@@ -162,6 +162,19 @@
         console.log("No id");
     }
 
+    function timeConverter(UNIX_timestamp) {
+        var a = new Date(UNIX_timestamp);
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+        return time;
+    }
+
     function getProfile() {
         let params = JSON.stringify({
             id: id,
@@ -182,7 +195,7 @@
                     if(profile["online"] == true){
                         document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
                     } else {
-                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + profile["lastSeen"]
+                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + timeConverter(profile["lastSeen"])
                     }
                     if (profile["position"] == true) {
                         document.getElementById("position").innerHTML = "<span>Last position</span>" + "(" + profile["fake_position"].x + "," + profile["fake_position"].y + ")"

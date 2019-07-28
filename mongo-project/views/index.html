@@ -49,9 +49,7 @@
     <input type="checkbox" name="groups" value="groups" checked> Groups<br>
     <input type="checkbox" name="questions" value="questions" checked> Questions<br><br>
 
-    <div class="row">
-        <button onclick="getSaved();">Save</button>
-    </div>
+    <button onclick="getSaved();">Saved</button>
 
     </br>
     <div id="MyContainer" width="300" height="300" style="width:500;height:500;">
@@ -458,11 +456,7 @@
                         let href = "http://localhost:3000/question" + '?action=show&title=' + element['title'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
                         a.setAttribute('href', href);
                         a.setAttribute('id', 'questions')
-                        let text = element['title']
-                        if(element['title'].length > 10){
-                            element['title'].substring(0, 10) + "..."
-                        }
-                        let textnode = document.createTextNode(text);
+                        let textnode = document.createTextNode(element['title']);
                         a.appendChild(textnode);
                         boxPos.appendChild(a)
                     });
@@ -474,6 +468,47 @@
             closeNav()
         }
     }
+
+    $(document).bind("mouseleave", function (e) {
+        if (e.pageY - $(window).scrollTop() <= 1) {
+            iamStatus(false)
+        }
+    });
+    $(document).bind("mouseenter", function (e) {
+        if (e.pageY - $(window).scrollTop() <= 1) {
+            iamStatus(true)
+        }
+    });
+    iamStatus(true)
+
+    function iamStatus(status) {
+        let nick = document.getElementById("nickname").value
+        let params = JSON.stringify({
+            search: {
+                nickname: nick
+            },
+            update: {
+                online: status,
+                lastSeen: Date.now()
+            }
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/update/status', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    console.log(response)
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+    
 
     function getSaved() {
         let nick = document.getElementById("nickname").value

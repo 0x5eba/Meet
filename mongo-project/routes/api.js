@@ -2,7 +2,8 @@
 const turbo = require('turbo360')({ site_id: process.env.TURBO_APP_ID })
 const vertex = require('vertex360')({ site_id: process.env.TURBO_APP_ID })
 const router = vertex.router()
-require('mongoose')
+const mongoose = require('mongoose')
+mongoose.set('useFindAndModify', false);
 
 const Profile = require("../models/Profile")
 const Group = require("../models/Group")
@@ -205,6 +206,27 @@ router.post('/profile/update/saved', (req, res) => {
 	const extra = query.extra
 
 	Profile.updateOne(search, update, extra)
+		.then(profile => {
+			res.json({
+				confirmation: 'success',
+				data: profile,
+				query: query
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/profile/update/status', (req, res) => {
+	const query = req.body
+	const search = query.search
+	const update = query.update
+
+	Profile.updateOne(search, update)
 		.then(profile => {
 			res.json({
 				confirmation: 'success',
@@ -650,6 +672,47 @@ router.post('/question/updateVote', (req, res) => {
 	const query = req.body
 	const search = query.search
 	const update = query.update
+	const nick = query.nick
+
+	Question.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } }, { new: true })
+		.then(question => {
+			if (question["nModified"] == 1) {
+				Question.updateOne({ _id: search }, update)
+					.then(question => {
+						res.json({
+							confirmation: 'success',
+							data: question,
+							query: req.body
+						})
+					})
+					.catch(err => {
+						res.json({
+							confirmation: 'fail',
+							message: err.message
+						})
+					})
+
+			} else {
+				res.json({
+					confirmation: 'fail',
+					message: "You already voted",
+					data: question,
+				})
+			}
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/question/updateView', (req, res) => {
+	const query = req.body
+	const search = query.search
+	const update = query.update
+
 	Question.updateOne(search, update)
 		.then(question => {
 			res.json({
@@ -725,13 +788,32 @@ router.post('/answer/updateVote', (req, res) => {
 	const query = req.body
 	const search = query.search
 	const update = query.update
-	Answer.updateOne(search, update)
+	const nick = query.nick
+
+	Answer.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } }, { new: true })
 		.then(answer => {
-			res.json({
-				confirmation: 'success',
-				data: answer,
-				query: req.body
-			})
+			if (answer["nModified"] == 1) {
+				Answer.updateOne({ _id: search }, update)
+					.then(answer => {
+						res.json({
+							confirmation: 'success',
+							data: answer,
+							query: req.body
+						})
+					})
+					.catch(err => {
+						res.json({
+							confirmation: 'fail',
+							message: err.message
+						})
+					})
+			} else {
+				res.json({
+					confirmation: 'fail',
+					message: "You already voted",
+					data: answer,
+				})
+			}
 		})
 		.catch(err => {
 			res.json({

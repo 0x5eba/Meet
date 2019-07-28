@@ -14,7 +14,7 @@ const Question = new mongoose.Schema({
     hashtags: { type: [String], default: [] },
     vote: { type: Number, default: 0 },
     whoVoted: { type: [String], default: [] },
-    views: { type: [String], default: [] },
+    views: { type: Number, default: 0 },
 })
 
 module.exports = mongoose.model('Question', Question)

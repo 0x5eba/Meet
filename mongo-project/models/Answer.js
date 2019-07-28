@@ -9,9 +9,9 @@ const Answer = new mongoose.Schema({
 
     time: { type: Number, default: 0 },
     level: { type: Number, default: 0 },
-    vote: { type: Number, default: 0 },
     data: { type: String, default: "" },
     parent: { type: String, default: "" },
+    vote: { type: Number, default: 0 },
     whoVoted: { type: [String], default: [] },
 })
 
