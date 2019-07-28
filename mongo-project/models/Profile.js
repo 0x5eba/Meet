@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 require('mongoose-double')(mongoose);
+mongoose.set('useCreateIndex', true);
 
 var SchemaTypes = mongoose.Schema.Types;
 
@@ -18,6 +19,12 @@ const Profile = new mongoose.Schema({
 
     savedGroup: { type: [{ _id: false, name: String, pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } } }], default: [] },
     savedQuestion: { type: [{ _id: false, question: String, pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } } }], default: [] },
+})
+
+Profile.index({
+    nickname: 'text',
+    name: 'text',
+    surname: 'text',
 })
 
 module.exports = mongoose.model('Profile', Profile)

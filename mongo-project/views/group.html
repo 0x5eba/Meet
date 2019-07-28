@@ -169,6 +169,7 @@
     var nOnline = 0;
     var peopleOnline = [];
     var idGroup = "";
+    var offline = false
 
     if (action == "create") {
         document.getElementById("createGroup").style.display = "block"
@@ -190,8 +191,10 @@
         getIdGroup(groupName)
 
         window.setInterval(function () {
-            checkNewMessage()
-            updateNOnline()
+            if(offline == false){
+                checkNewMessage()
+                updateNOnline()
+            }
         }, 2000);
         
 
@@ -299,17 +302,19 @@
         }
     }
 
-    $(document).bind("mouseleave", function (e) {
-        if (e.pageY - $(window).scrollTop() <= 1) {
-            imOffline()
+    $(document).mouseleave(function (e) {
+        if (offline == false) {
+            iamOffline()
+            offline = true
         }
     });
-    $(document).bind("mouseenter", function (e) {
-        if (e.pageY - $(window).scrollTop() <= 1) {
+    // mouseenter
+    $(document).click(function (e) {
+        if (offline == true) {
             iamOnline()
+            offline = false
         }
     });
-
     function iamOnline() {
         let params = JSON.stringify({
             search: {
@@ -339,7 +344,7 @@
             }
         }
     }
-    function imOffline() {
+    function iamOffline() {
         let params = JSON.stringify({
             search: {
                 name: groupName,
@@ -524,28 +529,6 @@
         }
     }
 
-    // function getIdChat(nameGroup){
-    //     let params = JSON.stringify({
-    //         name: nameGroup,
-    //         pos: { x: x, y: y },
-    //     })
-
-    //     const Http = new XMLHttpRequest();
-    //     Http.open("POST", url + 'group/id', true);
-    //     Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-    //     Http.send(params);
-    //     Http.onreadystatechange = (e) => {
-    //         if (Http.readyState == 4 && Http.status == 200) {
-    //             let response = JSON.parse(Http.responseText)
-    //             if (response["confirmation"] == "success") {
-    //                 idChat = response["data"][0]["_id"]
-    //             } else {
-    //                 console.log(response)
-    //             }
-    //         }
-    //     }
-    // }
-
 
     function createGroup() {
         var groupName = document.getElementById("name").value
@@ -553,8 +536,8 @@
             alert("Insert a group name")
             return
         }
-        if (groupName.length > 15 || !groupName.match(/^[0-9a-zA-Z]+$/)) {
-            alert("Only Alphanumerical and max 15 lenght")
+        if (groupName.length > 20 || !groupName.match(/^[0-9a-zA-Z ]+$/)) {
+            alert("Only Alphanumerical, no space and max 20 lenght")
             return
         }
         let params = JSON.stringify({

@@ -288,6 +288,28 @@ router.post('/pos/groups', (req, res) => {
 	const search_x = query.x
 	const search_y = query.y
 
+	// { $project: { nOnline: { $size: '$peopleOnline' } } }
+
+	// Group.aggregate([{
+	// 		$addFields: {
+	// 			nOnline: { $size: '$peopleOnline' }
+	// 		}
+	// 	},
+	// 	{ $sort: { nOnline: 'desc' } }
+	// ]).then(groups => {
+	// 		res.json({
+	// 			confirmation: 'success',
+	// 			groups: groups,
+	// 			query: query,
+	// 		})
+	// 	})
+	// 	.catch(err => {
+	// 		res.json({
+	// 			confirmation: 'fail',
+	// 			message: err.message
+	// 		})
+	// 	})
+
 	Group.find()
 		.then(groups => {
 			let res_groups = groups.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
@@ -311,7 +333,7 @@ router.post('/pos/questions', (req, res) => {
 	const search_x = query.x
 	const search_y = query.y
 
-	Question.find()
+	Question.find().sort({vote: 'desc', time: 'desc'})
 		.then(question => {
 			let res_question = question.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
 			res.json({
@@ -347,25 +369,6 @@ router.get('/groups', (req, res) => {
 			})
 		})
 })
-
-// router.post('/group/id', (req, res) => {
-// 	const name = req.body.name
-// 	const pos = req.body.pos
-
-// 	Group.find({ name: name, pos: pos }, {_id:1})
-// 		.then(groupId => {
-// 			res.json({
-// 				confirmation: 'success',
-// 				data: groupId,
-// 			})
-// 		})
-// 		.catch(err => {
-// 			res.json({
-// 				confirmation: 'fail',
-// 				message: err.message
-// 			})
-// 		})
-// })
 
 router.get('/group/allGroups', (req, res) => {
 	Group.find({}, { pos: 1, _id: 0 })
@@ -823,5 +826,69 @@ router.post('/answer/updateVote', (req, res) => {
 		})
 })
 
+/*************************
+*         SEARCH         *
+**************************/
+
+router.post('/search/question', (req, res) => {
+	const search = req.body.search
+	// .sort({ "score": { "$meta": "textScore" }, vote: 'desc', time: 'desc', views: 'desc'})
+	Question.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
+		"score": { "$meta": "textScore" }
+	})
+		.then(question => {
+			res.json({
+				confirmation: 'success',
+				question: question,
+				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/search/group', (req, res) => {
+	const search = req.body.search
+	Group.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
+		"score": { "$meta": "textScore" }
+	})
+		.then(group => {
+			res.json({
+				confirmation: 'success',
+				group: group,
+				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/search/profile', (req, res) => {
+	const search = req.body.search
+	Profile.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
+		"score": { "$meta": "textScore" }
+	})
+		.then(profile => {
+			res.json({
+				confirmation: 'success',
+				profile: profile,
+				query: req.body
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
 
 module.exports = router

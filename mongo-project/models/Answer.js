@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 require('mongoose-double')(mongoose);
+mongoose.set('useCreateIndex', true);
 
 var SchemaTypes = mongoose.Schema.Types;
 
@@ -14,5 +15,9 @@ const Answer = new mongoose.Schema({
     vote: { type: Number, default: 0 },
     whoVoted: { type: [String], default: [] },
 })
+
+// Answer.index({
+//     data: 'text',
+// })
 
 module.exports = mongoose.model('Answer', Answer)

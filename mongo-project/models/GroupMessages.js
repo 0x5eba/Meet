@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 require('mongoose-double')(mongoose);
+mongoose.set('useCreateIndex', true);
 
 var SchemaTypes = mongoose.Schema.Types;
 const GroupMessages = new mongoose.Schema({
@@ -10,5 +11,9 @@ const GroupMessages = new mongoose.Schema({
     time: { type: Number, default: 0 },
     message: { type: String, default: "" },
 })
+
+// GroupMessages.index({
+//     message: 'text',
+// })
 
 module.exports = mongoose.model('GroupMessages', GroupMessages)

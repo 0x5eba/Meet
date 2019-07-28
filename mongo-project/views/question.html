@@ -65,11 +65,10 @@
                     <div class="row">
                         <img id="img_show" width="400" height="400"></br>
                     </div>
-                    <div class="row">
-                        <button onclick="saveQuestion();">Save</button>
-                    </div>
+                    <button onclick="saveQuestion();">Save</button>
                     <div id='hashtags_show'></div>
                     <div id='urls_show'></div>
+                    <div id='creator'></div>
                 </div>
             </div>
             </br>
@@ -180,15 +179,21 @@
         let urls = document.getElementById("urls").value
         let hashtags = document.getElementById("hashtags").value
 
-        let urls_split_tmp = urls.split(",");
+        let urls_split_tmp = urls.split(" ");
         let urls_split = []
         urls_split_tmp.forEach(element => {
-            urls_split.push(element.replace(/^\s+|\s+$/g, ''))
+            let el = element.replace(/^\s+|\s+$/g, '')
+            if(el.length > 1){
+                urls_split.push()
+            }
         });
-        let hashtags_split_tmp = hashtags.split(",");
+        let hashtags_split_tmp = hashtags.split(" ");
         let hashtags_split = []
         hashtags_split_tmp.forEach(element => {
-            hashtags_split.push(element.replace(/^\s+|\s+$/g, ''))
+            let el = element.replace(/^\s+|\s+$/g, '')
+            if (el.length > 1) {
+                hashtags_split.push()
+            }
         });
 
         let params = JSON.stringify({
@@ -274,6 +279,8 @@
     function createDivAnswers() {
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["details"]
+        let creator = document.getElementById("creator")
+        creator.innerHTML = "Created by " + question['nickname']
         if (question["imgUrl"] != "" && validURL(question["imgUrl"]) == true) {
             document.getElementById("img_show").src = question["imgUrl"]
         } else {
