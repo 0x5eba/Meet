@@ -22,17 +22,11 @@ Question.index({
     title: 'text',
     details: 'text',
     hashtags: 'text',
-    vote: 1,
-    views: 1,
-    time: 1,
 }, {
     weights: {
-        title: 10,
-        pos: 10,
-        details: 7,
-        vote: 3,
-        time: 2,
-        views: 1,
+        title: 9,
+        details: 6,
+        hashtags: 3,
     },
 });
 

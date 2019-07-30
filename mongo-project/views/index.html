@@ -23,7 +23,6 @@
 </head>
 
 <body>
-    <!-- sidenav -->
     <div id="boxPos">
         <a href="javascript:void(0)" id="exit" class="closebtn" onclick="closeNav()">&times;</a>
     </div>
@@ -39,15 +38,15 @@
         </ul>
     </div>
 
-    Nickname: <input type="text" name="nickname" id="nickname" value="seba"></br>
-    <label for="fake">Use fake position: </label>
+    <!-- <label for="fake">Use fake position: </label>
     <input type="radio" name="fake" value="true" > Yes
-    <input type="radio" name="fake" value="false"checked> No </br>
+    <input type="radio" name="fake" value="false"checked> No </br> -->
 
-    <p>Select what you want to view</p>
-    <input type="checkbox" name="view[]" value="people" checked> People<br>
-    <input type="checkbox" name="view[]" value="groups" checked> Groups<br>
-    <input type="checkbox" name="view[]" value="questions" checked> Questions<br><br>
+    <p>Select what you want to view, and press reload</p>
+    <input type="checkbox" name="view[]" id="CBprofiles" value="CBprofiles"> Profiles<br>
+    <input type="checkbox" name="view[]" id="CBgroups" value="CBgroups"> Groups<br>
+    <input type="checkbox" name="view[]" id="CBquestions" value="CBquestions"> Questions<br><br>
+    <button onclick="reloadView();">Reload view</button></br></br>
 
     <button onclick="getSaved();">Bookmark</button></br></br>
     
@@ -196,6 +195,8 @@
     var realPos = {}
     var fakePos = {}
     var myPosInMap = {}
+    var currentUrl = new URL(window.location.href);
+    
 
     var coordsQuestionOrGroup = {}
     $('#canvas').on('contextmenu', function (e) {
@@ -218,7 +219,7 @@
         });
     }
     $("#items > li").click(function () {
-        let nick = document.getElementById("nickname").value
+        let nick = profileData['nickname']
         if ($(this).text() == "Create a group here") {
             window.location.href = "http://localhost:3000/group" + '?action=create&nickname=' + nick + "&x=" + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
@@ -247,15 +248,67 @@
         document.getElementById("boxPos").innerHTML = '<a id="exit" href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
         navOpen = false
     }
+    // window.addEventListener("click", function (event) {
+    //     if(navOpen == true){
+    //         closeNav()
+    //     }
+    // });
 
-    // function session(){
-    //     var checked = []
-    //     $("input[name='view[]']:checked").each(function () {
-    //         checked.push($(this).val());
-    //     })
-    //     // sessionStorage.setItem("view", JSON.stringify(checked));
-    // }
-    // session()
+    var CBview = {}
+    var profileData = {}
+
+    function reloadView() {
+        let chk_arr = document.getElementsByName("view[]")
+        for (let k = 0; k < chk_arr.length; k++) {
+            if (chk_arr[k].checked == false) {
+                CBview[chk_arr[k].value] = 0
+            } else {
+                CBview[chk_arr[k].value] = 1
+            }
+        }
+
+        sessionStorage.setItem("view", JSON.stringify(CBview))
+
+        window.location.href = currentUrl
+    }
+
+    function session(){
+        CBview = JSON.parse(sessionStorage.getItem("view"))
+        profileData = JSON.parse(sessionStorage.getItem("profile"))
+
+        if (CBview['CBquestions'] == 1) {
+            document.getElementById("CBquestions").checked = true
+        }
+        if (CBview['CBgroups'] == 1) {
+            document.getElementById("CBgroups").checked = true
+        }
+        if (CBview['CBprofiles'] == 1) {
+            document.getElementById("CBprofiles").checked = true
+        }
+
+        let params = JSON.stringify({
+            nickname: profileData['nickname'],
+            password: profileData['password'],
+        })
+
+        let Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/login', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    if(response['data'] == null){
+                        window.location.href = "http://localhost:3000"
+                    }
+                } else {
+                    window.location.href = "http://localhost:3000"
+                }
+            }
+        }
+    }
+    session()
 
     var searchGroup = document.getElementById("searchGroup");
     searchGroup.addEventListener("keyup", function (event) {
@@ -387,7 +440,7 @@
         // var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
         
 
-        let nick = document.getElementById("nickname").value
+        let nick = profileData['nickname']
         let fake = Array.from(document.getElementsByName("fake")).find(r => r.checked).value;
         var params = {};
         if (fake == "true") {
@@ -455,103 +508,109 @@
 
         if (navOpen == false) {
             let boxPos = document.getElementById("boxPos")
-            let nick = document.getElementById("nickname").value
+            let nick = profileData['nickname']
             
-            let Http = new XMLHttpRequest();
-            Http.open("POST", url + 'pos/profiles', true);
-            Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            let params = JSON.stringify({ x: x, y: y })
-            Http.send(params);
-            Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
-                    let profiles = JSON.parse(Http.responseText)
-                    
-                    if (profiles["confirmation"] == "success") {
-                        if (profiles["profiles"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Profiles");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            boxPos.appendChild(p)
-                        }
+            if (CBview['CBprofiles'] == 1) {
+                let Http = new XMLHttpRequest();
+                Http.open("POST", url + 'pos/profiles', true);
+                Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                let params = JSON.stringify({ x: x, y: y })
+                Http.send(params);
+                Http.onreadystatechange = (e) => {
+                    if (Http.readyState == 4 && Http.status == 200) {
+                        let profiles = JSON.parse(Http.responseText)
+                        
+                        if (profiles["confirmation"] == "success") {
+                            if (profiles["profiles"].length > 0) {
+                                let p = document.createElement("p");
+                                let textnode = document.createTextNode("Profiles");
+                                p.setAttribute('id', 'titles')
+                                p.appendChild(textnode);
+                                boxPos.appendChild(p)
+                            }
 
-                        profiles["profiles"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            // let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
-                            a.setAttribute('href', "http://localhost:3000/profile?id=" + element["_id"]);
-                            a.setAttribute('id', 'profiles')
-                            let textnode = document.createTextNode(element['nickname']);
-                            a.appendChild(textnode);
-                            boxPos.appendChild(a)
-                        });
-                    } else {
-                        console.log(response)
-                    }
-                }
-            }
-            
-            let Http2 = new XMLHttpRequest();
-            Http2.open("POST", url + 'pos/groups', true);
-            Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            let params2 = JSON.stringify({ x: x, y: y })
-            Http2.send(params2);
-            Http2.onreadystatechange = (e) => {
-                if (Http2.readyState == 4 && Http2.status == 200) {
-                    let groups = JSON.parse(Http2.responseText)
-                    
-                    if (groups["confirmation"] == "success") {
-                        if(groups["groups"].length > 0){
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Groups");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            boxPos.appendChild(p)
+                            profiles["profiles"].forEach(function (element) {
+                                let a = document.createElement("a");
+                                // let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                a.setAttribute('href', "http://localhost:3000/profile?id=" + element["_id"]);
+                                a.setAttribute('id', 'profiles')
+                                let textnode = document.createTextNode(element['nickname']);
+                                a.appendChild(textnode);
+                                boxPos.appendChild(a)
+                            });
+                        } else {
+                            console.log(response)
                         }
-
-                        groups["groups"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
-                            a.setAttribute('href', href);
-                            a.setAttribute('id', 'groups')
-                            let textnode = document.createTextNode(element['name']);
-                            a.appendChild(textnode);
-                            boxPos.appendChild(a)
-                        });
-                    } else {
-                        console.log(response)
                     }
                 }
             }
 
-            let Http3 = new XMLHttpRequest();
-            Http3.open("POST", url + 'pos/questions', true);
-            Http3.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            let params3 = JSON.stringify({ x: x, y: y })
-            Http3.send(params3);
-            Http3.onreadystatechange = (e) => {
-                if (Http3.readyState == 4 && Http3.status == 200) {
-                    let questions = JSON.parse(Http3.responseText)
-                    
-                    if (questions["confirmation"] == "success") {
-                        if (questions["questions"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Questions");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            boxPos.appendChild(p)
-                        }
+            if (CBview['CBgroups'] == 1) {
+                let Http2 = new XMLHttpRequest();
+                Http2.open("POST", url + 'pos/groups', true);
+                Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                let params2 = JSON.stringify({ x: x, y: y })
+                Http2.send(params2);
+                Http2.onreadystatechange = (e) => {
+                    if (Http2.readyState == 4 && Http2.status == 200) {
+                        let groups = JSON.parse(Http2.responseText)
+                        
+                        if (groups["confirmation"] == "success") {
+                            if(groups["groups"].length > 0){
+                                let p = document.createElement("p");
+                                let textnode = document.createTextNode("Groups");
+                                p.setAttribute('id', 'titles')
+                                p.appendChild(textnode);
+                                boxPos.appendChild(p)
+                            }
 
-                        questions["questions"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3000/question" + '?action=show&title=' + element['title'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
-                            a.setAttribute('href', href);
-                            a.setAttribute('id', 'questions')
-                            let textnode = document.createTextNode(element['title']);
-                            a.appendChild(textnode);
-                            boxPos.appendChild(a)
-                        });
-                    } else {
-                        console.log(response)
+                            groups["groups"].forEach(function (element) {
+                                let a = document.createElement("a");
+                                let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                a.setAttribute('href', href);
+                                a.setAttribute('id', 'groups')
+                                let textnode = document.createTextNode(element['name']);
+                                a.appendChild(textnode);
+                                boxPos.appendChild(a)
+                            });
+                        } else {
+                            console.log(response)
+                        }
+                    }
+                }
+            }
+
+            if (CBview['CBquestions'] == 1) {
+                let Http3 = new XMLHttpRequest();
+                Http3.open("POST", url + 'pos/questions', true);
+                Http3.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                let params3 = JSON.stringify({ x: x, y: y })
+                Http3.send(params3);
+                Http3.onreadystatechange = (e) => {
+                    if (Http3.readyState == 4 && Http3.status == 200) {
+                        let questions = JSON.parse(Http3.responseText)
+                        
+                        if (questions["confirmation"] == "success") {
+                            if (questions["questions"].length > 0) {
+                                let p = document.createElement("p");
+                                let textnode = document.createTextNode("Questions");
+                                p.setAttribute('id', 'titles')
+                                p.appendChild(textnode);
+                                boxPos.appendChild(p)
+                            }
+
+                            questions["questions"].forEach(function (element) {
+                                let a = document.createElement("a");
+                                let href = "http://localhost:3000/question" + '?action=show&title=' + element['title'] + '&nickname=' + nick + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                a.setAttribute('href', href);
+                                a.setAttribute('id', 'questions')
+                                let textnode = document.createTextNode(element['title']);
+                                a.appendChild(textnode);
+                                boxPos.appendChild(a)
+                            });
+                        } else {
+                            console.log(response)
+                        }
                     }
                 }
             }
@@ -579,7 +638,7 @@
     iamStatus(true)
 
     function iamStatus(status) {
-        let nick = document.getElementById("nickname").value
+        let nick = profileData['nickname']
         let params = JSON.stringify({
             search: {
                 nickname: nick
@@ -608,7 +667,7 @@
     
 
     function getSaved() {
-        let nick = document.getElementById("nickname").value
+        let nick = profileData['nickname']
         let params = JSON.stringify({
             nick: nick,
         })
@@ -724,23 +783,16 @@
     }
 
     setTimeout(function () { 
-        // let checked = JSON.parse(sessionStorage.getItem("view"));
-        // console.log(checked)
-        // checked.forEach(function (element) {
-        //     if(element == "people"){
-        //         initProfiles()
-        //     }
-        //     if(element == "groups"){
-        //         initGroups()
-        //     }
-        //     if(element == "questions"){
-        //         initQuestions()
-        //     }
-        // });
+        if (CBview['CBgroups'] == 1) {
+            initGroups()
+        }
+        if (CBview['CBquestions'] == 1) {
+            initQuestions()
+        }
+        if (CBview['CBprofiles'] == 1) {
+            initProfiles()
+        }
 
-        initProfiles()
-        initGroups()
-        initQuestions()
     }, 300);
 
 </script>

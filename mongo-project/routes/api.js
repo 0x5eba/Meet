@@ -48,6 +48,24 @@ router.post('/profile/getId', (req, res) => {
 		})
 })
 
+router.post('/profile/login', (req, res) => {
+	const nick = req.body.nickname
+	const password = req.body.password
+	Profile.findOne({ nickname: nick, password: password }, { _id: 1 })
+		.then(profile => {
+			res.json({
+				confirmation: 'success',
+				data: profile,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 router.post('/profile/getSaved', (req, res) => {
 	const nick = req.body.nickname
 	Profile.findOne({ nickname: nick }, { _id: 0, savedGroup: 1, savedQuestion: 1 })
@@ -148,15 +166,32 @@ router.post('/profile/update', (req, res) => {
 // })
 
 router.post('/profile/create', (req, res) => {
-	const nick = req.body.nickname
-	Profile.find({ nickname: nick })
+	const nickname = req.body.nickname
+	const password = req.body.password
+	const name = req.body.name
+	const surname = req.body.surname
+	Profile.find({ nickname: nickname })
 		.then(profiles => {
 			if (profiles.length > 0) {
 				res.json({
 					confirmation: 'fail',
 					message: 'User ' + nick + ' already exist'
 				})
-				return
+			} else {
+				Profile.create({ nickname: nickname, password: password, name: name, surname: surname })
+					.then(profile => {
+						res.json({
+							confirmation: 'success',
+							data: profile,
+							query: req.body
+						})
+					})
+					.catch(err => {
+						res.json({
+							confirmation: 'fail',
+							message: err.message
+						})
+					})
 			}
 		})
 		.catch(err => {
@@ -165,21 +200,6 @@ router.post('/profile/create', (req, res) => {
 				message: err.message
 			})
 			return;
-		})
-
-	Profile.create(req.body)
-		.then(profile => {
-			res.json({
-				confirmation: 'success',
-				data: profile,
-				query: req.body
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
 		})
 })
 
@@ -876,11 +896,26 @@ router.post('/search/profile', (req, res) => {
 	Profile.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
 		"score": { "$meta": "textScore" }
 	})
-		.then(profile => {
-			res.json({
-				confirmation: 'success',
-				profile: profile,
-				query: req.body
+		.then(profiles => {
+
+			var prom1 = new Promise(function (resolve, reject) {
+				for (let a = 0; a < profiles.length; ++a) {
+					Profile.findById(profiles[a]["_id"], { nickname: 1, _id: 0 }).then(profile2 => {
+						resolve({ nickname: profile2['nickname'], name: profile2['name'], surname: profile2['surname']});
+					})
+					.catch(err => {
+						console.log(err);
+					})
+				}
+			})
+			
+			var promisesArray = [prom1];
+			Promise.all(promisesArray).then(values => {
+				res.json({
+					confirmation: 'success',
+					profile: values,
+					query: req.body
+				})
 			})
 		})
 		.catch(err => {

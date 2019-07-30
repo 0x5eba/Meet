@@ -37,8 +37,11 @@ const api = require('./routes/api')
 const express = require('express');
 const path = require('path');
 const router = express.Router();
-router.get('/', function (req, res) {
+router.get('/index', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/index.html'));
+});
+router.get('/', function (req, res) {
+	res.sendFile(path.join(__dirname + '/views/login.html'));
 });
 router.get('/register', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/register.html'));

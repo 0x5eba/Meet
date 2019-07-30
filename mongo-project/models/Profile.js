@@ -7,6 +7,7 @@ var SchemaTypes = mongoose.Schema.Types;
 const Profile = new mongoose.Schema({
     nickname: { type: String, trim: true, default: '' },
 
+    password: { type: String, default: ''},
     name: { type: String, trim: true, default: '' },
     surname: { type: String, trim: true, default: '' },
     bio: { type: String, default: '' },
@@ -25,6 +26,12 @@ Profile.index({
     nickname: 'text',
     name: 'text',
     surname: 'text',
+}, {
+    weights: {
+        nickname: 10,
+        name: 6,
+        surname: 6,
+    },
 })
 
 module.exports = mongoose.model('Profile', Profile)
