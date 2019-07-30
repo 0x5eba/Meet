@@ -196,7 +196,8 @@
     var myPosInMap = {}
     var currentUrl = new URL(window.location.href);
 
-
+    var CBview = {}
+    var profileData = {}
     function session(){
         CBview = JSON.parse(sessionStorage.getItem("view"))
         profileData = JSON.parse(sessionStorage.getItem("profile"))
@@ -291,9 +292,6 @@
     //         closeNav()
     //     }
     // });
-
-    var CBview = {}
-    var profileData = {}
 
     function reloadView() {
         let chk_arr = document.getElementsByName("view[]")
@@ -487,7 +485,7 @@
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
         myPosInMap = { x: x, y: y }
-        fakePos = createFakePos(myPosInMap.x, myPosInMap.y)
+        // fakePos = createFakePos(myPosInMap.x, myPosInMap.y)
 
         // var c = document.getElementById("hiddenCanvas").getContext('2d');
         // var p = c.getImageData(x, y, 1, 1).data;
@@ -495,27 +493,26 @@
         
 
         let nick = profileData['nickname']
-        let fake = Array.from(document.getElementsByName("fake")).find(r => r.checked).value;
+        // let fake = Array.from(document.getElementsByName("fake")).find(r => r.checked).value;
         var params = {};
-        if (fake == "true") {
-            params = JSON.stringify({
-                "search": { "nickname": nick }, "update": {
-                    "$set": {
-                        use_fake_position: true, online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
-                        fake_position: { x: fakePos.x, y: fakePos.y }
-                    }
-                }, "extra": {}
-            })
-        } else {
-            params = JSON.stringify({
-                "search": { "nickname": nick }, "update": {
-                    "$set": {
-                        use_fake_position: false, online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
-                        fake_position: { x: fakePos.x, y: fakePos.y }
-                    }
-                }, "extra": {}
-            })
-        }
+        // if (fake == "true") {
+        //     params = JSON.stringify({
+        //         "search": { "nickname": nick }, "update": {
+        //             "$set": {
+        //                 use_fake_position: true, online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
+        //                 fake_position: { x: fakePos.x, y: fakePos.y }
+        //             }
+        //         }, "extra": {}
+        //     })
+        // } else {
+        params = JSON.stringify({
+            "search": { "nickname": nick }, "update": {
+                "$set": {
+                    use_fake_position: false, online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
+                    // fake_position: { x: fakePos.x, y: fakePos.y }
+                }
+            }, "extra": {}
+        })
         
         let Http = new XMLHttpRequest();
         Http.open("POST", url + 'profile/update', true);
