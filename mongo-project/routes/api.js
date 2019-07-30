@@ -900,8 +900,8 @@ router.post('/search/profile', (req, res) => {
 
 			var prom1 = new Promise(function (resolve, reject) {
 				for (let a = 0; a < profiles.length; ++a) {
-					Profile.findById(profiles[a]["_id"], { nickname: 1, _id: 0 }).then(profile2 => {
-						resolve({ nickname: profile2['nickname'], name: profile2['name'], surname: profile2['surname']});
+					Profile.findById(profiles[a]["_id"], { nickname: 1 }).then(profile2 => {
+						resolve({ nickname: profile2['nickname'], name: profile2['name'], surname: profile2['surname'], _id: profile2['_id']});
 					})
 					.catch(err => {
 						console.log(err);
