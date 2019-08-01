@@ -15,6 +15,8 @@ const config = {
 	static: 'public', 		// Set static assets directory
 	db: { 					// Database configuration. Remember to set env variables in .env file: MONGODB_URI, PROD_MONGODB_URI
 		url: 'mongodb://localhost/mongo-proj',
+		// url: 'mongodb+srv://admin:itolilli8@cluster0-pisus.mongodb.net/test?retryWrites=true&w=majority',
+		// url: (process.env.TURBO_ENV == 'dev') ? process.env.MONODB_URL : process.env.PROD_MONGODB_URL,
 		type: 'mongo',
 		onError: (err) => {
 			console.log('DB Connection Failed!')
@@ -34,9 +36,10 @@ app.use(bodyParser.json())
 // const register = require('./routes/register')
 const api = require('./routes/api')
 
-const express = require('express');
+// const express = require('express');
 const path = require('path');
-const router = express.Router();
+// const router = express.Router();
+const router = vertex.router();
 router.get('/index', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/index.html'));
 });

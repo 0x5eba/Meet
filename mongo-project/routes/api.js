@@ -2,6 +2,7 @@
 const turbo = require('turbo360')({ site_id: process.env.TURBO_APP_ID })
 const vertex = require('vertex360')({ site_id: process.env.TURBO_APP_ID })
 const router = vertex.router()
+
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false);
 
@@ -204,7 +205,7 @@ router.post('/profile/create', (req, res) => {
 })
 
 router.post('/profile/allProfiles', (req, res) => {
-	Profile.find({ online: true }, { real_position: 1, fake_position: 1, use_fake_position: 1, _id: 0 })
+	Profile.find({ online: true }, { real_position: 1, _id: 0 })
 		.then(profiles => {
 			res.json({
 				confirmation: 'success',
@@ -271,27 +272,13 @@ router.post('/pos/profiles', (req, res) => {
 	const search_x = query.x
 	const search_y = query.y
 
-	var res_profile = []
-
 	// TODO invece di calcolare io il +- 10 della pos, fallo calcolare nel find, con i $gt etc.
-	Profile.find({ use_fake_position: true, online: true })
-		.then(profiles => {
-			res_profile = profiles.filter(function (item) { return (item.fake_position.x > search_x - 10 && item.fake_position.x < search_x + 10) && (item.fake_position.y > search_y - 10 && item.fake_position.y < search_y + 10); })
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-			return
-		})
-
-	Profile.find({ use_fake_position: false, online: true })
+	Profile.find({ online: true })
 		.then(profiles => {
 			var real_pos = profiles.filter(function (item) { return (item.real_position.x > search_x - 10 && item.real_position.x < search_x + 10) && (item.real_position.y > search_y - 10 && item.real_position.y < search_y + 10); })
 			res.json({
 				confirmation: 'success',
-				profiles: real_pos.concat(res_profile),
+				profiles: real_pos,
 				query: query,
 			})
 		})

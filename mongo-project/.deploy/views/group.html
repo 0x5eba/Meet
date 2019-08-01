@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id='createGroup' style="display:none;">
+        <!-- <p name='nickname' id="nickname"></p>
+        <div id="coords"></div></br> -->
+        <input type='text' name='name' id="name" placeholder='Name Group' /><br /><br />
+        <input type='submit' value='Add group' onclick="return createGroup();">
+    </div>
+
+    <div id="boxPos">
+        <a href="javascript:void(0)" id="exit" class="closebtn" onclick="closeNav()">&times;</a>
+    </div>
+
+    <div id='showGroup' style="display:none;">
+        <button onclick="saveGroup();">Save</button>
+        <main>
+            <header>
+                <a href="javascript:void(0)" class="user-count" id="user-count" onclick="updatePeopleOnline(); openNav();">0</a>
+                <h1 id="nameGroup"></h1>
+            </header>
+
+            <section class="chat" id='chat'>
+            </section>
+
+            <input type="text" id="write" placeholder="Write something" />
+        </main>
+    </div>
+
+</body>
+
+</html>
+
+<style>
+    html,
+    body {
+        background: #eee;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: all .3s ease;
+    }
+
+    main {
+        width: 50%;
+        /* width: calc(100% - 20px);
+        max-width: 500px; */
+        margin: 0 auto;
+        font-family: Helvetica, Arial, Sans, sans-serif;
+        box-sizing: border-box;
+        transition: all .3s ease;
+    }
+
+    /* h1, .user-count {
+        margin: 0;
+        padding: 10px 0;
+        font-size: 32px;
+    } */
+
+    .user-count {
+        float: right;
+        font-size: 32px;
+        box-sizing: border-box;
+        transition: all .3s ease;
+    }
+
+    .chat {
+        content: '';
+        width: 100%;
+        height: calc(100vh - 165px);
+        background: white;
+        padding: 5px 10px;
+        overflow-y: scroll;
+        box-sizing: border-box;
+        transition: all .3s ease;
+    }
+
+    .chat p {
+        margin: 0 0 5px 0;
+        box-sizing: border-box;
+        transition: all .3s ease;
+    }
+
+    input {
+        width: 100%;
+        font: inherit;
+        background: #fff;
+        border: none;
+        margin-top: 10px;
+        padding: 5px 10px;
+        box-sizing: border-box;
+        transition: all .3s ease;
+    }
+
+    @media all and (min-width: 500px) {
+        .chat {
+            height: calc(100vh - 140px);
+        }
+    }
+
+    #boxPos {
+        top: 30%; 
+        left: 40%;
+        width: 35%;
+        height: 50%;
+        margin-top: -9em; 
+        margin-left: -15em;
+        border: 1px solid #ccc;
+        background: rgba(13, 19, 13, 0.6);
+        position:fixed;
+        display: none;
+        overflow-y: scroll;
+        overflow: auto;
+    }
+
+    #exit {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #c1c1c1;
+        display: block;
+        transition: 0.3s;
+        text-align: right;
+    }
+
+    #profiles {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        /* #ff2626 */
+        color: white; 
+        display: block;
+        transition: 0.3s;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script>
+
+    const url = 'http://localhost:3000/api/';
+    var currentUrl = new URL(window.location.href);
+    var x = currentUrl.searchParams.get("x");
+    x = parseFloat(x)
+    var y = currentUrl.searchParams.get("y");
+    y = parseFloat(y)
+    var nick = ""
+    var action = currentUrl.searchParams.get("action");
+    var limit = 0;
+    var prevLengthMessages = 0;
+    var lastTime = 0;
+    var idProfile = "";
+    var groupName = "";
+    var nOnline = 0;
+    var peopleOnline = [];
+    var idGroup = "";
+    var offline = false
+
+    var profileData;
+    function session(){
+        profileData = JSON.parse(sessionStorage.getItem("profile"))
+        let params = JSON.stringify({
+            nickname: profileData['nickname'],
+            password: profileData['password'],
+        })
+
+        nick = profileData['nickname']
+
+        let Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/login', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    if(response['data'] == null){
+                        window.location.href = "http://localhost:3000/index"
+                    }
+                } else {
+                    window.location.href = "http://localhost:3000/index"
+                }
+            }
+        }
+    }
+    session()
+
+    if (action == "create") {
+        document.getElementById("createGroup").style.display = "block"
+
+        // document.getElementById("nickname").innerHTML = "Nickname: " + nick
+        // document.getElementById("coords").innerHTML = "Create the group here: (" + x + "," + y + ")"
+    }
+
+    if (action == "show") {
+        var write = document.getElementById("write");
+        groupName = currentUrl.searchParams.get("groupname")
+        document.getElementById("nameGroup").innerHTML = groupName + " chat"
+        document.getElementById("showGroup").style.display = "block"
+        // window.history.replaceState(null, null, window.location.pathname);
+
+        loadMoreMessages(groupName)
+        // getIdChat(groupName)
+        getIdProfile()
+        getIdGroup(groupName)
+
+        window.setInterval(function () {
+            if(offline == false){
+                checkNewMessage()
+                updateNOnline()
+            }
+        }, 2000);
+        
+
+        write.addEventListener("keyup", function (event) {
+            if (event.keyCode === 13) {
+
+                let params = JSON.stringify({
+                    name: groupName,
+                    pos: { x: x, y: y },
+                    sender: nick,
+                    time: Date.now(),
+                    message: write.value,
+                })
+
+                const Http = new XMLHttpRequest();
+                Http.open("POST", url + 'chat/write', true);
+                Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                Http.send(params);
+                Http.onreadystatechange = (e) => {
+                    if (Http.readyState == 4 && Http.status == 200) {
+                        let response = JSON.parse(Http.responseText)
+                        if (response["confirmation"] == "success") {
+                            // Risolto il problema di dover inserire manualmente il messaggio nell'interfaccia
+                            checkNewMessage()
+                        } else {
+                            console.log(response)
+                        }
+                    }
+                }
+
+                write.value = ""
+            }
+        });
+    }
+
+    function getIdGroup(groupName) {
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y },
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/getGroup', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    console.log("idGroup ", response)
+                    idGroup = response["group"]["_id"]
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function saveGroup(){
+        let params = JSON.stringify({
+            search: {
+                name: nick,
+            },
+            update: {
+                $addToSet: { savedGroup: { name: groupName, pos: {x: x, y:y} } }
+            },
+            extra: {
+                upsert: true, new: true
+            }
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/update/saved', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function getIdProfile() {
+        let params = JSON.stringify({
+            nickname: nick,
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/getId', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    idProfile = response["data"]["_id"]
+                    iamOnline()
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    $(document).mouseleave(function (e) {
+        if (offline == false) {
+            iamOffline()
+            offline = true
+        }
+    });
+    // mouseenter
+    $(document).click(function (e) {
+        if (offline == true) {
+            iamOnline()
+            offline = false
+        }
+    });
+    function iamOnline() {
+        let params = JSON.stringify({
+            search: {
+                name: groupName,
+                pos: { x: x, y: y }
+            },
+            update: {
+                $addToSet: { peopleOnline: { nickname: nick, id: idProfile } }
+            },
+            extra: {
+                "multi": "true"
+            }
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/updateOnline', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+    function iamOffline() {
+        let params = JSON.stringify({
+            search: {
+                name: groupName,
+                pos: { x: x, y: y }
+            },
+            update: {
+                $pull: { peopleOnline: { nickname: nick, id: idProfile } }
+            },
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/updateOnline', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function loadMoreMessages(nameGroup = groupName, update = false) {
+        if (update == true) {
+            limit -= 9
+            prevLengthMessages = 0
+        }
+        limit += 10
+
+        let params = JSON.stringify({
+            name: nameGroup,
+            pos: { x: x, y: y },
+            limit: limit,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'chat/messages', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+
+                if (response["confirmation"] == "success") {
+                    if (response["messages"].length > 0) {
+                        lastTime = response["messages"][0]["time"]
+                    }
+
+                    document.getElementById("chat").innerHTML = ""
+
+                    if (prevLengthMessages < response["messages"].length) {
+                        let chat = document.getElementById("chat")
+                        let a = document.createElement("a");
+                        let href = "javascript: void (0)"
+                        a.setAttribute('href', href);
+                        let loadMoreText = document.createTextNode("Load more messages");
+                        a.setAttribute('onclick', "loadMoreMessages();")
+                        a.appendChild(loadMoreText)
+                        chat.appendChild(a)
+
+                        prevLengthMessages = response["messages"].length
+                    }
+
+                    for (let i = response["messages"].length - 1; i >= 0; i--) {
+                        let element = response["messages"][i]
+                        let p = document.createElement("p");
+                        let strong = document.createElement("strong");
+                        let sender = document.createTextNode(element["sender"]);
+                        let data = document.createTextNode(": " + element["message"]);
+                        strong.appendChild(sender)
+                        p.appendChild(strong);
+                        p.appendChild(data)
+                        chat.appendChild(p)
+                    }
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function checkNewMessage() {
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y },
+            lastTime: lastTime,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'chat/update', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+
+                if (response["confirmation"] == "success") {
+                    if (response["messages"].length > 0) {
+                        lastTime = response["messages"][0]["time"]
+                        loadMoreMessages(groupName, true)
+                    }
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+    function updatePeopleOnline() {
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y },
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/peopleOnline', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+
+                if (response["confirmation"] == "success") {
+                    let boxPos = document.getElementById("boxPos");
+                    boxPos.innerHTML = '<a id="exit" href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
+
+                    response["groups"][0]["peopleOnline"].forEach(function (element) {
+                        let a = document.createElement("a");
+                        let textnode = document.createTextNode(element["nickname"])
+                        a.setAttribute('href', "http://localhost:3000/profile?id=" + element["id"])
+                        a.setAttribute('id', "profiles")
+                        a.appendChild(textnode)
+                        boxPos.appendChild(a)
+                    })
+                    
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+    function updateNOnline(){
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y },
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/nOnline', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+
+                if (response["confirmation"] == "success") {
+                    document.getElementById("user-count").innerHTML = response["nOnline"][0]["nOnline"]
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function openNav() {
+        let div = document.getElementById("boxPos");
+        if (div.style.display === "block") {
+            div.style.display = "none";
+        } else {
+            div.style.display = "block";
+        }
+    }
+    function closeNav() {
+        let div = document.getElementById("boxPos");
+        if (div.style.display === "none") {
+            div.style.display = "block";
+        } else {
+            div.style.display = "none";
+        }
+    }
+
+
+    function createGroup() {
+        var groupName = document.getElementById("name").value
+        if (groupName == "") {
+            alert("Insert a group name")
+            return
+        }
+        if (groupName.length > 20 || !groupName.match(/^[0-9a-zA-Z ]+$/)) {
+            alert("Only Alphanumerical, no space and max 20 lenght")
+            return
+        }
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y }
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/create', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] == "success") {
+                    window.location.href = "http://localhost:3000/index"
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+</script>

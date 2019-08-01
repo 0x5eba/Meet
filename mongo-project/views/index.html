@@ -56,7 +56,7 @@
 
     </br>
     <div id="MyContainer" width="300" height="300" style="width:500;height:500;">
-        <canvas id="canvas" width="2000" height="2000" style="cursor:crosshair;background:url(map.jpg)"></canvas>
+        <canvas id="canvas" width="2000" height="2000" style="cursor:crosshair;background:url(world_resized.png)"></canvas>
     </div>
 
     <!-- <div style="display:none;">
@@ -189,49 +189,50 @@
     */
 
     const url = 'http://localhost:3000/api/';
-    // const delt = 0.202217
-    const delt = 8
-    var realPos = {}
-    var fakePos = {}
     var myPosInMap = {}
     var currentUrl = new URL(window.location.href);
 
     var CBview = {}
     var profileData = {}
     function session(){
-        CBview = JSON.parse(sessionStorage.getItem("view"))
-        profileData = JSON.parse(sessionStorage.getItem("profile"))
+        try {
+            CBview = JSON.parse(sessionStorage.getItem("view"))
+            profileData = JSON.parse(sessionStorage.getItem("profile"))
 
-        if (CBview['CBquestions'] == 1) {
-            document.getElementById("CBquestions").checked = true
-        }
-        if (CBview['CBgroups'] == 1) {
-            document.getElementById("CBgroups").checked = true
-        }
-        if (CBview['CBprofiles'] == 1) {
-            document.getElementById("CBprofiles").checked = true
-        }
+            if (CBview['CBquestions'] == 1) {
+                document.getElementById("CBquestions").checked = true
+            }
+            if (CBview['CBgroups'] == 1) {
+                document.getElementById("CBgroups").checked = true
+            }
+            if (CBview['CBprofiles'] == 1) {
+                document.getElementById("CBprofiles").checked = true
+            }
 
-        let params = JSON.stringify({
-            nickname: profileData['nickname'],
-            password: profileData['password'],
-        })
+            let params = JSON.stringify({
+                nickname: profileData['nickname'],
+                password: profileData['password'],
+            })
 
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/login', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
-                    if(response['data'] == null){
+            let Http = new XMLHttpRequest();
+            Http.open("POST", url + 'profile/login', true);
+            Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            Http.send(params);
+            Http.onreadystatechange = (e) => {
+                if (Http.readyState == 4 && Http.status == 200) {
+                    let response = JSON.parse(Http.responseText)
+                    if (response["confirmation"] == "success") {
+                        if (response['data'] == null) {
+                            window.location.href = "http://localhost:3000"
+                        }
+                    } else {
                         window.location.href = "http://localhost:3000"
                     }
-                } else {
-                    window.location.href = "http://localhost:3000"
                 }
             }
+        }
+        catch (err) {
+            window.location.href = "http://localhost:3000"
         }
     }
     session()
@@ -314,6 +315,7 @@
             let params = JSON.stringify({
                 search: this.value,
             })
+            searchGroup.value = ""
 
             let Http = new XMLHttpRequest();
             Http.open("POST", url + 'search/group', true);
@@ -355,6 +357,7 @@
             let params = JSON.stringify({
                 search: this.value,
             })
+            searchQuestion.value = ""
 
             let Http = new XMLHttpRequest();
             Http.open("POST", url + 'search/question', true);
@@ -398,6 +401,7 @@
             let params = JSON.stringify({
                 search: this.value,
             })
+            searchProfile.value = ""
 
             let Http = new XMLHttpRequest();
             Http.open("POST", url + 'search/profile', true);
@@ -467,49 +471,30 @@
 
         // document.getElementById("hiddenCanvas").getContext("2d").drawImage(img, width, height);
     }
-    img.src = 'map.jpg';
+    img.src = 'world_resized.png';
 
-    function round(value, precision) {
-        let multiplier = Math.pow(10, precision || 0);
-        return Math.round(value * multiplier) / multiplier;
-    }
-
-    // function rgbToHex(r, g, b) {
-    //     if (r > 255 || g > 255 || b > 255)
-    //         throw "Invalid color component";
-    //     return ((r << 16) | (g << 8) | b).toString(16);
-    // }
 
     function setMyPosition(event) {
         let rect = canvas.getBoundingClientRect();
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
-        myPosInMap = { x: x, y: y }
-        // fakePos = createFakePos(myPosInMap.x, myPosInMap.y)
 
-        // var c = document.getElementById("hiddenCanvas").getContext('2d');
-        // var p = c.getImageData(x, y, 1, 1).data;
-        // var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
-        
+        // let c = document.createElement('canvas')
+        // let context = c.getContext && c.getContext('2d')
+        // context.drawImage(img, 0, 0);
+        // data = context.getImageData(parseInt(y, 10), parseInt(x, 10), 1, 1);
+
+        // console.log(x, y)
+        // console.log(data)
+
+        myPosInMap = { x: x, y: y }
 
         let nick = profileData['nickname']
-        // let fake = Array.from(document.getElementsByName("fake")).find(r => r.checked).value;
         var params = {};
-        // if (fake == "true") {
-        //     params = JSON.stringify({
-        //         "search": { "nickname": nick }, "update": {
-        //             "$set": {
-        //                 use_fake_position: true, online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
-        //                 fake_position: { x: fakePos.x, y: fakePos.y }
-        //             }
-        //         }, "extra": {}
-        //     })
-        // } else {
         params = JSON.stringify({
             "search": { "nickname": nick }, "update": {
                 "$set": {
-                    use_fake_position: false, online: true, real_position: { x: myPosInMap.x, y: myPosInMap.y },
-                    // fake_position: { x: fakePos.x, y: fakePos.y }
+                    real_position: { x: myPosInMap.x, y: myPosInMap.y },
                 }
             }, "extra": {}
         })
@@ -530,17 +515,9 @@
         }
     }
 
-    function createFakePos(realX, realY) {
-        let min = -delt
-        let max = delt
-        let fake_x = Math.random() * (max - min) + min;
-        let fake_y = Math.random() * (max - min) + min;
-        return { x: realX + fake_x, y: realY + fake_y }
-    }
-
     function drawCoordinates(x, y, color = '#ff2626') {
         let ctx = document.getElementById("canvas").getContext("2d");
-        let pointSize = 6;
+        let pointSize = 2;
 
         ctx.fillStyle = color;
         ctx.beginPath();
@@ -552,10 +529,6 @@
         let rect = canvas.getBoundingClientRect();
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
-
-        console.log(x, y)
-
-        // let originalCoords = mapToCoords(x, y)
 
         if (navOpen == false) {
             let boxPos = document.getElementById("boxPos")
@@ -589,7 +562,7 @@
                                 boxPos.appendChild(a)
                             });
                         } else {
-                            console.log(response)
+                            console.log(profiles)
                         }
                     }
                 }
@@ -624,7 +597,7 @@
                                 boxPos.appendChild(a)
                             });
                         } else {
-                            console.log(response)
+                            console.log(groups)
                         }
                     }
                 }
@@ -659,7 +632,7 @@
                                 boxPos.appendChild(a)
                             });
                         } else {
-                            console.log(response)
+                            console.log(questions)
                         }
                     }
                 }
@@ -731,44 +704,46 @@
                     response = response["data"]
                     let boxPos = document.getElementById("boxPos")
                     if (navOpen == false) {
-
-                        if (response["savedGroup"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Groups");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            boxPos.appendChild(p)
-                        }
-
-                        response["savedGroup"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                            a.setAttribute('href', href);
-                            a.setAttribute('id', 'groups')
-                            let textnode = document.createTextNode(element['name']);
-                            a.appendChild(textnode);
-                            boxPos.appendChild(a)
-                        });
-
-
-                        if (response["savedQuestion"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Questions");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            boxPos.appendChild(p)
-                        }
                         
-                        response["savedQuestion"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3000/question" + '?action=show&title=' + element['question'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                            a.setAttribute('href', href);
-                            a.setAttribute('id', 'questions')
-                            let textnode = document.createTextNode(element['question']);
-                            a.appendChild(textnode);
-                            boxPos.appendChild(a)
-                        });
+                        if (response != null && "savedGroup" in response){
+                            if (response["savedGroup"].length > 0) {
+                                let p = document.createElement("p");
+                                let textnode = document.createTextNode("Groups");
+                                p.setAttribute('id', 'titles')
+                                p.appendChild(textnode);
+                                boxPos.appendChild(p)
+                            }
 
+                            response["savedGroup"].forEach(function (element) {
+                                let a = document.createElement("a");
+                                let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                a.setAttribute('href', href);
+                                a.setAttribute('id', 'groups')
+                                let textnode = document.createTextNode(element['name']);
+                                a.appendChild(textnode);
+                                boxPos.appendChild(a)
+                            });
+                        }
+
+                        if (response != null && "savedQuestion" in response) {
+                            if (response["savedQuestion"].length > 0) {
+                                let p = document.createElement("p");
+                                let textnode = document.createTextNode("Questions");
+                                p.setAttribute('id', 'titles')
+                                p.appendChild(textnode);
+                                boxPos.appendChild(p)
+                            }
+
+                            response["savedQuestion"].forEach(function (element) {
+                                let a = document.createElement("a");
+                                let href = "http://localhost:3000/question" + '?action=show&title=' + element['question'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                a.setAttribute('href', href);
+                                a.setAttribute('id', 'questions')
+                                let textnode = document.createTextNode(element['question']);
+                                a.appendChild(textnode);
+                                boxPos.appendChild(a)
+                            });
+                        }
 
                         openNav()
                     } else {
@@ -791,15 +766,9 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let profiles = JSON.parse(Http.responseText)
                 profiles["profiles"].forEach(function (element) {
-                    if (element['use_fake_position'] == true) {
-                        let pos = element['fake_position']
-                        drawCoordinates(pos.x, pos.y);
-                    } else {
-                        let pos = element['real_position']
-                        drawCoordinates(pos.x, pos.y);
-                    }
+                    let pos = element['real_position']
+                    drawCoordinates(pos.x, pos.y);
                 });
-                
             }
         }
     }
