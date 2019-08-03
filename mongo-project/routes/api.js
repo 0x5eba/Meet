@@ -68,7 +68,7 @@ router.post('/profile/login', (req, res) => {
 })
 
 router.post('/profile/getSaved', (req, res) => {
-	const nick = req.body.nickname
+	const nick = req.body.nick
 	Profile.findOne({ nickname: nick }, { _id: 0, savedGroup: 1, savedQuestion: 1 })
 		.then(profile => {
 			res.json({
@@ -176,7 +176,7 @@ router.post('/profile/create', (req, res) => {
 			if (profiles.length > 0) {
 				res.json({
 					confirmation: 'fail',
-					message: 'User ' + nick + ' already exist'
+					message: 'User ' + nickname + ' already exist'
 				})
 			} else {
 				Profile.create({ nickname: nickname, password: password, name: name, surname: surname })
