@@ -171,7 +171,7 @@
     function saveQuestion(){
         let params = JSON.stringify({
             search: {
-                name: nick,
+                nickname: nick,
             },
             update: {
                 $addToSet: { savedQuestion: { question: question["title"], pos : {x:x, y:y}} }
@@ -189,7 +189,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-
+                    console.log("saved")
                 } else {
                     console.log(response)
                 }
