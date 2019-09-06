@@ -188,7 +188,7 @@
 
     */
 
-    const url = 'http://localhost:3000/api/';
+    const url = 'http://localhost:3001/api/';
     var myPosInMap = {}
     var currentUrl = new URL(window.location.href);
 
@@ -223,16 +223,16 @@
                     let response = JSON.parse(Http.responseText)
                     if (response["confirmation"] == "success") {
                         if (response['data'] == null) {
-                            window.location.href = "http://localhost:3000"
+                            window.location.href = "http://localhost:3001"
                         }
                     } else {
-                        window.location.href = "http://localhost:3000"
+                        window.location.href = "http://localhost:3001"
                     }
                 }
             }
         }
         catch (err) {
-            window.location.href = "http://localhost:3000"
+            window.location.href = "http://localhost:3001"
         }
     }
     session()
@@ -261,10 +261,10 @@
     $("#items > li").click(function () {
         let nick = profileData['nickname']
         if ($(this).text() == "Create a group here") {
-            window.location.href = "http://localhost:3000/group" + '?action=create&x=' + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
+            window.location.href = "http://localhost:3001/group" + '?action=create&x=' + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
         if ($(this).text() == "Ask a question here") {
-            window.location.href = "http://localhost:3000/question" + '?action=create&x=' + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
+            window.location.href = "http://localhost:3001/question" + '?action=create&x=' + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
         }
     });
 
@@ -331,7 +331,7 @@
 
                             response["group"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                let href = "http://localhost:3001/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
                                 a.setAttribute('href', href);
                                 a.setAttribute('id', 'groups')
                                 let textnode = document.createTextNode(element['name']);
@@ -375,7 +375,7 @@
 
                             response["question"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                let href = "http://localhost:3000/question" + '?action=show&title=' + element['title'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                let href = "http://localhost:3001/question" + '?action=show&title=' + element['title'] + "&x=" + element.pos.x + "&y=" + element.pos.y
                                 a.setAttribute('href', href);
                                 a.setAttribute('id', 'questions')
                                 let textnode = document.createTextNode(element['title']);
@@ -417,7 +417,7 @@
                             console.log(response)
                             response["profile"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                a.setAttribute('href', "http://localhost:3000/profile?id=" + element["_id"]);
+                                a.setAttribute('href', "http://localhost:3001/profile?id=" + element["_id"]);
                                 a.setAttribute('id', 'profiles')
                                 let textnode = document.createTextNode(element['nickname']);
                                 a.appendChild(textnode);
@@ -494,7 +494,7 @@
         params = JSON.stringify({
             "search": { "nickname": nick }, "update": {
                 "$set": {
-                    real_position: { x: myPosInMap.x, y: myPosInMap.y },
+                    pos: { x: myPosInMap.x, y: myPosInMap.y },
                 }
             }, "extra": {}
         })
@@ -555,7 +555,7 @@
 
                             profiles["profiles"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                a.setAttribute('href', "http://localhost:3000/profile?id=" + element["_id"]);
+                                a.setAttribute('href', "http://localhost:3001/profile?id=" + element["_id"]);
                                 a.setAttribute('id', 'profiles')
                                 let textnode = document.createTextNode(element['nickname']);
                                 a.appendChild(textnode);
@@ -589,7 +589,7 @@
 
                             groups["groups"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                let href = "http://localhost:3001/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
                                 a.setAttribute('href', href);
                                 a.setAttribute('id', 'groups')
                                 let textnode = document.createTextNode(element['name']);
@@ -624,7 +624,7 @@
 
                             questions["questions"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                let href = "http://localhost:3000/question" + '?action=show&title=' + element['title'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                let href = "http://localhost:3001/question" + '?action=show&title=' + element['title'] + "&x=" + element.pos.x + "&y=" + element.pos.y
                                 a.setAttribute('href', href);
                                 a.setAttribute('id', 'questions')
                                 let textnode = document.createTextNode(element['title']);
@@ -718,7 +718,7 @@
 
                             response["savedGroup"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                let href = "http://localhost:3000/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                let href = "http://localhost:3001/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
                                 a.setAttribute('href', href);
                                 a.setAttribute('id', 'groups')
                                 let textnode = document.createTextNode(element['name']);
@@ -738,7 +738,7 @@
 
                             response["savedQuestion"].forEach(function (element) {
                                 let a = document.createElement("a");
-                                let href = "http://localhost:3000/question" + '?action=show&title=' + element['question'] + "&x=" + element.pos.x + "&y=" + element.pos.y
+                                let href = "http://localhost:3001/question" + '?action=show&title=' + element['question'] + "&x=" + element.pos.x + "&y=" + element.pos.y
                                 a.setAttribute('href', href);
                                 a.setAttribute('id', 'questions')
                                 let textnode = document.createTextNode(element['question']);
@@ -768,7 +768,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let profiles = JSON.parse(Http.responseText)
                 profiles["profiles"].forEach(function (element) {
-                    let pos = element['real_position']
+                    let pos = element['pos']
                     drawCoordinates(pos.x, pos.y);
                 });
             }

@@ -153,7 +153,7 @@
 </style>
 
 <script>
-    const url = 'http://localhost:3000/api/';
+    const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
     
 
@@ -174,10 +174,10 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     if(response['data'] == null){
-                        window.location.href = "http://localhost:3000/index"
+                        window.location.href = "http://localhost:3001/index"
                     }
                 } else {
-                    window.location.href = "http://localhost:3000/index"
+                    window.location.href = "http://localhost:3001/index"
                 }
             }
         }
@@ -221,7 +221,7 @@
                     document.getElementById("nickname").innerHTML = profile["nickname"]
                     document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
                     document.getElementById("bio").innerHTML = profile["bio"]
-                    document.getElementById("position").innerHTML = "<span>Last position</span>" + "(" + profile["real_position"].x + "," + profile["real_position"].y + ")"
+                    document.getElementById("position").innerHTML = "<span>Last position</span>" + "(" + profile["pos"].x + "," + profile["pos"].y + ")"
                     if(profile["online"] == true){
                         document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
                     } else {

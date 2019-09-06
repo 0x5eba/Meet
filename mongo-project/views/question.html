@@ -90,7 +90,7 @@
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script>
-    const url = 'http://localhost:3000/api/';
+    const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
     var x = currentUrl.searchParams.get("x");
     x = parseFloat(x)
@@ -121,10 +121,10 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     if(response['data'] == null){
-                        window.location.href = "http://localhost:3000/index"
+                        window.location.href = "http://localhost:3001/index"
                     }
                 } else {
-                    window.location.href = "http://localhost:3000/index"
+                    window.location.href = "http://localhost:3001/index"
                 }
             }
         }
@@ -243,7 +243,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    window.location.href = "http://localhost:3000/index"
+                    window.location.href = "http://localhost:3001/index"
                 } else {
                     console.log(response)
                 }

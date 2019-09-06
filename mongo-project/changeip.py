@@ -7,8 +7,8 @@ for path in paths:
     new_file = []
     with open(path, 'r') as f:
         for i in f.readlines():
-            if "localhost:3000" in i:
-                i = i.replace("localhost:3000", IP + ":80")
+            if "localhost:3001" in i:
+                i = i.replace("localhost:3001", IP + ":80")
             new_file.append(i)
     
     with open(path, 'w') as f:

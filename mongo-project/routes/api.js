@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router()
+const crypto = require('crypto');
 
 
 const Profile = require("../models/Profile")
@@ -7,6 +8,10 @@ const Group = require("../models/Group")
 const GroupMessages = require("../models/GroupMessages")
 const Question = require("../models/Question")
 const Answer = require("../models/Answer")
+
+function sha256(p) {
+	return crypto.createHash('sha256').update(p).digest('base64');
+}
 
 /*************************
 *       PROFILES         *
@@ -201,7 +206,16 @@ router.post('/profile/create', (req, res) => {
 })
 
 router.post('/profile/allProfiles', (req, res) => {
-	Profile.find({ online: true }, { real_position: 1, _id: 0 })
+	// {
+	// 	"type": "FeatureCollection", "features": [
+	// 		{
+	// 			"type": "Feature",
+	// 			"properties": { "scalerank": 9, "type": "small", "name": "Sahnewal", "abbrev": "LUH", "location": "terminal", "gps_code": "VILD", "iata_code": "LUH", "wikipedia": "http://en.wikipedia.org/wiki/Sahnewal_Airport", "natlscale": 8, "featureclass": "Airport" },
+	// 			"geometry": { "type": "Point", "coordinates": [75.95707224036518, 30.850359856170176] }
+	// 		},]
+	// }
+
+	Profile.find({ online: true }, { pos: 1, _id: 0 })
 		.then(profiles => {
 			res.json({
 				confirmation: 'success',
@@ -271,7 +285,7 @@ router.post('/pos/profiles', (req, res) => {
 	// TODO invece di calcolare io il +- 10 della pos, fallo calcolare nel find, con i $gt etc.
 	Profile.find({ online: true })
 		.then(profiles => {
-			var real_pos = profiles.filter(function (item) { return (item.real_position.x > search_x - 10 && item.real_position.x < search_x + 10) && (item.real_position.y > search_y - 10 && item.real_position.y < search_y + 10); })
+			var real_pos = profiles.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
 			res.json({
 				confirmation: 'success',
 				profiles: real_pos,
