@@ -206,20 +206,16 @@ router.post('/profile/create', (req, res) => {
 })
 
 router.post('/profile/allProfiles', (req, res) => {
-	// {
-	// 	"type": "FeatureCollection", "features": [
-	// 		{
-	// 			"type": "Feature",
-	// 			"properties": { "scalerank": 9, "type": "small", "name": "Sahnewal", "abbrev": "LUH", "location": "terminal", "gps_code": "VILD", "iata_code": "LUH", "wikipedia": "http://en.wikipedia.org/wiki/Sahnewal_Airport", "natlscale": 8, "featureclass": "Airport" },
-	// 			"geometry": { "type": "Point", "coordinates": [75.95707224036518, 30.850359856170176] }
-	// 		},]
-	// }
-
-	Profile.find({ online: true }, { pos: 1, _id: 0 })
+	let data = { "type": "FeatureCollection", "features": [] }
+	Profile.find()
 		.then(profiles => {
+			for (let i = 0; i < profiles.length; ++i) {
+				let data2 = { "type": "Feature", "properties": profiles[i], "geometry": { "type": "Point", "coordinates": [profiles[i]['pos']['x'], profiles[i]['pos']['y']] } }
+				data.features.push(data2)
+			}
 			res.json({
 				confirmation: 'success',
-				profiles: profiles,
+				profiles: data,
 			})
 		})
 		.catch(err => {
@@ -228,6 +224,9 @@ router.post('/profile/allProfiles', (req, res) => {
 				message: err.message
 			})
 		})
+	
+	// TODO { pos: 1, _id: 0 } , non dare la password, e forse { online: true }
+	// Profile.find({ online: true }, { pos: 1, _id: 0 })
 })
 
 router.post('/profile/update/saved', (req, res) => {
@@ -388,11 +387,16 @@ router.get('/groups', (req, res) => {
 })
 
 router.get('/group/allGroups', (req, res) => {
-	Group.find({}, { pos: 1, _id: 0 })
+	let data = { "type": "FeatureCollection", "features": [] }
+	Group.find()
 		.then(groups => {
+			for (let i = 0; i < groups.length; ++i) {
+				let data2 = { "type": "Feature", "properties": groups[i], "geometry": { "type": "Point", "coordinates": [groups[i]['pos']['x'], groups[i]['pos']['y']] } }
+				data.features.push(data2)
+			}
 			res.json({
 				confirmation: 'success',
-				groups: groups,
+				groups: data,
 			})
 		})
 		.catch(err => {
@@ -655,11 +659,16 @@ router.post('/question/create', (req, res) => {
 })
 
 router.get('/question/allQuestions', (req, res) => {
-	Question.find({}, { pos: 1, _id: 0 })
+	let data = { "type": "FeatureCollection", "features": [] }
+	Question.find() // {}, { _id: 0 }
 		.then(questions => {
+			for(let i=0; i < questions.length; ++i){
+				let data2 = { "type": "Feature", "properties": questions[i], "geometry": { "type": "Point", "coordinates": [questions[i]['pos']['x'], questions[i]['pos']['y']] }}
+				data.features.push(data2)
+			}
 			res.json({
 				confirmation: 'success',
-				questions: questions,
+				questions: data,
 			})
 		})
 		.catch(err => {

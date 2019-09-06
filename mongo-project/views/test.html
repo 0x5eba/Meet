@@ -12,6 +12,7 @@
     <div id="container">
         <div id="map"></div>
         <canvas id="deck-canvas"></canvas>
+        <div id="tooltip" style="position: absolute; z-index: 1; pointer-events: none;"></div>
     </div>
 </body>
 
@@ -36,22 +37,28 @@
     }
 </style>
 
+<script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script>
 <script>
+
+    const url = 'http://localhost:3001/api/'
 
     function getLocation() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition, showError);
+            navigator.geolocation.getCurrentPosition(showPosition, showError)
         } else {
             alert("Geolocation is not supported by this browser")
         }
     }
-    getLocation()
+    
+    $(document).ready(function() {
+        getLocation()
+    })
 
     function showPosition(position) {
         const state_view = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            zoom: 9,
+            zoom: 5,
             bearing: 0,
             pitch: 30
         }
@@ -63,34 +70,34 @@
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 alert("User denied the request for Geolocation.")
-                break;
+                break
             case error.POSITION_UNAVAILABLE:
                 alert("Location information is unavailable.")
-                break;
+                break
             case error.TIMEOUT:
                 alert("The request to get user location timed out.")
-                break;
+                break
             case error.UNKNOWN_ERROR:
                 alert("An unknown error occurred.")
-                break;
+                break
         }
     }
 
     function setMap(state_view) {
-        mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ';
-        const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson';
+        mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
+        // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
 
         const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v11',
             // Note: deck.gl will be in charge of interaction and event handling
-            interactive: false,
+            // interactive: false,
             center: [state_view.longitude, state_view.latitude],
             zoom: state_view.zoom,
             bearing: state_view.bearing,
             pitch: state_view.pitch
         })
-
+        
         const deck = new Deck({
             canvas: 'deck-canvas',
             width: '100%',
@@ -103,45 +110,132 @@
                     zoom: viewState.zoom,
                     bearing: viewState.bearing,
                     pitch: viewState.pitch
-                });
+                })
             },
             layers: [
                 new GeoJsonLayer({
-                    id: 'airports',
-                    data: AIR_PORTS,
+                    id: 'questions',
+                    data: AllQuestions,
                     // Styles
                     filled: true,
-                    pointRadiusMinPixels: 2,
+                    pointRadiusMinPixels: 7,
+                    pointRadiusMaxPixels: 4,
                     opacity: 1,
                     pointRadiusScale: 500,
-                    getRadius: f => 11 - f.properties.scalerank,
+                    getRadius: 10,
                     radiusMinPixels: 0.5,
-                    getFillColor: [200, 0, 80, 180],
+                    getFillColor: [30, 139, 195],
                     // Interactive props
                     pickable: true,
                     autoHighlight: true,
-                    onClick: info =>
-                        // eslint-disable-next-line
-                        info.object && alert(`${info.object.properties.name} (${info.object.properties.abbrev})`)
+                    onHover: info => setTooltip(info.object),
+                    onClick: info => info.object && alert(info.object.properties.title + "\n" + info.object.properties.details)
                 }),
-                // new ArcLayer({
-                //   id: 'arcs',
-                //   data: AIR_PORTS,
-                //   dataTransform: d => d.features.filter(f => f.properties.scalerank < 4),
-                //   // Styles
-                //   getSourcePosition: f => [-0.4531566, 51.4709959], // London
-                //   getTargetPosition: f => f.geometry.coordinates,
-                //   getSourceColor: [0, 128, 200],
-                //   getTargetColor: [200, 0, 80],
-                //   getWidth: 1
-                // })
+                new GeoJsonLayer({
+                    id: 'groups',
+                    data: Allgroups,
+                    // Styles
+                    filled: true,
+                    pointRadiusMinPixels: 7,
+                    pointRadiusMaxPixels: 4,
+                    opacity: 1,
+                    pointRadiusScale: 500,
+                    getRadius: 10,
+                    radiusMinPixels: 0.5,
+                    getFillColor: [211, 84, 0],
+                    // Interactive props
+                    pickable: true,
+                    autoHighlight: true,
+                    onHover: info => setTooltip(info.object),
+                    onClick: info => info.object && alert(info.object.properties.name)
+                }),
+                new GeoJsonLayer({
+                    id: 'profiles',
+                    data: AllProfiles,
+                    // Styles
+                    filled: true,
+                    pointRadiusMinPixels: 7,
+                    pointRadiusMaxPixels: 4,
+                    opacity: 1,
+                    pointRadiusScale: 500,
+                    getRadius: 10,
+                    radiusMinPixels: 0.5,
+                    getFillColor: [46, 204, 113],
+                    // Interactive props
+                    pickable: true,
+                    autoHighlight: true,
+                    onHover: info => setTooltip(info.object),
+                    onClick: info => info.object && alert(info.object.properties.name + "\n" + info.object.properties.surname)
+                }),
             ]
         })
 
-        var popup = new mapboxgl.Popup({ closeOnClick: false })
-            .setLngLat([state_view.longitude, state_view.latitude])
-            .setHTML('<h1>I am Here</h1>')
-            .addTo(map);
+        // var popup = new mapboxgl.Popup({ closeOnClick: false })
+        //     .setLngLat([state_view.longitude, state_view.latitude])
+        //     .setHTML('<h1>I am Here</h1>' + state_view.longitude + " " + state_view.latitude )
+        //     .addTo(map)
 
     }
+
+    var mousePos = {}
+    $("body").mousemove(function (e) {
+        mousePos = { x: e.pageX, y: e.pageY }
+    })
+
+    function setTooltip(object) {
+        const el = document.getElementById('tooltip');
+        if(object){
+            el.innerHTML = object.properties.name;
+            el.style.display = 'block';
+            el.style.position = "absolute";
+            el.style.left = mousePos.x + 'px';
+            el.style.top = mousePos.y + 'px';
+        } else {
+            el.style.display = 'none';
+        }
+    }
+
+    var AllProfiles = {}
+    function initProfiles() {
+        let Http = new XMLHttpRequest()
+        Http.open("POST", url + 'profile/allProfiles', true)
+        Http.send()
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let profiles = JSON.parse(Http.responseText)
+                AllProfiles = profiles['profiles']
+            }
+        }
+    }
+    initProfiles()
+
+    var Allgroups = {}
+    function initGroups() {
+        let Http = new XMLHttpRequest()
+        Http.open("GET", url + 'group/allGroups', true)
+        Http.send()
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let groups = JSON.parse(Http.responseText)
+                Allgroups = groups['groups']
+            }
+        }
+    }
+    initGroups()
+
+    var AllQuestions = {}
+    function initQuestions() {
+        let Http = new XMLHttpRequest()
+        Http.open("GET", url + 'question/allQuestions', true)
+        Http.send()
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let questions = JSON.parse(Http.responseText)
+                AllQuestions = questions['questions']
+            }
+        }
+    }
+    initQuestions()
+    
+
 </script>
