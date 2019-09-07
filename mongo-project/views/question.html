@@ -92,19 +92,20 @@
 <script>
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
-    var x = currentUrl.searchParams.get("x");
-    x = parseFloat(x)
-    var y = currentUrl.searchParams.get("y");
-    y = parseFloat(y)
-    var action = currentUrl.searchParams.get("action");
-    var nick = ""
-    var title = "";
+    
+    var nick = "seba"
+    var title = currentUrl.searchParams.get("title");
     var question = {};
     var answers = [];
 
     var profileData;
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
+        if (profileData === null) {
+            window.location.href = "http://localhost:3001/index"
+        } else if (profileData['nickname'] === null || profileData['password'] === null) {
+            window.location.href = "http://localhost:3001/index"
+        }
         let params = JSON.stringify({
             nickname: profileData['nickname'],
             password: profileData['password'],
@@ -131,13 +132,12 @@
     }
     session()
 
-    if (action == "create") {
-        document.getElementById("askQuestion").style.display = "block"
-    }
+    if (title === null) {
 
-    if (action == "show") {
+        document.getElementById("askQuestion").style.display = "block"
+
+    } else {
         document.getElementById("showQuestion").style.display = "block"
-        title = currentUrl.searchParams.get("title");
 
         getQuestionAndAnswers()
     }
@@ -174,7 +174,7 @@
                 nickname: nick,
             },
             update: {
-                $addToSet: { savedQuestion: { question: question["title"], pos : {x:x, y:y}} }
+                $addToSet: { savedQuestion: question["title"] }
             },
             extra: {
                 upsert: true, new: true
@@ -225,6 +225,11 @@
             }
         });
 
+        var x = currentUrl.searchParams.get("x");
+        x = parseFloat(x)
+        var y = currentUrl.searchParams.get("y");
+        y = parseFloat(y)
+
         let params = JSON.stringify({
             nickname: nick,
             pos: { x: x, y: y },
@@ -254,7 +259,6 @@
     function getQuestionAndAnswers() {
         let params = JSON.stringify({
             title: title,
-            pos: { x: x, y: y },
         })
         const Http = new XMLHttpRequest();
         Http.open("POST", url + 'question/getQuestion', true);
@@ -276,7 +280,6 @@
 
         let params2 = JSON.stringify({
             title: title,
-            pos: { x: x, y: y },
         })
         const Http2 = new XMLHttpRequest();
         Http2.open("POST", url + 'answer/group', true);
@@ -299,7 +302,7 @@
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["details"]
         let creator = document.getElementById("creator")
-        creator.innerHTML = "Created by " + question['nickname']
+        creator.innerHTML = "Created by <b>" + question['nickname'] + "</b>"
         if (question["imgUrl"] != "" && validURL(question["imgUrl"]) == true) {
             document.getElementById("img_show").src = question["imgUrl"]
         } else {
@@ -540,11 +543,10 @@
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
-                console.log("updateVoteAnswer ", response)
                 if (response["confirmation"] == "success") {
                     getQuestionAndAnswers()
                 } else {
-                    console.log(response)
+                    console.log("updateVoteAnswer ", response)
                 }
             }
         }
@@ -583,7 +585,9 @@
 
         let textDiv = document.createElement("div")
         textDiv.setAttribute("class", "col-xs-11")
-
+        
+        let creator = document.createElement("p")
+        creator.innerHTML = "<b>" + element["nickname"] + "</b>"
         let p = document.createElement("p")
         p.innerHTML = element["data"]
         let button = document.createElement("button")
@@ -614,6 +618,7 @@
         let marginLeft = 60 * (element["level"] + 1)
         div.style.marginLeft = marginLeft + "px"
         div.style.marginTop = "20px"
+        textDiv.appendChild(creator)
         textDiv.appendChild(p)
         textDiv.appendChild(button)
 
@@ -628,8 +633,8 @@
     function createAnswer(level, idParent, data, input) {
         let params = JSON.stringify({
             title: title,
+            nickname: nick,
             data: data,
-            pos: { x: x, y: y },
             time: Date.now(),
             level: level,
             vote: 0,

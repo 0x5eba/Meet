@@ -6,8 +6,8 @@ var SchemaTypes = mongoose.Schema.Types;
 
 const Answer = new mongoose.Schema({
     title: { type: String, require: true, default: "" },
-    pos: { x: { type: SchemaTypes.Double, require: true, default: 0 }, y: { type: SchemaTypes.Double, require: true, default: 0 } },
 
+    nickname: { type: String, require: true, default: "" },
     time: { type: Number, default: 0 },
     level: { type: Number, default: 0 },
     data: { type: String, require: true, minlength: 1, default: "" },

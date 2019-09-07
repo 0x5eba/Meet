@@ -156,10 +156,14 @@
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
     
-
     var profileData;
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
+        if(profileData === null){
+            window.location.href = "http://localhost:3001/index"
+        } else if(profileData['nickname'] === null || profileData['password'] === null){
+            window.location.href = "http://localhost:3001/index"
+        }
         let params = JSON.stringify({
             nickname: profileData['nickname'],
             password: profileData['password'],
@@ -184,12 +188,14 @@
     }
     session()
 
-    var id = currentUrl.searchParams.get("id");
-    if(id != null){
-        getProfile()
-    } else {
-        console.log("No id");
-    }
+    $(document).ready(function () {
+        var nickname = currentUrl.searchParams.get("nickname");
+        if(nickname != null){
+            getProfile(nickname)
+        } else {
+            console.log("No nickname");
+        }
+    })
 
     function timeConverter(UNIX_timestamp) {
         var a = new Date(UNIX_timestamp);
@@ -204,20 +210,20 @@
         return time;
     }
 
-    function getProfile() {
+    function getProfile(nickname) {
         let params = JSON.stringify({
-            id: id,
+            nickname: nickname,
         })
 
         const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/id', true);
+        Http.open("POST", url + 'profile/nickname', true);
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    let profile = response["profile"]
+                    let profile = response["data"]
                     document.getElementById("nickname").innerHTML = profile["nickname"]
                     document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
                     document.getElementById("bio").innerHTML = profile["bio"]

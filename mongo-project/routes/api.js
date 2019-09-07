@@ -68,6 +68,23 @@ router.post('/profile/login', (req, res) => {
 		})
 })
 
+router.post('/profile/nickname', (req, res) => {
+	const nick = req.body.nickname
+	Profile.findOne({ nickname: nick }, { _id: 0, password: 0, savedGroup: 0, savedQuestion: 0 })
+		.then(profile => {
+			res.json({
+				confirmation: 'success',
+				data: profile,
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 router.post('/profile/getSaved', (req, res) => {
 	const nick = req.body.nick
 	Profile.findOne({ nickname: nick }, { _id: 0, savedGroup: 1, savedQuestion: 1 })
@@ -85,25 +102,22 @@ router.post('/profile/getSaved', (req, res) => {
 		})
 })
 
-router.post('/profile/id', (req, res) => {
-	const id = req.body.id
-
-	Profile.findById(id)
-		.then(profile => {
-			res.json({
-				confirmation: 'success',
-				profile: profile,
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
-
-// const CircularJSON = require('circular-json');
+// router.post('/profile/id', (req, res) => {
+// 	const id = req.body.id
+// 	Profile.findById(id)
+// 		.then(profile => {
+// 			res.json({
+// 				confirmation: 'success',
+// 				profile: profile,
+// 			})
+// 		})
+// 		.catch(err => {
+// 			res.json({
+// 				confirmation: 'fail',
+// 				message: err.message
+// 			})
+// 		})
+// })
 
 router.post('/profile/update', (req, res) => {
 	const nick = req.body.search.nickname
@@ -136,8 +150,6 @@ router.post('/profile/update', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: profile,
-				// query: CircularJSON.stringify(req),
-				query: query
 			})
 		})
 		.catch(err => {
@@ -185,7 +197,6 @@ router.post('/profile/create', (req, res) => {
 						res.json({
 							confirmation: 'success',
 							data: profile,
-							query: req.body
 						})
 					})
 					.catch(err => {
@@ -206,12 +217,12 @@ router.post('/profile/create', (req, res) => {
 })
 
 router.post('/profile/allProfiles', (req, res) => {
-	let data = { "type": "FeatureCollection", "features": [] }
-	Profile.find()
+	let data = []
+	Profile.find({}, { _id: 0, nickname: 1, pos: 1 })
 		.then(profiles => {
 			for (let i = 0; i < profiles.length; ++i) {
-				let data2 = { "type": "Feature", "properties": profiles[i], "geometry": { "type": "Point", "coordinates": [profiles[i]['pos']['x'], profiles[i]['pos']['y']] } }
-				data.features.push(data2)
+				let data2 = { 'coordinates': [profiles[i]['pos']['x'], profiles[i]['pos']['y']], 'nickname': profiles[i]['nickname'] }
+				data.push(data2)
 			}
 			res.json({
 				confirmation: 'success',
@@ -240,7 +251,6 @@ router.post('/profile/update/saved', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: profile,
-				query: query
 			})
 		})
 		.catch(err => {
@@ -261,101 +271,6 @@ router.post('/profile/update/status', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: profile,
-				query: query
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
-
-/*************************
-*           POS          *
-**************************/
-
-router.post('/pos/profiles', (req, res) => {
-	const query = req.body
-	const search_x = query.x
-	const search_y = query.y
-
-	// TODO invece di calcolare io il +- 10 della pos, fallo calcolare nel find, con i $gt etc.
-	Profile.find({ online: true })
-		.then(profiles => {
-			var real_pos = profiles.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
-			res.json({
-				confirmation: 'success',
-				profiles: real_pos,
-				query: query,
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
-
-router.post('/pos/groups', (req, res) => {
-	const query = req.body
-	const search_x = query.x
-	const search_y = query.y
-
-	// { $project: { nOnline: { $size: '$peopleOnline' } } }
-
-	// Group.aggregate([{
-	// 		$addFields: {
-	// 			nOnline: { $size: '$peopleOnline' }
-	// 		}
-	// 	},
-	// 	{ $sort: { nOnline: 'desc' } }
-	// ]).then(groups => {
-	// 		res.json({
-	// 			confirmation: 'success',
-	// 			groups: groups,
-	// 			query: query,
-	// 		})
-	// 	})
-	// 	.catch(err => {
-	// 		res.json({
-	// 			confirmation: 'fail',
-	// 			message: err.message
-	// 		})
-	// 	})
-
-	Group.find()
-		.then(groups => {
-			let res_groups = groups.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
-			res.json({
-				confirmation: 'success',
-				groups: res_groups,
-				query: query,
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
-
-
-router.post('/pos/questions', (req, res) => {
-	const query = req.body
-	const search_x = query.x
-	const search_y = query.y
-
-	Question.find().sort({vote: 'desc', time: 'desc'})
-		.then(question => {
-			let res_question = question.filter(function (item) { return (item.pos.x > search_x - 10 && item.pos.x < search_x + 10) && (item.pos.y > search_y - 10 && item.pos.y < search_y + 10); })
-			res.json({
-				confirmation: 'success',
-				questions: res_question,
-				query: query,
 			})
 		})
 		.catch(err => {
@@ -387,12 +302,12 @@ router.get('/groups', (req, res) => {
 })
 
 router.get('/group/allGroups', (req, res) => {
-	let data = { "type": "FeatureCollection", "features": [] }
-	Group.find()
+	let data = []
+	Group.find({}, {_id:0, name:1, pos:1})
 		.then(groups => {
 			for (let i = 0; i < groups.length; ++i) {
-				let data2 = { "type": "Feature", "properties": groups[i], "geometry": { "type": "Point", "coordinates": [groups[i]['pos']['x'], groups[i]['pos']['y']] } }
-				data.features.push(data2)
+				let data2 = { 'coordinates': [groups[i]['pos']['x'], groups[i]['pos']['y']], 'name': groups[i]['name'] }
+				data.push(data2)
 			}
 			res.json({
 				confirmation: 'success',
@@ -434,7 +349,6 @@ router.post('/group/create', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: group,
-				query: req.body
 			})
 		})
 		.catch(err => {
@@ -448,8 +362,8 @@ router.post('/group/create', (req, res) => {
 
 router.post('/group/updateOnline', (req, res) => {
 	const query = req.body
-	// {search: {name: , pos: }, update: {$inc:{nOnline: 1}, $push: {peopleOnline : {nickname: , id} }}}
-	// {search: {name: , pos: }, update: {$inc:{nOnline: -1}, $pull: {peopleOnline : {nickname: , id} }}}
+	// {search: {name: }, update: {$inc:{nOnline: 1}, $push: {peopleOnline : {nickname: , id} }}}
+	// {search: {name: }, update: {$inc:{nOnline: -1}, $pull: {peopleOnline : {nickname: , id} }}}
 	const search = query.search
 	const update = query.update
 	const extra = query.extra
@@ -459,7 +373,6 @@ router.post('/group/updateOnline', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: groups,
-				query: query
 			})
 		})
 		.catch(err => {
@@ -472,9 +385,8 @@ router.post('/group/updateOnline', (req, res) => {
 
 router.post('/group/peopleOnline', (req, res) => {
 	const name = req.body.name
-	const pos = req.body.pos
 
-	Group.find({ name: name, pos: pos }, { peopleOnline: 1, _id: 0 })
+	Group.find({ name: name }, { peopleOnline: 1, _id: 0 })
 		.then(group => {
 			res.json({
 				confirmation: 'success',
@@ -491,9 +403,8 @@ router.post('/group/peopleOnline', (req, res) => {
 
 router.post('/group/nOnline', (req, res) => {
 	const name = req.body.name
-	const pos = req.body.pos
 
-	Group.aggregate([{ $match: { name: name, pos: pos } }, { $project: { nOnline: { $size: '$peopleOnline' } } }])
+	Group.aggregate([{ $match: { name: name } }, { $project: { nOnline: { $size: '$peopleOnline' } } }])
 		.then(nOnline => {
 			res.json({
 				confirmation: 'success',
@@ -508,23 +419,6 @@ router.post('/group/nOnline', (req, res) => {
 		})
 })
 
-router.post('/group/getGroup', (req, res) => {
-	const title = req.body.title
-	const pos = req.body.pos
-	Group.findOne({ title: title, pos: pos })
-		.then(group => {
-			res.json({
-				confirmation: 'success',
-				group: group,
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
 
 /*************************
 *     GROUP MESSAGES     *
@@ -548,10 +442,9 @@ router.get('/chats', (req, res) => {
 
 router.post('/chat/messages', (req, res) => {
 	const name = req.body.name
-	const pos = req.body.pos
 	const limit = req.body.limit
 
-	GroupMessages.find({ name_group: name, pos: pos }, { sender: 1, time: 1, message: 1, _id: 0 }).sort({ 'time': 'desc' }).limit(limit)
+	GroupMessages.find({ name_group: name }, { sender: 1, time: 1, message: 1, _id: 0 }).sort({ 'time': 'desc' }).limit(limit)
 		.exec(function (err, message) {
 			if (err != null) {
 				res.json({
@@ -569,10 +462,9 @@ router.post('/chat/messages', (req, res) => {
 
 router.post('/chat/update', (req, res) => {
 	const name = req.body.name
-	const pos = req.body.pos
 	const lastTime = req.body.lastTime
 
-	GroupMessages.find({ name_group: name, pos: pos, time: { $gt: lastTime } }, { time: 1, _id: 0 }).sort({ 'time': 'desc' }).limit(1)
+	GroupMessages.find({ name_group: name, time: { $gt: lastTime } }, { time: 1, _id: 0 }).sort({ 'time': 'desc' }).limit(1)
 		.exec(function (err, message) {
 			res.json({
 				confirmation: 'success',
@@ -583,12 +475,11 @@ router.post('/chat/update', (req, res) => {
 
 router.post('/chat/write', (req, res) => {
 	const name = req.body.name
-	const pos = req.body.pos
 	const sender = req.body.sender
 	const message = req.body.message
 	const time = req.body.time
 
-	Group.find({ name: name, pos: pos })
+	Group.find({ name: name})
 		.then(groups => {
 			if (groups.length == 0) {
 				res.json({
@@ -606,7 +497,7 @@ router.post('/chat/write', (req, res) => {
 			return
 		})
 
-	GroupMessages.create({ name_group: name, pos: pos, sender: sender, time: time, message: message })
+	GroupMessages.create({ name_group: name, sender: sender, time: time, message: message })
 		.then(message => {
 			res.json({
 				confirmation: 'success',
@@ -647,7 +538,6 @@ router.post('/question/create', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: question,
-				query: req.body
 			})
 		})
 		.catch(err => {
@@ -659,12 +549,12 @@ router.post('/question/create', (req, res) => {
 })
 
 router.get('/question/allQuestions', (req, res) => {
-	let data = { "type": "FeatureCollection", "features": [] }
-	Question.find() // {}, { _id: 0 }
+	let data = []
+	Question.find({}, { _id: 0, title: 1, pos: 1 })
 		.then(questions => {
-			for(let i=0; i < questions.length; ++i){
-				let data2 = { "type": "Feature", "properties": questions[i], "geometry": { "type": "Point", "coordinates": [questions[i]['pos']['x'], questions[i]['pos']['y']] }}
-				data.features.push(data2)
+			for (let i = 0; i < questions.length; ++i) {
+				let data2 = { 'coordinates': [questions[i]['pos']['x'], questions[i]['pos']['y']], 'title': questions[i]['title'] }
+				data.push(data2)
 			}
 			res.json({
 				confirmation: 'success',
@@ -681,8 +571,7 @@ router.get('/question/allQuestions', (req, res) => {
 
 router.post('/question/getQuestion', (req, res) => {
 	const title = req.body.title
-	const pos = req.body.pos
-	Question.findOne({ title: title, pos: pos })
+	Question.findOne({ title: title})
 		.then(question => {
 			res.json({
 				confirmation: 'success',
@@ -703,7 +592,7 @@ router.post('/question/updateVote', (req, res) => {
 	const update = query.update
 	const nick = query.nick
 
-	Question.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } }, { new: true })
+	Question.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } })
 		.then(question => {
 			if (question["nModified"] == 1) {
 				Question.updateOne({ _id: search }, update)
@@ -711,7 +600,6 @@ router.post('/question/updateVote', (req, res) => {
 						res.json({
 							confirmation: 'success',
 							data: question,
-							query: req.body
 						})
 					})
 					.catch(err => {
@@ -747,7 +635,6 @@ router.post('/question/updateView', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: question,
-				query: req.body
 			})
 		})
 		.catch(err => {
@@ -764,8 +651,7 @@ router.post('/question/updateView', (req, res) => {
 
 router.post('/answer/group', (req, res) => {
 	const title = req.body.title
-	const pos = req.body.pos
-	Answer.find({ title: title, pos: pos }).sort({ level: 'asc', vote: 'desc', time: 'asc' })
+	Answer.find({ title: title }).sort({ level: 'asc', vote: 'desc', time: 'asc' })
 		.then(answers => {
 			res.json({
 				confirmation: 'success',
@@ -786,7 +672,6 @@ router.post('/answer/create', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				data: answer,
-				query: req.body
 			})
 		})
 		.catch(err => {
@@ -819,7 +704,7 @@ router.post('/answer/updateVote', (req, res) => {
 	const update = query.update
 	const nick = query.nick
 
-	Answer.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } }, { new: true })
+	Answer.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } })
 		.then(answer => {
 			if (answer["nModified"] == 1) {
 				Answer.updateOne({ _id: search }, update)
@@ -827,7 +712,6 @@ router.post('/answer/updateVote', (req, res) => {
 						res.json({
 							confirmation: 'success',
 							data: answer,
-							query: req.body
 						})
 					})
 					.catch(err => {
@@ -866,7 +750,6 @@ router.post('/search/question', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				question: question,
-				query: req.body
 			})
 		})
 		.catch(err => {
@@ -886,7 +769,6 @@ router.post('/search/group', (req, res) => {
 			res.json({
 				confirmation: 'success',
 				group: group,
-				query: req.body
 			})
 		})
 		.catch(err => {
@@ -920,7 +802,6 @@ router.post('/search/profile', (req, res) => {
 				res.json({
 					confirmation: 'success',
 					profile: values,
-					query: req.body
 				})
 			})
 		})
