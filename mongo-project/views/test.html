@@ -6,12 +6,14 @@
 
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
     <div id="container">
         <div id="map"></div>
         <canvas id="deck-canvas"></canvas>
+        <div id="control-panel"></div>
     </div>
     <!-- <div id="tooltip" style="position: absolute; z-index: 1; pointer-events: none; display: none;">
         <a href="google.com" id='nameTooltip'></a>
@@ -25,6 +27,8 @@
     body {
         margin: 0;
         padding: 0;
+        width: 100vw;
+        height: 100vh;
     }
 
     #container {
@@ -37,6 +41,22 @@
         top: 0;
         bottom: 0;
         width: 100%;
+    }
+
+    #control-panel {
+        font-size: 12px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 12px;
+        padding: 20px;
+        /* line-height: 2; */
+        z-index: 1;
+        /* background: #fff;
+        border: solid 1px #ccc;
+        border-bottom-color: #bbb;
+        border-radius: 3px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.15); */
     }
 </style>
 
@@ -53,10 +73,6 @@
         }
     }
     
-    $(document).ready(function() {
-        getLocation()
-    })
-
     function showPosition(position) {
         const state_view = {
             latitude: position.coords.latitude,
@@ -181,11 +197,40 @@
             ]
         })
 
-        // var popup = new mapboxgl.Popup({ closeOnClick: false })
-        //     .setLngLat([state_view.longitude, state_view.latitude])
-        //     .setHTML('<h1>I am Here</h1>' + state_view.longitude + " " + state_view.latitude )
-        //     .addTo(map)
+        const mainDiv = d3.select('#control-panel').selectAll('div')
+            .data([{text: "home"}]).enter().append('div')
+        
+        mainDiv.append('button').text(d => d.text).on('click', d => {
+            deck.setProps({
+                viewState: {
+                    longitude: state_view.longitude,
+                    latitude: state_view.latitude,
+                    zoom: 8,
+                    transitionInterpolator: new FlyToInterpolator(),
+                    transitionDuration: 1000
+                }
+            })
+        })
 
+        map.addControl(new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true
+        }));
+        map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
+        map.doubleClickZoom.enable();
+        map.touchZoomRotate.enable({ around: 'center' });
+       
+        // var marker = new mapboxgl.Marker()
+        //     .setLngLat([30.5, 50.5])
+        //     .addTo(map);
+        // var popup = new mapboxgl.Popup()
+        //     .setLngLat([state_view.longitude, state_view.latitude])
+        //     .setHTML('<h1>I am Here</h1>')
+        //     .addTo(map)
+        
+        // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
     }
 
     /*
@@ -308,6 +353,9 @@
         }
     }
     initQuestions()
-    
+
+    $(document).ready(function () {
+        getLocation()
+    })
 
 </script>

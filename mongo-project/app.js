@@ -24,6 +24,9 @@ const path = require('path');
 router.get('/index', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/index.html'));
 });
+router.get('/b', function (req, res) {
+	res.sendFile(path.join(__dirname + '/views/button.html'));
+});
 router.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/test.html'));
 });
