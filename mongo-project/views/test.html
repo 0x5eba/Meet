@@ -28,27 +28,37 @@
 </head>
 
 <body>
-    <div id="container">
+    <div>
         <div id="map"></div>
         <canvas id="deck-canvas"></canvas>
         <div id="control-panel"></div>
     </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <span class="close">&times;</span>
+
+            <div id='search-icon'>
+                <div class="d-flex justify-content-center" style="margin:10px; margin-bottom: 30px;">
+                    <div class="searchbar">
+                        <input class="search_input" type="text" placeholder="Search" id="search_bar" autofocus>
+                        <a href="#" class="search_icon" style="color:#e74c3c"><i class="fas fa-search"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="res-search"></div>
+        </div>
+    </div>
+
 </body>
 
 </html>
 
 <style type="text/css">
-    body {
-        margin: 0;
-        padding: 0;
-        /* width: 100vw;
-        height: 100vh; */
-    }
-
-    #container {
-        /* width: 100vw;
-        height: 100vh; */
-    }
+    /* #container {
+        width: 100vw;
+        height: 100vh;
+    } */
 
     #map {
         position: absolute;
@@ -75,86 +85,81 @@
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.15); */
     }
 
-    #btn-home{
+
+    #btn-home {
         position: absolute;
         left: 50%;
         margin-left: -28px;
-        bottom:30px;
-        border:0;
+        bottom: 30px;
+        border: 0;
         background: transparent;
     }
+
     #btn-group {
         position: absolute;
         left: 10%;
         margin-left: -28px;
-        bottom:30px;
-        border:0;
+        bottom: 30px;
+        border: 0;
         background: transparent;
     }
+
     #btn-question {
         position: absolute;
         left: 90%;
         margin-left: -28px;
-        bottom:30px;
-        border:0;
+        bottom: 30px;
+        border: 0;
         background: transparent;
     }
+
     #btn-setting {
         position: absolute;
         left: 90%;
         margin-left: -28px;
-        border:0;
+        border: 0;
         background: transparent;
     }
+
     #btn-bookmark {
         position: absolute;
         left: 10%;
         margin-left: -28px;
-        border:0;
+        border: 0;
         background: transparent;
     }
 
-    body,html{
+    body,
+    html {
         height: 100%;
         width: 100%;
         margin: 0;
         padding: 0;
     }
 
-    .searchbar{
-        margin-bottom: auto;
-        margin-top: auto;
+    .searchbar {
         height: 60px;
         background-color: #353b48;
         border-radius: 30px;
         padding: 10px;
-        margin-left: -50px;
+        margin-left: -28px;
     }
 
-    .search_input{
+    .search_input {
         color: white;
         border: 0;
         outline: 0;
         background: none;
-        width: 0;
-        caret-color:transparent;
+        /* width: 0; */
+        /* caret-color:transparent; */
         line-height: 40px;
         transition: width 0.3s linear;
-    }
-
-    .searchbar:hover > .search_input{
         padding: 0 10px;
-        width: 150px;
-        caret-color:red;
-        transition: width 0.3s linear;
+        width: 40vw;
+        caret-color: red;
     }
 
-    .searchbar:hover > .search_icon{
-        background: white;
-        color: #e74c3c;
-    }
-
-    .search_icon{
+    .search_icon {
         height: 40px;
         width: 40px;
         float: right;
@@ -162,9 +167,82 @@
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        color:white;
+        color: white;
         border: 0;
         background: transparent;
+    }
+
+
+    .modal {
+        position: absolute;
+        display: none;
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        padding-top: 100px;
+        /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+
+    .modal-content {
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: 1px solid #888;
+        background-color: #fefefe;
+        padding: 20px;
+        overflow-y: scroll;
+        overflow: auto;
+    }
+
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+    }
+
+    #titles {
+        padding: 0px 0px 0px 32px;
+        text-decoration: none;
+        font-size: 30px;
+        color: black;
+        display: block;
+    }
+    #profile {
+        padding: 0px 0px 0px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #FF3333;
+        display: block;
+    }
+    #group {
+        padding: 0px 0px 0px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: blue;
+        display: block;
+    }
+    #question {
+        padding: 0px 0px 0px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #32CD32;
+        display: block;
     }
 </style>
 
@@ -173,6 +251,91 @@
 
     const url = 'http://localhost:3001/api/'
 
+    var modal = document.getElementById("myModal");
+    var resSearch = document.getElementById("res-search");
+    document.getElementsByClassName("close")[0].onclick = function () {
+        modal.style.display = "none"
+        resSearch.style.display = "none"
+        document.getElementById("search-icon").style.display = "none"
+    }
+
+    function delay(callback, ms) {
+        var timer = 0;
+        return function () {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                callback.apply(context, args);
+            }, ms || 0);
+        };
+    }
+
+    $("#search_bar").keyup(delay(function (e) {
+        let search = $("#search_bar").val()
+        if(search !== ""){
+            resSearch.innerHTML = ""
+            searchInDB(search, "group")
+            searchInDB(search, "profile")
+            searchInDB(search, "question")
+        } else {
+            resSearch.innerHTML = ""
+        }
+    }, 400))
+
+    function searchInDB(search, type) {
+        let params = JSON.stringify({
+            search: search,
+        })
+
+        let Http = new XMLHttpRequest();
+        Http.open("POST", url + 'search/' + type, true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                console.log(response)
+                if (response["confirmation"] == "success") {
+                    if(response[type].length > 0){
+
+                        let p = document.createElement("p")
+                        let textnode = document.createTextNode(type.charAt(0).toUpperCase() + type.slice(1) + "s");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode)
+                        resSearch.appendChild(p)
+
+                        response[type].forEach(function (element) {
+                            let a = document.createElement("a")
+                            if (type === "group"){
+                                let href = "http://localhost:3001/group?groupname=" + element['name']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['name'])
+                            }
+                            if (type === "question") {
+                                let href = "http://localhost:3001/question?title=" + element['title']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['title'])
+                            }
+                            if (type === "profile") {
+                                let href = "http://localhost:3001/profile?nickname=" + element['nickname']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['nickname'])
+                            }
+                            
+                            a.appendChild(textnode)
+                            resSearch.appendChild(a)
+                        })
+                    }
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
     function getLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(showPosition, showError)
@@ -180,7 +343,7 @@
             alert("Geolocation is not supported by this browser")
         }
     }
-    
+
     function showPosition(position) {
         const state_view = {
             latitude: position.coords.latitude,
@@ -223,7 +386,7 @@
             bearing: state_view.bearing,
             pitch: state_view.pitch
         })
-        
+
         const deck = new Deck({
             canvas: 'deck-canvas',
             width: '100%',
@@ -306,46 +469,46 @@
         })
 
         const mainDiv = d3.select('#control-panel').selectAll('div').data([{ text: "home" }]).enter().append('div')
-        
+
         mainDiv.append('button').attr("id", "btn-home")
-        .on('click', d => {
-            deck.setProps({
-                viewState: {
-                    longitude: state_view.longitude,
-                    latitude: state_view.latitude,
-                    zoom: 9,
-                    transitionInterpolator: new FlyToInterpolator(),
-                    transitionDuration: 1000
-                }
+            .on('click', d => {
+                deck.setProps({
+                    viewState: {
+                        longitude: state_view.longitude,
+                        latitude: state_view.latitude,
+                        zoom: 9,
+                        transitionInterpolator: new FlyToInterpolator(),
+                        transitionDuration: 1000
+                    }
+                })
             })
-        })
-        .append("img").attr("src", "home2.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "home2.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         mainDiv.append('button').attr("id", "btn-group")
-        .on('click', d => {
-            let href = "http://localhost:3001/group"
-            window.location.href = href
-        })
-        .append("img").attr("src", "chatgroup.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .on('click', d => {
+                let href = "http://localhost:3001/group"
+                window.location.href = href
+            })
+            .append("img").attr("src", "chatgroup.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         mainDiv.append('button').attr("id", "btn-question")
-        .on('click', d => {
-            let href = "http://localhost:3001/question"
-            window.location.href = href
-        })
-        .append("img").attr("src", "askquestion.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .on('click', d => {
+                let href = "http://localhost:3001/question"
+                window.location.href = href
+            })
+            .append("img").attr("src", "askquestion.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         mainDiv.append('button').attr("id", "btn-bookmark")
-        .on('click', d => {
-            
-        })
-        .append("img").attr("src", "bookmark.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .on('click', d => {
+
+            })
+            .append("img").attr("src", "bookmark.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         mainDiv.append('button').attr("id", "btn-setting")
-        .on('click', d => {
-            
-        })
-        .append("img").attr("src", "setting.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .on('click', d => {
+
+            })
+            .append("img").attr("src", "setting.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         /*
         <div class="container h-100" >
@@ -357,15 +520,14 @@
             </div>
         </div>
         */
-        let div_search = mainDiv.append('div').attr("class", "container").style("position", "absolute")
-        .append('div').attr("class", "d-flex justify-content-center h-100")
-        .append('div').attr("class", "searchbar")
-        div_search.append("input").attr("class", "search_input").attr("type", "text").attr("placeholder", "Search").attr("id", "search_bar")
+        let div_search = mainDiv.append('div').attr("class", "searchbar")
+            .style("position", "absolute").style("left", "50%")
+            .on('click', d => {
+                modal.style.display = "block"
+                document.getElementById("search-icon").style.display = "block"
+            })
+        // div_search.append("input").attr("class", "search_input").attr("type", "text").attr("placeholder", "Search").attr("id", "search_bar")
         div_search.append("button").attr("class", "search_icon").append("i").attr("class", "fas fa-search")
-        
-        $("#search_bar").keyup(function() {
-            let search = $("#search_bar").val()
-        })
 
 
         // map.addControl(new mapboxgl.GeolocateControl({
@@ -386,25 +548,25 @@
         //     .setLngLat([state_view.longitude, state_view.latitude])
         //     .setHTML('<h1>I am Here</h1>')
         //     .addTo(map)
-        
+
         // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
     }
 
 
-    function changePage(object, type){
+    function changePage(object, type) {
         if (object) {
-            if (type === "group"){
+            if (type === "group") {
                 let href = "http://localhost:3001/group?groupname=" + object['name']
                 window.location.href = href
-            } 
+            }
             if (type === "question") {
                 let href = "http://localhost:3001/question?title=" + object['title']
                 window.location.href = href
-            } 
+            }
             if (type === "profile") {
                 let href = "http://localhost:3001/profile?nickname=" + object['nickname']
                 window.location.href = href
-            } 
+            }
         }
     }
 

@@ -743,9 +743,16 @@ router.post('/answer/updateVote', (req, res) => {
 router.post('/search/question', (req, res) => {
 	const search = req.body.search
 	// .sort({ "score": { "$meta": "textScore" }, vote: 'desc', time: 'desc', views: 'desc'})
-	Question.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
-		"score": { "$meta": "textScore" }
-	})
+	// Question.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
+	// 	"score": { "$meta": "textScore" }
+	// })
+	Question.find({
+		"$or": [
+			{ title: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+			{ details: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+			{ hashtags: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }
+		]
+		}).limit(20)
 		.then(question => {
 			res.json({
 				confirmation: 'success',
@@ -762,9 +769,11 @@ router.post('/search/question', (req, res) => {
 
 router.post('/search/group', (req, res) => {
 	const search = req.body.search
-	Group.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
-		"score": { "$meta": "textScore" }
-	})
+	// Group.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
+	// 	"score": { "$meta": "textScore" }
+	// })
+
+	Group.find({ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }).limit(10)
 		.then(group => {
 			res.json({
 				confirmation: 'success',
@@ -781,29 +790,45 @@ router.post('/search/group', (req, res) => {
 
 router.post('/search/profile', (req, res) => {
 	const search = req.body.search
-	Profile.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
-		"score": { "$meta": "textScore" }
-	})
+	// Profile.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
+	// 	"score": { "$meta": "textScore" }
+	// })
+	Profile.find({
+		"$or": [
+			{ nickname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+			{ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+			{ surname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }
+		]
+	}).limit(20)
 		.then(profiles => {
-
-			var prom1 = new Promise(function (resolve, reject) {
-				for (let a = 0; a < profiles.length; ++a) {
-					Profile.findById(profiles[a]["_id"], { nickname: 1 }).then(profile2 => {
-						resolve({ nickname: profile2['nickname'], name: profile2['name'], surname: profile2['surname'], _id: profile2['_id']});
-					})
-					.catch(err => {
-						console.log(err);
-					})
-				}
-			})
-			
-			var promisesArray = [prom1];
-			Promise.all(promisesArray).then(values => {
+			if (profiles.length === 0) {
 				res.json({
 					confirmation: 'success',
-					profile: values,
+					profile: [],
 				})
-			})
+			} else {
+				var prom1 = new Promise(function (resolve, reject) {
+					if (profiles.length == 0) {
+						resolve()
+					}
+					for (let a = 0; a < profiles.length; ++a) {
+						Profile.findById(profiles[a]["_id"], { nickname: 1 }).then(profile2 => {
+							resolve({ nickname: profile2['nickname'], name: profile2['name'], surname: profile2['surname'], _id: profile2['_id'] });
+						})
+							.catch(err => {
+								console.log(err);
+							})
+					}
+				})
+
+				var promisesArray = [prom1];
+				Promise.all(promisesArray).then(values => {
+					res.json({
+						confirmation: 'success',
+						profile: values,
+					})
+				})
+			}
 		})
 		.catch(err => {
 			res.json({
