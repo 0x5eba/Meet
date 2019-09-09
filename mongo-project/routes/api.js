@@ -750,7 +750,7 @@ router.post('/search/question', (req, res) => {
 		"$or": [
 			{ title: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
 			{ details: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
-			{ hashtags: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }
+			{ details: { "$regex": new RegExp("^[#]" + search.toLowerCase(), "i") } }
 		]
 		}).limit(20)
 		.then(question => {

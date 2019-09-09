@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <link href='https://cdn.jsdelivr.net/npm/froala-editor@3.0.5/css/froala_editor.pkgd.min.css' rel='stylesheet'
+            type='text/css' />
+        <script type='text/javascript'
+            src='https://cdn.jsdelivr.net/npm/froala-editor@3.0.5/js/froala_editor.pkgd.min.js'></script>
+    </head>
+    <body>
+        <div id="main" style="width: 60%; margin-left: 50px">
+            <textarea id="myEditor"></textarea>
+        </div>
+        
+        <script>
+            var settings = {
+                toolbarButtons: {
+                    'moreText': {
+                        'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'textColor', 'clearFormatting']
+                    },
+                    'moreParagraph': {
+                        'buttons': ['alignLeft', 'alignCenter', 'formatOLSimple', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
+                    },
+                    'moreRich': {
+                        'buttons': ['insertLink', 'insertImage', 'insertVideo', 'emoticons', 'specialCharacters', 'embedly', 'insertFile', 'insertHR'],
+                        'buttonsVisible': 4
+                    },
+                    'moreMisc': {
+                        'buttons': ['undo', 'redo', 'help'],
+                        'align': 'right',
+                        'buttonsVisible': 2
+                    }
+                },
+                quickInsertEnabled: false,
+                spellcheck: true,
+                imageUploadURL: '/upload_image',
+            }
+            var FroalaEditor = new FroalaEditor('#myEditor', settings, function() {
+                // window.setInterval(function () {
+                //     console.log(FroalaEditor.html.get())
+                // }, 1000);
+            })
+        </script>
+    </body>
+</html>

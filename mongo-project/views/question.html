@@ -4,51 +4,48 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-        crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-        crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-        crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
+
+    <link href='https://cdn.jsdelivr.net/npm/froala-editor@3.0.5/css/froala_editor.pkgd.min.css' rel='stylesheet'
+        type='text/css' />
+    <script type='text/javascript'
+        src='https://cdn.jsdelivr.net/npm/froala-editor@3.0.5/js/froala_editor.pkgd.min.js'></script>
+
+
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/embed-js/5.0.4/embed.css' rel='stylesheet'
+        type='text/css' />
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/embed-js/5.0.4/embed.js'></script>
 </head>
 
 <body>
     <div id='askQuestion' style="display:none;">
-        <div class="container-fluid">
-            <input type='text' id="title" placeholder='Title' /><br /><br />
-            <div class="row">
-                <div class="col-md-12">
-                    <ul id="tabs" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#tab1" aria-controls="tab1" role="tab"
-                                data-toggle="tab">Text</a></li>
-                        <li role="presentation"><a href="#tab2" aria-controls="tab2" role="tab" data-toggle="tab">Images</a></li>
-                        <li role="presentation"><a href="#tab3" aria-controls="tab3" role="tab" data-toggle="tab">Links</a></li>
-                        <li role="presentation"><a href="#tab4" aria-controls="tab4" role="tab" data-toggle="tab">Hashtags</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="tab1"><br>
-                            <input type='text' id="details" placeholder='Text' /><br /><br />
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="tab2"><br>
-                            <input type='text' id="imgUrl" placeholder='Url image' /><br /><br />
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="tab3"><br>
-                            <input type='text' id="urls" placeholder='Urls (separated by comma)' /><br /><br />
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="tab4"><br>
-                            <input type='text' id="hashtags" placeholder='Hashtags' /><br /><br />
-                        </div>
-                    </div>
-                </div>
+        <div class="container-fluid" style="margin: 20px; width: 90%">
+
+            <div class="input-group input-group-lg">
+                <input type="text" id="title" class="form-control" style="border-radius:10px;" aria-label="Large"
+                    aria-describedby="inputGroup-sizing-sm" placeholder='Insert the title'>
             </div>
             </br>
-            <input type='submit' value='Ask this question' onclick="return askQuestion();">
+
+            <textarea id="myEditor"></textarea>
+
+            </br>
+            <button type="button" class="btn btn-outline-primary" onclick="return askQuestion();"
+                style="border-color: #1569C7">Create</button>
         </div>
     </div>
 
@@ -56,20 +53,14 @@
     <div id='showQuestion' style="display:none;">
         <div class="container-fluid">
             <div class="row">
-                <!-- style="text-align: center;" -->
-                <div class="col-xs-1" id="divVoteQuestion"> 
-                    
+                <div class="col-xs-1" style="margin: 10px; margin-right: 20px;" id="divVoteQuestion">
+
                 </div>
-                <div class="col-xs-11">
-                    <div class="row" id="title_show"></div></br>
+                <div class="col-xs-10" style="margin-top: 10px;">
+                    <div class="row"><h3 id="title_show"></h3></div></br>
                     <div class="row" id="details_show"></div></br>
-                    <div class="row">
-                        <img id="img_show" width="400" height="400"></br>
-                    </div>
-                    <button onclick="saveQuestion();">Save</button>
-                    <div id='hashtags_show'></div>
-                    <div id='urls_show'></div>
-                    <div id='creator'></div>
+                    <div class="row"><button type="button" class="btn btn-dark" onclick="saveQuestion();" style="border-radius:10px;">Save</button></div></br>
+                    <div class="row"><div id='creator'></div></div>
                 </div>
             </div>
             </br>
@@ -85,7 +76,7 @@
 <style>
     #title_show {
         font-weight: bold;
-        font-size: large;
+        /* font-size: large; */
     }
 </style>
 
@@ -93,14 +84,14 @@
 <script>
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
-    
+
     var nick = ""
     var title = currentUrl.searchParams.get("title");
     var question = {};
     var answers = [];
 
     var profileData;
-    function session(){
+    function session() {
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if (profileData === null) {
             window.location.href = "http://localhost:3001/"
@@ -122,7 +113,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    if(response['data'] == null){
+                    if (response['data'] == null) {
                         window.location.href = "http://localhost:3001/"
                     }
                 } else {
@@ -133,7 +124,89 @@
     }
     session()
 
+    var myFrolaEditor;
     if (title === null) {
+
+        let firstUploadImage = false
+        let firstUploadFile = false
+        var settingsEditor = {
+            toolbarButtons: {
+                'moreText': {
+                    'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'textColor', 'clearFormatting']
+                },
+                'moreParagraph': {
+                    'buttons': ['alignLeft', 'alignCenter', 'formatOLSimple', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
+                },
+                'moreRich': {
+                    'buttons': ['emoticons', 'insertLink', 'insertImage', 'insertFile', 'specialCharacters'],
+                    'buttonsVisible': 5
+                },
+                'moreMisc': {
+                    'buttons': ['undo', 'redo', 'help'],
+                    'align': 'right',
+                    'buttonsVisible': 3
+                },
+            },
+            quickInsertEnabled: false,
+            spellcheck: true,
+            charCounterMax: 140,
+
+            imageUploadURL: 'http://localhost:3001/upload_image',
+            imageUploadMethod: 'POST',
+            imageMaxSize: 5 * 1024 * 1024,
+            imageAllowedTypes: ['jpeg', 'jpg', 'png', 'gif'],
+            
+            fileUploadURL: 'http://localhost:3001/upload_file',
+            
+            events: {
+                'image.beforeUpload': function (images) {
+                    if(firstUploadImage === true){
+                        alert("You can upload only one image per question")
+                        return false
+                    }
+                    firstUploadImage = true
+                },
+                'file.beforeUpload': function (images) {
+                    if (firstUploadFile === true) {
+                        alert("You can upload only one file per question")
+                        return false
+                    }
+                    firstUploadFile = true
+                },
+                'image.removed': function ($img) {
+                    let params = JSON.stringify({
+                        src: $img.attr('src')
+                    })
+
+                    const Http = new XMLHttpRequest();
+                    Http.open("POST", "http://localhost:3001/delete_image", true);
+                    Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                    Http.send(params);
+                    Http.onreadystatechange = (e) => {
+                        if (Http.readyState == 4 && Http.status == 200) {
+                            console.log(Http.responseText)
+                        }
+                    }
+                },
+                'file.unlink': function (file) {
+                    let params = JSON.stringify({
+                        src: file.getAttribute('href')
+                    })
+
+                    const Http = new XMLHttpRequest();
+                    Http.open("POST", "http://localhost:3001/delete_file", true);
+                    Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                    Http.send(params);
+                    Http.onreadystatechange = (e) => {
+                        if (Http.readyState == 4 && Http.status == 200) {
+                            console.log(Http.responseText)
+                        }
+                    }
+                },
+            }
+        }
+
+        myFrolaEditor = new FroalaEditor('#myEditor', settingsEditor)
 
         document.getElementById("askQuestion").style.display = "block"
 
@@ -143,7 +216,7 @@
         getQuestionAndAnswers()
     }
 
-    function increaseView(q){
+    function increaseView(q) {
         let params = JSON.stringify({
             search: {
                 _id: q["_id"],
@@ -169,7 +242,7 @@
         }
     }
 
-    function saveQuestion(){
+    function saveQuestion() {
         let params = JSON.stringify({
             search: {
                 nickname: nick,
@@ -201,30 +274,15 @@
     function askQuestion() {
         let title = document.getElementById("title").value
         if (title.length < 5) {
-            alert("Question too short")
+            alert("Question too short, at least 5 characters")
             return
         }
-        let details = document.getElementById("details").value
-        let imgUrl = document.getElementById("imgUrl").value
-        let urls = document.getElementById("urls").value
-        let hashtags = document.getElementById("hashtags").value
 
-        let urls_split_tmp = urls.split(" ");
-        let urls_split = []
-        urls_split_tmp.forEach(element => {
-            let el = element.replace(/^\s+|\s+$/g, '')
-            if(el.length > 1){
-                urls_split.push()
-            }
-        });
-        let hashtags_split_tmp = hashtags.split(" ");
-        let hashtags_split = []
-        hashtags_split_tmp.forEach(element => {
-            let el = element.replace(/^\s+|\s+$/g, '')
-            if (el.length > 1) {
-                hashtags_split.push()
-            }
-        });
+        let htmlDetails = myFrolaEditor.html.get()
+
+        let d = document.createElement("div")
+        d.innerHTML = htmlDetails.replace(/<br\s*\/?>/gi, ' ')
+        let clearDetails = d.innerText.strip()
 
         let x = profileData['coords'][0]
         let y = profileData['coords'][1]
@@ -233,11 +291,9 @@
             nickname: nick,
             pos: { x: x, y: y },
             title: title,
-            details: details,
+            details: clearDetails,
+            html: htmlDetails,
             time: Date.now(),
-            imgUrl: imgUrl,
-            urls: urls_split,
-            hashtags: hashtags_split,
         })
         const Http = new XMLHttpRequest();
         Http.open("POST", url + 'question/create', true);
@@ -268,7 +324,7 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     question = response["question"]
-                    createDivVoteForQuestion(question)
+                    createVoteForQuestion(question)
                     increaseView(question)
                     htmlQuestion(question)
                 } else {
@@ -297,57 +353,11 @@
         }
     }
 
-    function htmlQuestion(question){
+    function htmlQuestion(question) {
         document.getElementById("title_show").innerHTML = question["title"]
-        document.getElementById("details_show").innerHTML = question["details"]
+        document.getElementById("details_show").innerHTML = question["html"]
         let creator = document.getElementById("creator")
         creator.innerHTML = "Created by <b>" + question['nickname'] + "</b>"
-        if (question["imgUrl"] != "" && validURL(question["imgUrl"]) == true) {
-            document.getElementById("img_show").src = question["imgUrl"]
-        } else {
-            document.getElementById("img_show").style.display = 'none'
-        }
-        document.getElementById("details_show").innerHTML = question["details"]
-        let divUrls = document.getElementById("urls_show")
-        divUrls.innerHTML = ""
-        if ("urls" in question) {
-            question["urls"].forEach(element => {
-                if (validURL(element) == true) {
-                    let a = document.createElement("a")
-                    let br = document.createElement("br")
-                    a.href = element
-                    a.innerHTML = element
-
-                    divUrls.appendChild(a)
-                    divUrls.appendChild(br)
-                }
-            })
-        }
-
-        let divHashtags = document.getElementById("hashtags_show")
-        divHashtags.innerHTML = ""
-        if ("hashtags" in question) {
-            question["hashtags"].forEach(element => {
-                if (/\s/.test(element) == false) {
-                    let a = document.createElement("a")
-                    let br = document.createElement("br")
-                    a.href = element
-                    a.innerHTML = element
-                    divHashtags.appendChild(br)
-                    divHashtags.appendChild(a)
-                }
-            })
-        }
-    }
-
-    function validURL(str) {
-        var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-        return !!pattern.test(str);
     }
 
     function createDivAnswers() {
@@ -435,7 +445,7 @@
         }
     }
 
-    function createDivVoteForQuestion(question) {
+    function createVoteForQuestion(question) {
         let divVoteQuestion = document.getElementById("divVoteQuestion")
         divVoteQuestion.innerHTML = ""
 
@@ -453,6 +463,7 @@
         imgUp.src = "Upvote.png"
         imgUp.width = "20"
         imgUp.height = "20"
+        imgUp.style.borderRadius = "10px"
         aUp.appendChild(imgUp)
         voteUp.appendChild(aUp)
 
@@ -473,6 +484,7 @@
         imgDown.src = "Downvote.png"
         imgDown.width = "20"
         imgDown.height = "20"
+        imgDown.style.borderRadius = "10px"
         aDown.appendChild(imgDown)
         voteDown.appendChild(aDown)
 
@@ -499,6 +511,7 @@
         imgUp.src = "Upvote.png"
         imgUp.width = "20"
         imgUp.height = "20"
+        imgUp.style.borderRadius = "10px"
         aUp.appendChild(imgUp)
         voteUp.appendChild(aUp)
 
@@ -519,6 +532,7 @@
         imgDown.src = "Downvote.png"
         imgDown.width = "20"
         imgDown.height = "20"
+        imgDown.style.borderRadius = "10px"
         aDown.appendChild(imgDown)
         voteDown.appendChild(aDown)
 
@@ -551,7 +565,7 @@
         }
     }
 
-    function updateVoteQuestion(el, vote){
+    function updateVoteQuestion(el, vote) {
         let params = JSON.stringify({
             search: el["_id"],
             update: { $inc: { vote: vote } },
@@ -584,7 +598,7 @@
 
         let textDiv = document.createElement("div")
         textDiv.setAttribute("class", "col-xs-11")
-        
+
         let creator = document.createElement("p")
         creator.innerHTML = "<b>" + element["nickname"] + "</b>"
         let p = document.createElement("p")
