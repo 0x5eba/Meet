@@ -23,7 +23,7 @@
         <div class="container-fluid">
             <input type='text' id="title" placeholder='Title' /><br /><br />
             <div class="row">
-                <div class="col-lg-12">
+                <div class="col-md-12">
                     <ul id="tabs" class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#tab1" aria-controls="tab1" role="tab"
                                 data-toggle="tab">Text</a></li>
@@ -56,10 +56,11 @@
     <div id='showQuestion' style="display:none;">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-1" id="divVoteQuestion" style="text-align: center;">
+                <!-- style="text-align: center;" -->
+                <div class="col-xs-1" id="divVoteQuestion"> 
                     
                 </div>
-                <div class="col-lg-11">
+                <div class="col-xs-11">
                     <div class="row" id="title_show"></div></br>
                     <div class="row" id="details_show"></div></br>
                     <div class="row">
@@ -102,9 +103,9 @@
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if (profileData === null) {
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         } else if (profileData['nickname'] === null || profileData['password'] === null) {
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         }
         let params = JSON.stringify({
             nickname: profileData['nickname'],
@@ -122,10 +123,10 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     if(response['data'] == null){
-                        window.location.href = "http://localhost:3001/index"
+                        window.location.href = "http://localhost:3001/"
                     }
                 } else {
-                    window.location.href = "http://localhost:3001/index"
+                    window.location.href = "http://localhost:3001/"
                 }
             }
         }
@@ -225,10 +226,8 @@
             }
         });
 
-        var x = currentUrl.searchParams.get("x");
-        x = parseFloat(x)
-        var y = currentUrl.searchParams.get("y");
-        y = parseFloat(y)
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
 
         let params = JSON.stringify({
             nickname: nick,
@@ -248,7 +247,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    window.location.href = "http://localhost:3001/index"
+                    window.location.href = "http://localhost:3001/"
                 } else {
                     console.log(response)
                 }

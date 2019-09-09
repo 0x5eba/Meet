@@ -21,14 +21,14 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
 const path = require('path');
-router.get('/index', function (req, res) {
-	res.sendFile(path.join(__dirname + '/views/index.html'));
-});
-router.get('/b', function (req, res) {
-	res.sendFile(path.join(__dirname + '/views/button.html'));
-});
+// router.get('/index', function (req, res) {
+// 	res.sendFile(path.join(__dirname + '/views/index.html'));
+// });
 router.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/test.html'));
+});
+router.get('/login', function (req, res) {
+	res.sendFile(path.join(__dirname + '/views/login.html'));
 });
 router.get('/register', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/register.html'));

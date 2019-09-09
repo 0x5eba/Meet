@@ -272,7 +272,9 @@
                         }
                         sessionStorage.setItem("view", JSON.stringify(view));
 
-                        window.location.href = "http://localhost:3001/index"
+                        sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
+
+                        window.location.href = "http://localhost:3001/"
                     } else {
                         console.log(response)
                     }

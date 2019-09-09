@@ -22,8 +22,14 @@
         <input type='submit' value='Add group' onclick="return createGroup();">
     </div>
 
-    <div id="boxPos">
+    <!-- <div id="boxPos">
         <a href="javascript:void(0)" id="exit" class="closebtn" onclick="closeNav()">&times;</a>
+    </div> -->
+    
+    <div id="myModal" class="modal">
+        <div class="modal-content" id="boxPos">
+            <a href="javascript:void(0)" id="exit" class="closebtn" onclick="closeNav()">&times;</a>
+        </div>
     </div>
 
     <div id='showGroup' style="display:none;">
@@ -114,17 +120,32 @@
         }
     }
 
-    #boxPos {
-        top: 30%; 
-        left: 40%;
-        width: 35%;
-        height: 50%;
-        margin-top: -9em; 
-        margin-left: -15em;
-        border: 1px solid #ccc;
-        background: rgba(13, 19, 13, 0.6);
-        position:fixed;
+    .modal {
+        position: absolute;
         display: none;
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        padding-top: 100px;
+        /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+
+    .modal-content {
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: 1px solid #888;
+        background-color: #fefefe;
+        padding: 20px;
         overflow-y: scroll;
         overflow: auto;
     }
@@ -144,7 +165,7 @@
         text-decoration: none;
         font-size: 25px;
         /* #ff2626 */
-        color: white; 
+        color: red; 
         display: block;
         transition: 0.3s;
     }
@@ -167,9 +188,9 @@
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if (profileData === null) {
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         } else if (profileData['nickname'] === null || profileData['password'] === null) {
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         }
         let params = JSON.stringify({
             nickname: profileData['nickname'],
@@ -187,10 +208,10 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     if(response['data'] == null){
-                        window.location.href = "http://localhost:3001/index"
+                        window.location.href = "http://localhost:3001/"
                     }
                 } else {
-                    window.location.href = "http://localhost:3001/index"
+                    window.location.href = "http://localhost:3001/"
                 }
             }
         }
@@ -293,7 +314,6 @@
         }
     });
     function iamOnline() {
-        console.log(nick)
         let params = JSON.stringify({
             search: {
                 name: groupName,
@@ -488,7 +508,7 @@
     }
 
     function openNav() {
-        let div = document.getElementById("boxPos");
+        let div = document.getElementById("myModal");
         if (div.style.display === "block") {
             div.style.display = "none";
         } else {
@@ -496,7 +516,7 @@
         }
     }
     function closeNav() {
-        let div = document.getElementById("boxPos");
+        let div = document.getElementById("myModal");
         if (div.style.display === "none") {
             div.style.display = "block";
         } else {
@@ -515,8 +535,8 @@
             alert("Only Alphanumerical, no space and max 20 length")
             return
         }
-        let x = currentUrl.searchParams.get("x")
-        let y = currentUrl.searchParams.get("y")
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
         let params = JSON.stringify({
             name: groupName,
             pos: { x: x, y: y }
@@ -529,7 +549,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    window.location.href = "http://localhost:3001/index"
+                    window.location.href = "http://localhost:3001/"
                 } else {
                     console.log(response)
                 }

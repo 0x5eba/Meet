@@ -37,6 +37,8 @@
         <div class="modal-content" id="modal-content">
             <span class="close">&times;</span>
 
+            <h1 id="title-model" style="text-align: center;"></h1>
+
             <div id='search-icon' style="display: none;">
                 <div class="d-flex justify-content-center" style="margin:10px; margin-bottom: 30px">
                     <div class="searchbar">
@@ -47,6 +49,30 @@
             </div>
 
             <div id="res-search"></div>
+
+            <div id='menu' style="display: none;">
+                <h2>Change map style</h2>
+                <input id='streets-v11' type='radio' name='rtoggle' value='streets'>
+                <label for='streets-v11'>streets</label>
+                <input id='outdoors-v11' type='radio' name='rtoggle' value='streets'>
+                <label for='outdoors-v11'>outdoors</label>
+                <input id='light-v10' type='radio' name='rtoggle' value='streets'>
+                <label for='light-v10'>light</label>
+                <input id='dark-v10' type='radio' name='rtoggle' value='streets'>
+                <label for='dark-v10'>dark</label>
+                <input id='satellite-v9' type='radio' name='rtoggle' value='streets'>
+                <label for='satellite-v9'>satellite</label>
+                <input id='satellite-streets-v11' type='radio' name='rtoggle' value='streets'>
+                <label for='satellite-streets-v11'>satellite-streets</label>
+                <input id='navigation-preview-day-v4' type='radio' name='rtoggle' value='streets'>
+                <label for='navigation-preview-day-v4'>navigation-preview-day</label>
+                <input id='navigation-preview-night-v4' type='radio' name='rtoggle' value='streets'>
+                <label for='navigation-preview-night-v4'>navigation-preview-night</label>
+                <input id='navigation-guidance-day-v4' type='radio' name='rtoggle' value='streets'>
+                <label for='navigation-guidance-day-v4'>navigation-guidance-day</label>
+                <input id='navigation-guidance-night-v4' type='radio' name='rtoggle' value='streets'>
+                <label for='navigation-guidance-night-v4'>navigation-guidance-night</label>
+            </div>
         </div>
     </div>
 
@@ -208,6 +234,7 @@
         float: right;
         font-size: 28px;
         font-weight: bold;
+        text-align: end;
     }
 
     .close:hover,
@@ -255,9 +282,9 @@
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if(profileData === null){
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         } else if(profileData['nickname'] === null || profileData['password'] === null){
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         }
         let params = JSON.stringify({
             nickname: profileData['nickname'],
@@ -273,21 +300,23 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     if(response['data'] == null){
-                        window.location.href = "http://localhost:3001/index"
+                        window.location.href = "http://localhost:3001/"
                     }
                 } else {
-                    window.location.href = "http://localhost:3001/index"
+                    window.location.href = "http://localhost:3001/"
                 }
             }
         }
     }
-    // session()
+    session()
 
     var modal = document.getElementById("myModal");
     var resSearch = document.getElementById("res-search");
     document.getElementsByClassName("close")[0].onclick = function () {
         modal.style.display = "none"
         resSearch.style.display = "none"
+        document.getElementById("menu").style.display = "none"
+        search_bar.value = ""
         document.getElementById("search-icon").style.display = "none"
     }
 
@@ -449,8 +478,10 @@
             bearing: 0,
             pitch: 30
         }
-
+        profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
+        sessionStorage.setItem("profile", JSON.stringify(profileData))
         setMap(state_view)
+        iamStatus(true)
     }
 
     function showError(error) {
@@ -474,9 +505,14 @@
         mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
         // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
 
+        let mapStyle = JSON.parse(sessionStorage.getItem("mapStyle"))
+        let inputs = document.getElementById('menu').getElementsByTagName('input')
+        let street = mapStyle['mapStyle'].split("/")
+        document.getElementById(street[street.length - 1]).checked = true
+
         const map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v11',
+            style: mapStyle['mapStyle'],
             // interactive: false, // Note: deck.gl will be in charge of interaction and event handling
             center: [state_view.longitude, state_view.latitude],
             zoom: state_view.zoom,
@@ -512,7 +548,8 @@
                     fontWeight: 'bold',
                     getColor: [31, 58, 147, 255],
                     getTextAnchor: 'middle',
-                    getAlignmentBaseline: 'center',
+                    getAlignmentBaseline: 'top',
+                    getPixelOffset: [5, 5],
                     onClick: info => changePage(info.object, 'question')
                 }),
                 new TextLayer({
@@ -526,6 +563,7 @@
                     getColor: [211, 84, 0, 255],
                     getTextAnchor: 'middle',
                     getAlignmentBaseline: 'center',
+                    getPixelOffset: [5, 5],
                     onClick: info => changePage(info.object, 'group')
                 }),
                 new TextLayer({
@@ -538,7 +576,8 @@
                     fontWeight: 'bold',
                     getColor: [217, 30, 24, 255],
                     getTextAnchor: 'middle',
-                    getAlignmentBaseline: 'center',
+                    getAlignmentBaseline: 'bottom',
+                    getPixelOffset: [5, 5],
                     onClick: info => changePage(info.object, 'profile')
                 }),
 
@@ -602,6 +641,10 @@
         mainDiv.append('button').attr("id", "btn-bookmark")
             .on('click', d => {
                 modal.style.display = "block"
+                resSearch.style.display = "block"
+                resSearch.innerHTML = ""
+                document.getElementById("title-model").innerHTML = "Bookmarks"
+                getSaved()
             })
             .append("img").attr("src", "bookmark.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
@@ -609,6 +652,26 @@
         mainDiv.append('button').attr("id", "btn-setting")
             .on('click', d => {
                 modal.style.display = "block"
+                resSearch.style.display = "block"
+                document.getElementById("menu").style.display = "block"
+                resSearch.innerHTML = ""
+                document.getElementById("title-model").innerHTML = "Settings"
+
+                let layerList = document.getElementById('menu');
+                let inputs = layerList.getElementsByTagName('input');
+
+                function switchLayer(layer) {
+                    let layerId = layer.target.id;
+                    map.setStyle('mapbox://styles/mapbox/' + layerId);
+                    sessionStorage.setItem("mapStyle", JSON.stringify({mapStyle: 'mapbox://styles/mapbox/' + layerId}));
+                    console.log(sessionStorage.getItem("mapStyle"))
+                }
+
+                for (let i = 0; i < inputs.length; i++) {
+                    inputs[i].onclick = switchLayer;
+                }
+
+                getSettings()
             })
             .append("img").attr("src", "setting.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
@@ -618,7 +681,9 @@
             .on('click', d => {
                 modal.style.display = "block"
                 resSearch.style.display = "block"
+                resSearch.innerHTML = ""
                 document.getElementById("search-icon").style.display = "block"
+                document.getElementById("title-model").innerHTML = "Search"
             })
         div_search.append("button").attr("class", "search_icon").append("i").attr("class", "fas fa-search")
 
@@ -643,6 +708,10 @@
         //     .addTo(map)
 
         // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
+    }
+
+    function getSettings(){
+        
     }
 
     function changePage(object, type) {
@@ -675,8 +744,18 @@
             offline = false
         }
     });
-    iamStatus(true)
+    $(document).mouseenter(function (e) {
+        if(offline == true){
+            iamStatus(true)
+            offline = false
+        }
+    });
+    
 
+    // window.onbeforeunload = function () {
+    //     iamStatus(false)
+    // }
+    
     function iamStatus(status) {
         let nick = profileData['nickname']
         let params = JSON.stringify({
@@ -685,7 +764,8 @@
             },
             update: {
                 online: status,
-                lastSeen: Date.now()
+                lastSeen: Date.now(),
+                pos: { x: profileData['coords'][0], y: profileData['coords'][1]}
             }
         })
 
@@ -697,7 +777,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    console.log("online", status)
+                    console.log(status)
                 } else {
                     console.log(response)
                 }

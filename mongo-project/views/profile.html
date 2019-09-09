@@ -160,9 +160,9 @@
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if(profileData === null){
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         } else if(profileData['nickname'] === null || profileData['password'] === null){
-            window.location.href = "http://localhost:3001/index"
+            window.location.href = "http://localhost:3001/"
         }
         let params = JSON.stringify({
             nickname: profileData['nickname'],
@@ -178,10 +178,10 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     if(response['data'] == null){
-                        window.location.href = "http://localhost:3001/index"
+                        window.location.href = "http://localhost:3001/"
                     }
                 } else {
-                    window.location.href = "http://localhost:3001/index"
+                    window.location.href = "http://localhost:3001/"
                 }
             }
         }
