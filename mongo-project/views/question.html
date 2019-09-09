@@ -4,20 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 
     <link href='https://cdn.jsdelivr.net/npm/froala-editor@3.0.5/css/froala_editor.pkgd.min.css' rel='stylesheet'
@@ -33,11 +30,11 @@
 
 <body>
     <div id='askQuestion' style="display:none;">
-        <div class="container-fluid" style="margin: 20px; width: 90%">
+        <div style="margin: 20px; width: 90%">
 
             <div class="input-group input-group-lg">
                 <input type="text" id="title" class="form-control" style="border-radius:10px;" aria-label="Large"
-                    aria-describedby="inputGroup-sizing-sm" placeholder='Insert the title'>
+                    aria-describedby="inputGroup-sizing-sm" placeholder='Title'>
             </div>
             </br>
 
@@ -51,34 +48,24 @@
 
 
     <div id='showQuestion' style="display:none;">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xs-1" style="margin: 10px; margin-right: 20px;" id="divVoteQuestion">
+        <div class="row">
+            <div class="col-xs-1" style="margin: 30px; margin-right: 40px; margin-top: 20px;" id="divVoteQuestion"></div>
 
-                </div>
-                <div class="col-xs-10" style="margin-top: 10px;">
-                    <div class="row"><h3 id="title_show"></h3></div></br>
-                    <div class="row" id="details_show"></div></br>
-                    <div class="row"><button type="button" class="btn btn-dark" onclick="saveQuestion();" style="border-radius:10px;">Save</button></div></br>
-                    <div class="row"><div id='creator'></div></div>
-                </div>
+            <div class="col-xs-10">
+                <div class="row"><h3 id="title_show" style="font-weight: bold;"></h3></div></br>
+                <div class="row" id="details_show"></div></br>
+                <div class="row"><button type="button" class="btn btn-info" onclick="saveQuestion();" style="border-radius:10px;">Save</button></div></br>
+                <div class="row"><div id='creator'></div></div>
             </div>
-            </br>
+        </div>
+        </br>
 
-            <div id='root'>
-            </div>
+        <div id='root' style="margin-left: 30px">
         </div>
     </div>
 </body>
 
 </html>
-
-<style>
-    #title_show {
-        font-weight: bold;
-        /* font-size: large; */
-    }
-</style>
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 <script>
@@ -88,7 +75,6 @@
     var nick = ""
     var title = currentUrl.searchParams.get("title");
     var question = {};
-    var answers = [];
 
     var profileData;
     function session() {
@@ -149,7 +135,8 @@
             },
             quickInsertEnabled: false,
             spellcheck: true,
-            charCounterMax: 140,
+            charCounterMax: 1000,
+            placeholderText: 'Text (optional)',
 
             imageUploadURL: 'http://localhost:3001/upload_image',
             imageUploadMethod: 'POST',
@@ -324,7 +311,7 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     question = response["question"]
-                    createVoteForQuestion(question)
+                    addVoteToQuestion(question)
                     increaseView(question)
                     htmlQuestion(question)
                 } else {
@@ -333,19 +320,15 @@
             }
         }
 
-        let params2 = JSON.stringify({
-            title: title,
-        })
         const Http2 = new XMLHttpRequest();
         Http2.open("POST", url + 'answer/group', true);
         Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http2.send(params2);
+        Http2.send(params);
         Http2.onreadystatechange = (e) => {
             if (Http2.readyState == 4 && Http2.status == 200) {
                 response = JSON.parse(Http2.responseText)
                 if (response["confirmation"] == "success") {
-                    answers = response["answers"]
-                    createDivAnswers()
+                    createDivAnswers(response["answers"])
                 } else {
                     console.log(response)
                 }
@@ -360,23 +343,60 @@
         creator.innerHTML = "Created by <b>" + question['nickname'] + "</b>"
     }
 
-    function createDivAnswers() {
+    var settingsEditorAnswer = {
+        toolbarButtons: {
+            'moreText': {
+                'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'textColor', 'clearFormatting']
+            },
+            'moreParagraph': {
+                'buttons': ['alignLeft', 'alignCenter', 'formatOLSimple', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
+            },
+            'moreRich': {
+                'buttons': ['emoticons', 'insertLink', 'specialCharacters'],
+                'buttonsVisible': 3
+            },
+            'moreMisc': {
+                'buttons': ['undo', 'redo', 'help'],
+                'align': 'right',
+                'buttonsVisible': 3
+            },
+        },
+        placeholderText: 'What are your thoughts?',
+        quickInsertEnabled: false,
+        spellcheck: true,
+        charCounterMax: 300,
+    }
+
+    function createDivAnswers(answers) {
         let treeLevel = 0
         let rootDiv = document.getElementById("root")
         rootDiv.innerHTML = ""
 
-        let input = document.createElement("input");
-        input.setAttribute("type", "text")
-        input.setAttribute("level", 0)
-        input.setAttribute("idParent", "root")
-        input.addEventListener("keyup", function (event) {
-            if (event.keyCode === 13) {
-                createAnswer(this.getAttribute("level"), this.getAttribute("idParent"), this.value, this)
-            }
-        })
-        let br = document.createElement("br")
-        rootDiv.appendChild(input)
-        // rootDiv.appendChild(br)
+        let div = document.createElement("div");
+        div.style.marginLeft = "20px"
+
+        let textarea = document.createElement("textarea")
+        textarea.setAttribute("id", "mainAnswerEditor")
+        textarea.setAttribute("level", 0)
+        textarea.setAttribute("idParent", "root")
+        
+        let buttonEditorMainAnswer = document.createElement("button");
+        buttonEditorMainAnswer.onclick = function () {
+            let answer = myFrolaEditorMainAnswer.html.get()
+            let mainAnswerEditor = document.getElementById("mainAnswerEditor")
+            createAnswer(mainAnswerEditor.getAttribute("level"), mainAnswerEditor.getAttribute("idParent"), answer, this)
+        }
+        buttonEditorMainAnswer.setAttribute("type", "button")
+        buttonEditorMainAnswer.setAttribute("class", "btn btn-warning")
+        buttonEditorMainAnswer.style.marginTop = "20px"
+        buttonEditorMainAnswer.style.borderRadius = "10px"
+        buttonEditorMainAnswer.innerHTML = "Send"
+
+        div.appendChild(textarea)
+        div.appendChild(buttonEditorMainAnswer)
+        rootDiv.append(div)
+
+        let myFrolaEditorMainAnswer = new FroalaEditor('#mainAnswerEditor', settingsEditorAnswer)
 
         if (answers.length > 0) {
 
@@ -445,7 +465,7 @@
         }
     }
 
-    function createVoteForQuestion(question) {
+    function addVoteToQuestion(question) {
         let divVoteQuestion = document.getElementById("divVoteQuestion")
         divVoteQuestion.innerHTML = ""
 
@@ -496,6 +516,7 @@
     function addVoteToDiv(voteElement, element) {
         let voteDiv = document.createElement("div")
         voteDiv.setAttribute("class", "col-xs-1")
+        voteDiv.style.marginRight = "20px"
 
         let voteUp = document.createElement("div")
         voteUp.setAttribute("class", "row")
@@ -604,32 +625,52 @@
         let p = document.createElement("p")
         p.innerHTML = element["data"]
         let button = document.createElement("button")
-        button.innerHTML = "replay"
+        button.setAttribute("class", "btn btn-secondary")
+        button.style.borderRadius = "10px"
+        button.innerHTML = "Replay"
         button.setAttribute("parentDiv", element["_id"])
         button.setAttribute("parentLevel", element["level"])
         button.onclick = function () {
+
             let parenId = this.getAttribute("parentDiv")
             let parentDiv = document.getElementById(parenId)
             let parentLevel = parseInt(this.getAttribute("parentLevel"), 10)
-            let input = document.createElement("input")
 
-            input.setAttribute("type", "text")
-            input.setAttribute("level", parentLevel + 1)
-            input.setAttribute("idParent", parenId)
-            input.style.marginLeft = "8%"
-            input.addEventListener("keyup", function (event) {
-                if (event.keyCode === 13) {
-                    createAnswer(this.getAttribute("level"), this.getAttribute("idParent"), this.value, this)
-                }
-            })
+            let div = document.createElement("div");
+            div.style.marginLeft = "20px"
 
-            parentDiv.insertBefore(input, parentDiv.childNodes[2])
+            let textarea = document.createElement("textarea")
+            textarea.setAttribute("id", "answerEditor" + parenId)
+            textarea.setAttribute("level", parentLevel + 1)
+            textarea.setAttribute("idParent", parenId)
+
+            let buttonEditorMainAnswer = document.createElement("button");
+            buttonEditorMainAnswer.onclick = function () {
+                let answer = myFrolaEditorAnswer.html.get()
+                let answerEditor = document.getElementById("answerEditor" + parenId)
+                createAnswer(answerEditor.getAttribute("level"), answerEditor.getAttribute("idParent"), answer, this)
+            }
+            buttonEditorMainAnswer.setAttribute("type", "button")
+            buttonEditorMainAnswer.setAttribute("class", "btn btn-warning")
+            buttonEditorMainAnswer.style.marginTop = "20px"
+            buttonEditorMainAnswer.style.borderRadius = "10px"
+            buttonEditorMainAnswer.innerHTML = "Send"
+
+            div.appendChild(textarea)
+            div.appendChild(buttonEditorMainAnswer)
+
+            console.log(parentDiv.childNodes)
+            parentDiv.appendChild(div)
+
+            // parentDiv.insertBefore(div, parentDiv.childNodes[2])
             this.style.visibility = 'hidden';
+
+            let myFrolaEditorAnswer = new FroalaEditor("#answerEditor" + parenId, settingsEditorAnswer)
         }
 
         let br = document.createElement("br")
-        let marginLeft = 60 * (element["level"] + 1)
-        div.style.marginLeft = marginLeft + "px"
+        let marginLeft = 3 * (element["level"] + 1)
+        div.style.marginLeft = marginLeft + "%"
         div.style.marginTop = "20px"
         textDiv.appendChild(creator)
         textDiv.appendChild(p)
