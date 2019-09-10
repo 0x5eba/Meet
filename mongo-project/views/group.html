@@ -16,12 +16,15 @@
 </head>
 
 <body>
-    <h1 style="text-align: center; margin: 20px; color: green">Create Group</h1>
-    <div id='createGroup' style="display:none; position: fixed;top: 20%;left: 50%;margin-top: -50px;margin-left: -50px;">
-        <input type="text" id="name" class="form-control" style="border-radius:10px;margin-left: -40px; margin-top: 20px; box-shadow: 0px 0px 5px green;" aria-label="Large"
-            aria-describedby="inputGroup-sizing-sm" placeholder='Name'>
-        <br/><br/>
-        <button type="button" class="btn btn-outline-success" onclick="return createGroup();">Create</button>
+    <div id='createGroup' style="display:none;">
+        <h1 style="text-align: center; margin: 20px; color: green">Create Group</h1>
+        <div style="position: fixed;top: 20%;left: 50%;margin-top: -50px;margin-left: -50px;">
+            <input type="text" id="name" class="form-control"
+                style="border-radius:10px;margin-left: -40px; margin-top: 20px; box-shadow: 0px 0px 5px green;"
+                aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder='Name'>
+            <br /><br />
+            <button type="button" class="btn btn-outline-success" onclick="return createGroup();">Create</button>
+        </div>
     </div>
 
     <!-- <div id="boxPos">
@@ -35,7 +38,7 @@
     </div>
 
     <div id='showGroup' style="display:none;">
-        <button onclick="saveGroup();">Save</button>
+        <button type="button" class="btn btn-info" onclick="saveGroup();" style="border-radius:10px;">Save</button>
         <main>
             <header>
                 <a href="javascript:void(0)" class="user-count" id="user-count" onclick="updatePeopleOnline(); openNav();">0</a>
