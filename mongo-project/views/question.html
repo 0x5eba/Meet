@@ -266,10 +266,12 @@
         }
 
         let htmlDetails = myFrolaEditor.html.get()
+        htmlDetails.replace("<p data-f-id=\"pbf\" style=\"text-align: center; font-size: 14px; margin-top: 30px; opacity: 0.65; font-family: sans-serif;\">Powered by <a href=\"https://www.froala.com/wysiwyg-editor?pb=1\" title=\"Froala Editor\">Froala Editor</a></p>", "")
 
         let d = document.createElement("div")
         d.innerHTML = htmlDetails.replace(/<br\s*\/?>/gi, ' ')
-        let clearDetails = d.innerText.strip()
+        d.innerHTML = d.innerHTML.replace("Powered by Froala Editor", "")
+        let clearDetails = d.innerText
 
         let x = profileData['coords'][0]
         let y = profileData['coords'][1]
