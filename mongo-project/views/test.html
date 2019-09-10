@@ -795,10 +795,10 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let profiles = JSON.parse(Http.responseText)
                 AllProfiles = profiles['profiles']
+                initGroups()
             }
         }
     }
-    initProfiles()
 
     var Allgroups = []
     function initGroups() {
@@ -809,10 +809,11 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let groups = JSON.parse(Http.responseText)
                 Allgroups = groups['groups']
+                initQuestions()
             }
         }
     }
-    initGroups()
+    
 
     var AllQuestions = []
     function initQuestions() {
@@ -823,13 +824,14 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let questions = JSON.parse(Http.responseText)
                 AllQuestions = questions['questions']
+                getLocation()
             }
         }
     }
-    initQuestions()
+    
 
     $(document).ready(function () {
-        getLocation()
+        initProfiles()
     })
 
 </script>
