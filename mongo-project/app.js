@@ -47,10 +47,13 @@ router.get('/profile', function (req, res) {
 const fs = require('fs');
 const FroalaEditor = require(path.join(__dirname + '/public/wysiwyg-editor-node-sdk/lib/froalaEditor.js'));
 router.post('/upload_image', function (req, res) {
+	console.log("UPLOAD")
+	console.log(req.body)
 	FroalaEditor.Image.upload(req, '/public/uploads/', function (err, data) {
-		if (err) {
-			return res.send(JSON.stringify(err));
-		}
+		// if (err) {
+		// 	return res.send(JSON.stringify(err));
+		// }
+		console.log(data)
 		data['link'] = data['link'].replace("/public", "")
 		res.send(data);
 	})

@@ -236,8 +236,22 @@
 
     /*---------------------------------------------------*/
 
+    var passwordInput = document.getElementById("password");
+    passwordInput.addEventListener("keyup", function (event) {
+        if (event.keyCode === 13) {
+            login()
+        }
+    })
+    var nicknameInput = document.getElementById("nickname");
+    nicknameInput.addEventListener("keyup", function (event) {
+        if (event.keyCode === 13) {
+            login()
+        }
+    })
+
     // login with nickname and password, pressing the button login, only if there is no error
     function login(){
+        sessionStorage.clear()
         var check = true;
 
         for (var i = 0; i < input.length; i++) {

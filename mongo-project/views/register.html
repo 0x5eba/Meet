@@ -46,11 +46,11 @@
                     </div>
 
                     <div class="wrap-input100">
-                        <input class="input100" type="text" id="name" name="name" placeholder="Name">
+                        <input class="input100" type="text" id="name" name="name" placeholder="Name (optional)">
                     </div>
 
                     <div class="wrap-input100">
-                        <input class="input100" type="text" id="surname" name="surname" placeholder="Surname">
+                        <input class="input100" type="text" id="surname" name="surname" placeholder="Surname (optional)">
                     </div>
                     
                     <div class="container-login100-form-btn">
@@ -228,6 +228,31 @@
 
     /*---------------------------------------------------*/
 
+    var passwordInput = document.getElementById("password");
+    passwordInput.addEventListener("keyup", function (event) {
+        if (event.keyCode === 13) {
+            register()
+        }
+    })
+    var nicknameInput = document.getElementById("nickname");
+    nicknameInput.addEventListener("keyup", function (event) {
+        if (event.keyCode === 13) {
+            register()
+        }
+    })
+
+    var nameInput = document.getElementById("name");
+    nameInput.addEventListener("keyup", function (event) {
+        if (event.keyCode === 13) {
+            register()
+        }
+    })
+    var surnameInput = document.getElementById("surname");
+    surnameInput.addEventListener("keyup", function (event) {
+        if (event.keyCode === 13) {
+            register()
+        }
+    })
 
     function register(){
         var check = true;

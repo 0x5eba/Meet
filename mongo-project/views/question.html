@@ -17,15 +17,14 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 
-    <link href='https://cdn.jsdelivr.net/npm/froala-editor@3.0.5/css/froala_editor.pkgd.min.css' rel='stylesheet'
-        type='text/css' />
-    <script type='text/javascript'
-        src='https://cdn.jsdelivr.net/npm/froala-editor@3.0.5/js/froala_editor.pkgd.min.js'></script>
 
 
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/embed-js/5.0.4/embed.css' rel='stylesheet'
-        type='text/css' />
-    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/embed-js/5.0.4/embed.js'></script>
+    <script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.js"></script>
 </head>
 
 <body>
@@ -38,7 +37,7 @@
             </div>
             </br>
 
-            <textarea id="myEditor"></textarea>
+            <div id="summernote"></div>
 
             </br>
             <button type="button" class="btn btn-outline-primary" onclick="return askQuestion();"
@@ -67,7 +66,7 @@
 
 </html>
 
-<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.2.1.js"></script> -->
 <script>
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
@@ -110,90 +109,77 @@
     }
     session()
 
-    var myFrolaEditor;
-    if (title === null) {
-
-        let firstUploadImage = false
-        let firstUploadFile = false
-        var settingsEditor = {
-            toolbarButtons: {
-                'moreText': {
-                    'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'textColor', 'clearFormatting']
-                },
-                'moreParagraph': {
-                    'buttons': ['alignLeft', 'alignCenter', 'formatOLSimple', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
-                },
-                'moreRich': {
-                    'buttons': ['emoticons', 'insertLink', 'insertImage', 'insertFile', 'specialCharacters'],
-                    'buttonsVisible': 5
-                },
-                'moreMisc': {
-                    'buttons': ['undo', 'redo', 'help'],
-                    'align': 'right',
-                    'buttonsVisible': 3
-                },
+    var optionsEditor = {
+        focus: true,
+        placeholder: 'Text (optional) ~ Write : and a letter for emoji, example :smile',
+        tabsize: 2,
+        height: 300,
+        hint: {
+            match: /:([\-+\w]+)$/,
+            search: function (keyword, callback) {
+                callback($.grep(emojis, function (item) {
+                    return item.indexOf(keyword) === 0;
+                }));
             },
-            quickInsertEnabled: false,
-            spellcheck: true,
-            charCounterMax: 1000,
-            placeholderText: 'Text (optional)',
+            template: function (item) {
+                var content = emojiUrls[item];
+                return '<img src="' + content + '" width="20" /> :' + item + ':';
+            },
+            content: function (item) {
+                var url = emojiUrls[item];
+                if (url) {
+                    return $('<img />').attr('src', url).css('width', 20)[0];
+                }
+                return '';
+            }
+        },
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline', 'forecolor']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['insert', ['link']], // 'picture'
+            ['view', ['undo', 'redo', 'help']],
+        ],
+        popover: {
+            image: [
+                ['image', ['resizeFull', 'resizeHalf', 'resizeQuarter', 'resizeNone']],
+                ['float', ['floatLeft', 'floatRight', 'floatNone']],
+                ['remove', ['removeMedia']]
+            ],
+            link: [
+                ['link', ['linkDialogShow', 'unlink']]
+            ],
+            table: [
+                ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight']],
+                ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
+            ],
+            air: [
+                ['color', ['color']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['para', ['ul', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']]
+            ]
+        }
+    }
 
-            imageUploadURL: 'http://localhost:3001/upload_image',
-            imageUploadMethod: 'POST',
-            imageMaxSize: 5 * 1024 * 1024,
-            imageAllowedTypes: ['jpeg', 'jpg', 'png', 'gif'],
-            
-            fileUploadURL: 'http://localhost:3001/upload_file',
-            
-            events: {
-                'image.beforeUpload': function (images) {
-                    if(firstUploadImage === true){
-                        alert("You can upload only one image per question")
-                        return false
-                    }
-                    firstUploadImage = true
-                },
-                'file.beforeUpload': function (images) {
-                    if (firstUploadFile === true) {
-                        alert("You can upload only one file per question")
-                        return false
-                    }
-                    firstUploadFile = true
-                },
-                'image.removed': function ($img) {
-                    let params = JSON.stringify({
-                        src: $img.attr('src')
-                    })
-
-                    const Http = new XMLHttpRequest();
-                    Http.open("POST", "http://localhost:3001/delete_image", true);
-                    Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                    Http.send(params);
-                    Http.onreadystatechange = (e) => {
-                        if (Http.readyState == 4 && Http.status == 200) {
-                            console.log(Http.responseText)
-                        }
-                    }
-                },
-                'file.unlink': function (file) {
-                    let params = JSON.stringify({
-                        src: file.getAttribute('href')
-                    })
-
-                    const Http = new XMLHttpRequest();
-                    Http.open("POST", "http://localhost:3001/delete_file", true);
-                    Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                    Http.send(params);
-                    Http.onreadystatechange = (e) => {
-                        if (Http.readyState == 4 && Http.status == 200) {
-                            console.log(Http.responseText)
-                        }
-                    }
-                },
+    function getEmoji(){
+        let Http = new XMLHttpRequest();
+        Http.open("GET", 'https://api.github.com/emojis', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send();
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+                let response = JSON.parse(Http.responseText)
+                window.emojis = Object.keys(response);
+                window.emojiUrls = response;
             }
         }
-
-        myFrolaEditor = new FroalaEditor('#myEditor', settingsEditor)
+    }
+    getEmoji()
+    
+    if (title === null) {
+        $('#summernote').summernote(optionsEditor);
 
         document.getElementById("askQuestion").style.display = "block"
 
@@ -265,8 +251,8 @@
             return
         }
 
-        let htmlDetails = myFrolaEditor.html.get()
-        htmlDetails.replace("<p data-f-id=\"pbf\" style=\"text-align: center; font-size: 14px; margin-top: 30px; opacity: 0.65; font-family: sans-serif;\">Powered by <a href=\"https://www.froala.com/wysiwyg-editor?pb=1\" title=\"Froala Editor\">Froala Editor</a></p>", "")
+        let htmlDetails = $('#summernote').summernote('code')
+        console.log(htmlDetails)
 
         let d = document.createElement("div")
         d.innerHTML = htmlDetails.replace(/<br\s*\/?>/gi, ' ')
@@ -345,30 +331,6 @@
         creator.innerHTML = "Created by <b>" + question['nickname'] + "</b>"
     }
 
-    var settingsEditorAnswer = {
-        toolbarButtons: {
-            'moreText': {
-                'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'textColor', 'clearFormatting']
-            },
-            'moreParagraph': {
-                'buttons': ['alignLeft', 'alignCenter', 'formatOLSimple', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
-            },
-            'moreRich': {
-                'buttons': ['emoticons', 'insertLink', 'specialCharacters'],
-                'buttonsVisible': 3
-            },
-            'moreMisc': {
-                'buttons': ['undo', 'redo', 'help'],
-                'align': 'right',
-                'buttonsVisible': 3
-            },
-        },
-        placeholderText: 'What are your thoughts?',
-        quickInsertEnabled: false,
-        spellcheck: true,
-        charCounterMax: 300,
-    }
-
     function createDivAnswers(answers) {
         let treeLevel = 0
         let rootDiv = document.getElementById("root")
@@ -384,7 +346,7 @@
         
         let buttonEditorMainAnswer = document.createElement("button");
         buttonEditorMainAnswer.onclick = function () {
-            let answer = myFrolaEditorMainAnswer.html.get()
+            let answer = $('#mainAnswerEditor').summernote('code')
             let mainAnswerEditor = document.getElementById("mainAnswerEditor")
             createAnswer(mainAnswerEditor.getAttribute("level"), mainAnswerEditor.getAttribute("idParent"), answer, this)
         }
@@ -398,7 +360,7 @@
         div.appendChild(buttonEditorMainAnswer)
         rootDiv.append(div)
 
-        let myFrolaEditorMainAnswer = new FroalaEditor('#mainAnswerEditor', settingsEditorAnswer)
+        $('#mainAnswerEditor').summernote(optionsEditor);
 
         if (answers.length > 0) {
 
@@ -491,6 +453,7 @@
 
         let vote = document.createElement("div")
         vote.innerHTML = question["vote"]
+        vote.style.textAlign = "center"
 
         let voteDown = document.createElement("div")
         voteDown.setAttribute("class", "row")
@@ -540,6 +503,7 @@
 
         let vote = document.createElement("div")
         vote.innerHTML = voteElement
+        vote.style.textAlign = "center"
 
         let voteDown = document.createElement("div")
         voteDown.setAttribute("class", "row")
@@ -648,7 +612,7 @@
 
             let buttonEditorMainAnswer = document.createElement("button");
             buttonEditorMainAnswer.onclick = function () {
-                let answer = myFrolaEditorAnswer.html.get()
+                let answer = $('#answerEditor' + parenId).summernote('code')
                 let answerEditor = document.getElementById("answerEditor" + parenId)
                 createAnswer(answerEditor.getAttribute("level"), answerEditor.getAttribute("idParent"), answer, this)
             }
@@ -667,7 +631,9 @@
             // parentDiv.insertBefore(div, parentDiv.childNodes[2])
             this.style.visibility = 'hidden';
 
-            let myFrolaEditorAnswer = new FroalaEditor("#answerEditor" + parenId, settingsEditorAnswer)
+            let optionsEditor2 = optionsEditor
+            optionsEditor2.height = 200
+            $('#answerEditor' + parenId).summernote(optionsEditor2);
         }
 
         let br = document.createElement("br")

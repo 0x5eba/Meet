@@ -29,6 +29,7 @@
     "finalhandler": "1.1.1",
     "fresh": "0.5.2",
     "gm": "^1.23.1",
+    "highlightjs": "^9.12.0",
     "js-sha256": "^0.9.0",
     "merge": "^1.2.1",
     "merge-descriptors": "1.0.1",
