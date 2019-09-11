@@ -704,15 +704,19 @@
         // home
         mainDiv.append('button').attr("id", "btn-home")
             .on('click', d => {
-                deck.setProps({
-                    viewState: {
-                        longitude: state_view.longitude,
-                        latitude: state_view.latitude,
-                        zoom: 11,
-                        transitionInterpolator: new FlyToInterpolator(),
-                        transitionDuration: 1000
-                    }
-                })
+                if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
+
+                } else {
+                    deck.setProps({
+                        viewState: {
+                            longitude: state_view.longitude,
+                            latitude: state_view.latitude,
+                            zoom: 11,
+                            transitionInterpolator: new FlyToInterpolator(),
+                            transitionDuration: 1000
+                        }
+                    })
+                }
             })
             .append("img").attr("src", "home2.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
         
