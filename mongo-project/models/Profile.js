@@ -13,6 +13,7 @@ const Profile = new mongoose.Schema({
     bio: { type: String, default: '' },
     // pic: { data: Buffer, contentType: String },
     pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
+    fakePos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
     online: { type: Boolean, default: false },
     lastSeen: { type: Number, default: 0 },
     savedGroup: { type: [String], default: [] },

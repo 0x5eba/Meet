@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <title>Home</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src="https://unpkg.com/deck.gl@^7.1.0/dist.min.js"></script>
 
@@ -597,6 +598,16 @@
     }
 
     function setMap(state_view) {
+        if(state_view.longitude !== 0 && state_view.latitude !== 0){
+            // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
+            for (let a = 0; a < AllProfiles.length; ++a) {
+                if (AllProfiles[a]['nickname'] === profileData['nickname']) {
+                    AllProfiles[a]['coordinates'] = [state_view.longitude, state_view.latitude]
+                    break;
+                }
+            }
+        }
+
         mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
         // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
 

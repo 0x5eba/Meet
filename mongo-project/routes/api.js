@@ -216,13 +216,26 @@ router.post('/profile/create', (req, res) => {
 		})
 })
 
+// res_profile = profiles.filter(function (item) { return (item.fake_position.x > search_x - 10 && item.fake_position.x < search_x + 10) && (item.fake_position.y > search_y - 10 && item.fake_position.y < search_y + 10); })
+
 router.post('/profile/allProfiles', (req, res) => {
+	const query = req.body
+	const search_x = query.x
+	const search_y = query.y
+	
 	let data = []
-	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 }}, { _id: 0, nickname: 1, pos: 1 })
+	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { _id: 0, nickname: 1, pos: 1, fakePos: 1 })
 		.then(profiles => {
 			for (let i = 0; i < profiles.length; ++i) {
-				let data2 = { 'coordinates': [profiles[i]['pos']['x'], profiles[i]['pos']['y']], 'nickname': profiles[i]['nickname'] }
-				data.push(data2)
+				let x = profiles[i]['pos']['x']
+				let y = profiles[i]['pos']['y']
+				let fakeX = profiles[i]['fakePos']['x']
+				let fakeY = profiles[i]['fakePos']['y']
+				
+				if ((x > search_x - 10 && x < search_x + 10) && (y > search_y - 10 && y < search_y + 10)){
+					let data2 = { 'coordinates': [x, y], 'nickname': profiles[i]['nickname'] }
+					data.push(data2)
+				}
 			}
 			res.json({
 				confirmation: 'success',
