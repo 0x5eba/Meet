@@ -220,6 +220,13 @@
                 }
             }
         }
+
+        if(groupName === null && profileData['coords'][0] === 0 && profileData['coords'][1] === 0){
+            window.location.href = "http://localhost:3001/"
+        }
+        if(groupName === null && !(profileData['coords'] === undefined)){
+            window.location.href = "http://localhost:3001/"
+        }
     }
     session()
 

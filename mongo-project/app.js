@@ -22,9 +22,6 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
 const path = require('path');
-router.get('/editor', function (req, res) {
-	res.sendFile(path.join(__dirname + '/views/editor.html'));
-});
 router.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/test.html'));
 });
@@ -43,16 +40,18 @@ router.get('/group', function (req, res) {
 router.get('/profile', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/profile.html'));
 });
+// router.get('/editor', function (req, res) {
+// 	res.sendFile(path.join(__dirname + '/views/editor.html'));
+// });
 
 const fs = require('fs');
+/*
 const FroalaEditor = require(path.join(__dirname + '/public/wysiwyg-editor-node-sdk/lib/froalaEditor.js'));
 router.post('/upload_image', function (req, res) {
-	console.log("UPLOAD")
-	console.log(req.body)
 	FroalaEditor.Image.upload(req, '/public/uploads/', function (err, data) {
-		// if (err) {
-		// 	return res.send(JSON.stringify(err));
-		// }
+		if (err) {
+			return res.send(JSON.stringify(err));
+		}
 		console.log(data)
 		data['link'] = data['link'].replace("/public", "")
 		res.send(data);
@@ -83,6 +82,7 @@ router.post('/delete_file', function (req, res) {
 		return res.end();
 	})
 })
+*/
 
 // set routes
 app.use('/', router)

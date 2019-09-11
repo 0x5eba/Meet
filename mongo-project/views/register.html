@@ -255,6 +255,7 @@
     })
 
     function register(){
+        sessionStorage.clear()
         var check = true;
 
         for (var i = 0; i < input.length; i++) {
@@ -294,6 +295,8 @@
                             CBprofiles: 1,
                         }
                         sessionStorage.setItem("view", JSON.stringify(view));
+
+                        sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
 
                         window.location.href = "http://localhost:3001/"
                     } else {

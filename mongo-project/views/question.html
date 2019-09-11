@@ -106,6 +106,13 @@
                 }
             }
         }
+
+        if (title === null && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
+            window.location.href = "http://localhost:3001/"
+        }
+        if (title === null && !(profileData['coords'] === undefined)) {
+            window.location.href = "http://localhost:3001/"
+        }
     }
     session()
 

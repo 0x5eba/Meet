@@ -45,6 +45,41 @@
                 </div>
             </div>
 
+            <div id="no-gps" style="display: none;">
+                <h5 style="margin: 30px">You didn't activate the GPS or you didn't let the website access your location</h5>
+
+                <div class="card-deck">
+                    <div class="card text-white bg-success mb-3" style="max-width: 25rem;">
+                        <!-- <img class="card-img-top" src="#" alt="Card image cap"> -->
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Activate the GPS</h5>
+                            <div class="card-text">
+                                Visit this <a href="https://www.lifewire.com/denying-access-to-your-location-4027789">page</a> to know how to enable access location.
+                                <br>
+                                Then reload the page.
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="button" class="btn btn-dark" onclick="reloadPage()">Reload page</button>
+                        </div>
+                    </div>
+                    <div class="card text-white bg-danger mb-3" style="max-width: 25rem;">
+                        <!-- <img class="card-img-top" src="#" alt="Card image cap"> -->
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Continue without GPS</h5>
+                            <div class="card-text">
+                                Without GPS you can not create groups and questions
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="button" class="btn btn-dark" onclick="withoutPosition()">Continue without GPS</button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
             <div id="res-search"></div>
 
             <div id='menu' style="display: none;">
@@ -268,6 +303,12 @@
         color: blue;
         display: block;
     }
+
+    .card-deck {
+        margin: 0 auto; /* Added */
+        float: none; /* Added */
+        margin-bottom: 10px; /* Added */
+    }
 </style>
 
 <script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script>
@@ -280,7 +321,8 @@
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if(profileData === null){
             window.location.href = "http://localhost:3001/login"
-        } else if(profileData['nickname'] === null || profileData['password'] === null){
+        } else if(profileData['nickname'] === null || profileData['password'] === null || 
+                profileData['nickname'] === undefined || profileData['password'] === undefined){
             window.location.href = "http://localhost:3001/login"
         }
         let params = JSON.stringify({
@@ -352,7 +394,6 @@
         Http.onreadystatechange = (e) => {
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
-                console.log(response)
                 if (response["confirmation"] == "success") {
                     if(response[type].length > 0){
 
@@ -409,8 +450,6 @@
                 if (response["confirmation"] == "success") {
                     response = response["data"]
 
-                    console.log(response)
-                        
                     if (response != null && "savedGroup" in response){
                         if (response["savedGroup"].length > 0) {
                             let p = document.createElement("p");
@@ -459,14 +498,57 @@
         }
     }
 
-    function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition, showError)
+    function noGPS(){
+        if(profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0){
+            const state_view = {
+                latitude: 0,
+                longitude: 0,
+                zoom: 2,
+                bearing: 0,
+                pitch: 30
+            }
+            canUpdateStatus = true
+            setMap(state_view)
+            iamStatus(true)
         } else {
-            alert("Geolocation is not supported by this browser")
-        }
+            modal.style.display = "block"
+
+            document.getElementById("title-model").innerHTML = "No GPS found"
+            document.getElementById("no-gps").style.display = "block"
+        }   
     }
 
+    function reloadPage(){
+        window.location.href = "http://localhost:3001/"
+    }
+
+    function withoutPosition(){
+        profileData['coords'] = [0, 0]
+        sessionStorage.setItem("profile", JSON.stringify(profileData))
+
+        modal.style.display = "none"
+        document.getElementById("title-model").innerHTML = ""
+        document.getElementById("no-gps").style.display = "none"
+
+        window.location.href = "http://localhost:3001/"
+    }
+
+    function handlePermission() {
+        navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
+            if (result.state == 'granted') {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else if (result.state == 'prompt') {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else if (result.state == 'denied') {
+                noGPS()
+            }
+            result.onchange = function () {
+                console.log(result.state);
+            }
+        });
+    }
+
+    var canUpdateStatus = false
     function showPosition(position) {
         const state_view = {
             latitude: position.coords.latitude,
@@ -477,23 +559,29 @@
         }
         profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
         sessionStorage.setItem("profile", JSON.stringify(profileData))
+        canUpdateStatus = true
         setMap(state_view)
         iamStatus(true)
     }
 
     function showError(error) {
+        console.log("error")
         switch (error.code) {
             case error.PERMISSION_DENIED:
-                alert("User denied the request for Geolocation.")
+                // alert("User denied the request for Geolocation.")
+                noGPS()
                 break
             case error.POSITION_UNAVAILABLE:
-                alert("Location information is unavailable.")
+                // alert("Location information is unavailable.")
+                noGPS()
                 break
             case error.TIMEOUT:
-                alert("The request to get user location timed out.")
+                // alert("The request to get user location timed out.")
+                noGPS()
                 break
             case error.UNKNOWN_ERROR:
-                alert("An unknown error occurred.")
+                // alert("An unknown error occurred.")
+                noGPS()
                 break
         }
     }
@@ -516,10 +604,6 @@
             bearing: state_view.bearing,
             pitch: state_view.pitch
         })
-
-        console.log(AllProfiles)
-        console.log(Allgroups)
-        console.log(AllQuestions)
 
         const deck = new Deck({
             canvas: 'deck-canvas',
@@ -665,7 +749,6 @@
                     let layerId = layer.target.id;
                     map.setStyle('mapbox://styles/mapbox/' + layerId);
                     sessionStorage.setItem("mapStyle", JSON.stringify({mapStyle: 'mapbox://styles/mapbox/' + layerId}));
-                    console.log(sessionStorage.getItem("mapStyle"))
                 }
 
                 for (let i = 0; i < inputs.length; i++) {
@@ -734,28 +817,24 @@
 
     var offline = false
     $(document).mouseleave(function (e) {
-        if (offline == false) {
+        if (offline === false && canUpdateStatus === true) {
             iamStatus(false)
             offline = true
         }
     });
     $(document).click(function (e) {
-        if(offline == true){
+        if(offline === true && canUpdateStatus === true){
             iamStatus(true)
             offline = false
         }
     });
     $(document).mouseenter(function (e) {
-        if(offline == true){
+        if(offline === true && canUpdateStatus === true){
             iamStatus(true)
             offline = false
         }
     });
-    
 
-    // window.onbeforeunload = function () {
-    //     iamStatus(false)
-    // }
     
     function iamStatus(status) {
         let nick = profileData['nickname']
@@ -778,7 +857,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    console.log(status)
+
                 } else {
                     console.log(response)
                 }
@@ -824,7 +903,7 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let questions = JSON.parse(Http.responseText)
                 AllQuestions = questions['questions']
-                getLocation()
+                handlePermission()
             }
         }
     }

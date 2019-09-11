@@ -218,7 +218,7 @@ router.post('/profile/create', (req, res) => {
 
 router.post('/profile/allProfiles', (req, res) => {
 	let data = []
-	Profile.find({}, { _id: 0, nickname: 1, pos: 1 })
+	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 }}, { _id: 0, nickname: 1, pos: 1 })
 		.then(profiles => {
 			for (let i = 0; i < profiles.length; ++i) {
 				let data2 = { 'coordinates': [profiles[i]['pos']['x'], profiles[i]['pos']['y']], 'nickname': profiles[i]['nickname'] }
