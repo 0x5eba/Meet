@@ -81,28 +81,18 @@
 
             <div id="res-search"></div>
 
-            <div id='menu' style="display: none;">
-                <h2>Change map style</h2>
-                <input id='streets-v11' type='radio' name='rtoggle' value='streets'>
-                <label for='streets-v11'>streets</label>
-                <input id='outdoors-v11' type='radio' name='rtoggle' value='streets'>
-                <label for='outdoors-v11'>outdoors</label>
-                <input id='light-v10' type='radio' name='rtoggle' value='streets'>
-                <label for='light-v10'>light</label>
-                <input id='dark-v10' type='radio' name='rtoggle' value='streets'>
-                <label for='dark-v10'>dark</label>
-                <input id='satellite-v9' type='radio' name='rtoggle' value='streets'>
-                <label for='satellite-v9'>satellite</label>
-                <input id='satellite-streets-v11' type='radio' name='rtoggle' value='streets'>
-                <label for='satellite-streets-v11'>satellite-streets</label>
-                <input id='navigation-preview-day-v4' type='radio' name='rtoggle' value='streets'>
-                <label for='navigation-preview-day-v4'>navigation-preview-day</label>
-                <input id='navigation-preview-night-v4' type='radio' name='rtoggle' value='streets'>
-                <label for='navigation-preview-night-v4'>navigation-preview-night</label>
-                <input id='navigation-guidance-day-v4' type='radio' name='rtoggle' value='streets'>
-                <label for='navigation-guidance-day-v4'>navigation-guidance-day</label>
-                <input id='navigation-guidance-night-v4' type='radio' name='rtoggle' value='streets'>
-                <label for='navigation-guidance-night-v4'>navigation-guidance-night</label>
+            <div id='menu' style="display: none; margin: 3%">
+                <h3>Map styles</h3>
+                <div class="form-group">
+                    <select class="form-control" id="mapStyles">
+                        <option value='streets-v11' selected>streets</option>
+                        <option value='outdoors-v11'>outdoors</option>
+                        <option value='light-v10'>light</option>
+                        <option value='dark-v10'>dark</option>
+                        <option value='satellite-v9'>satellite</option>
+                        <option value='satellite-streets-v11'>satellite streets</option>
+                    </select>
+                </div>
             </div>
 
             <div id='createGroup' style="display:none; margin: 30px" class="text-center">
@@ -245,7 +235,7 @@
         /* Stay in place */
         z-index: 1;
         /* Sit on top */
-        padding-top: 100px;
+        padding-top: 5%;
         /* Location of the box */
         left: 0;
         top: 0;
@@ -260,7 +250,7 @@
     .modal-content {
         left: 10%;
         width: 80%;
-        height: 80%;
+        height: 88%;
         border: 1px solid #888;
         background-color: #fefefe;
         padding: 20px;
@@ -612,9 +602,15 @@
         // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
 
         let mapStyle = JSON.parse(sessionStorage.getItem("mapStyle"))
-        let inputs = document.getElementById('menu').getElementsByTagName('input')
+        let options = document.getElementById('mapStyles').getElementsByTagName('option')
         let street = mapStyle['mapStyle'].split("/")
-        document.getElementById(street[street.length - 1]).checked = true
+        street = street[street.length-1]
+        for(let a = 0; a < options.length; ++a){
+            if(options[a].value === street){
+                options[a].selected = true
+                break;
+            }
+        }
 
         const map = new mapboxgl.Map({
             container: 'map',
@@ -729,7 +725,7 @@
                     })
                 }
             })
-            .append("img").attr("src", "home2.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_gps-not-fixed_326555.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
         
         // group
         mainDiv.append('button').attr("id", "btn-group")
@@ -738,11 +734,11 @@
                     
                 } else {
                     modal.style.display = "block"
-                    document.getElementById("title-model").innerHTML = "Create Group"
+                    document.getElementById("title-model").innerHTML = "Create a group"
                     document.getElementById("createGroup").style.display = "block"
                 }
             })
-            .append("img").attr("src", "chatgroup.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_chat_2639908.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         // quesiton
         mainDiv.append('button').attr("id", "btn-question")
@@ -753,7 +749,7 @@
                     window.location.href = "http://localhost:3001/question"
                 }
             })
-            .append("img").attr("src", "askquestion.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_question-circle_383085.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         // bookmark
         mainDiv.append('button').attr("id", "btn-bookmark")
@@ -764,7 +760,7 @@
                 document.getElementById("title-model").innerHTML = "Bookmarks"
                 getSaved()
             })
-            .append("img").attr("src", "bookmark.jpg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_177_BookmarkUnused_183296.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         //setting
         mainDiv.append('button').attr("id", "btn-setting")
@@ -775,22 +771,15 @@
                 resSearch.innerHTML = ""
                 document.getElementById("title-model").innerHTML = "Settings"
 
-                let layerList = document.getElementById('menu');
-                let inputs = layerList.getElementsByTagName('input');
-
-                function switchLayer(layer) {
-                    let layerId = layer.target.id;
+                $("#mapStyles").change(function () {
+                    var layerId = $(this).children("option:selected").val();
                     map.setStyle('mapbox://styles/mapbox/' + layerId);
-                    sessionStorage.setItem("mapStyle", JSON.stringify({mapStyle: 'mapbox://styles/mapbox/' + layerId}));
-                }
-
-                for (let i = 0; i < inputs.length; i++) {
-                    inputs[i].onclick = switchLayer;
-                }
+                    sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/' + layerId }));
+                });
 
                 getSettings()
             })
-            .append("img").attr("src", "setting.png").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_settings_2561383.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
 
         // search
         let div_search = mainDiv.append('div').attr("class", "searchbar")
