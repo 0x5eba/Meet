@@ -40,7 +40,7 @@
             <div id='search-icon' style="display: none;">
                 <div class="d-flex justify-content-center" style="margin:10px; margin-bottom: 30px">
                     <div class="searchbar">
-                        <input class="search_input" type="text" placeholder="Search" id="search_bar" autofocus>
+                        <input class="search_input" type="text" placeholder="Search groups/questions/profiles" id="search_bar" autofocus>
                         <a href="#" class="search_icon" style="color:#e74c3c"><i class="fas fa-search"></i></a>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
 
             <div id='createGroup' style="display:none; margin: 30px" class="text-center">
                 <input type="text" id="groupName" class="form-control"
-                    style="box-shadow: 0px 0px 5px green;" aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder='Name'>
+                    aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder='Name'>
                 <br/><br/>
                 <button type="button" class="btn btn-outline-success" onclick="return createGroup();">Create</button>
             </div>
@@ -140,48 +140,82 @@
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.15); */
     }
 
-
     #btn-home {
         position: absolute;
         left: 50%;
-        margin-left: -28px;
+        margin-left: -22px;
         bottom: 30px;
         border: 0;
         background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
     }
 
     #btn-group {
         position: absolute;
         left: 10%;
-        margin-left: -28px;
+        margin-left: -22px;
         bottom: 30px;
         border: 0;
         background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
     }
 
     #btn-question {
         position: absolute;
         left: 90%;
-        margin-left: -28px;
+        margin-left: -22px;
         bottom: 30px;
         border: 0;
         background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
     }
 
     #btn-setting {
         position: absolute;
         left: 90%;
-        margin-left: -28px;
+        margin-left: -22px;
+        margin-top: -10px;
         border: 0;
         background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
     }
 
     #btn-bookmark {
         position: absolute;
         left: 10%;
-        margin-left: -28px;
+        margin-left: -22px;
+        margin-top: -10px;
         border: 0;
         background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    #btn-search {
+        position: absolute;
+        left: 50%;
+        margin-left: -22px;
+        margin-top: -10px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
     }
 
     body,
@@ -197,7 +231,7 @@
         background-color: #353b48;
         border-radius: 30px;
         padding: 10px;
-        margin-left: -28px;
+        /* margin-left: -22px; */
     }
 
     .search_input {
@@ -306,6 +340,7 @@
         float: none; /* Added */
         margin-bottom: 10px; /* Added */
     }
+
 </style>
 
 <script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script>
@@ -554,9 +589,9 @@
         const state_view = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            zoom: 5,
+            zoom: 8,
             bearing: 0,
-            pitch: 30
+            pitch: 20,
         }
         profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
         sessionStorage.setItem("profile", JSON.stringify(profileData))
@@ -598,6 +633,15 @@
             }
         }
 
+        let showOnMapProfile = JSON.parse(sessionStorage.getItem("showOnMapProfile"))
+        if (showOnMapProfile !== null) {
+            console.log("ok")
+            state_view.longitude = showOnMapProfile.x
+            state_view.latitude = showOnMapProfile.y
+            state_view.zoom = 11
+            sessionStorage.removeItem("showOnMapProfile");
+        }
+
         mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
         // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
 
@@ -619,9 +663,13 @@
             center: [state_view.longitude, state_view.latitude],
             zoom: state_view.zoom,
             bearing: state_view.bearing,
-            pitch: state_view.pitch
+            pitch: state_view.pitch,
+            attributionControl: false,
         })
-
+        map.addControl(new mapboxgl.AttributionControl({
+            compact: true
+        }))
+        
         const deck = new Deck({
             canvas: 'deck-canvas',
             width: '100%',
@@ -725,7 +773,7 @@
                     })
                 }
             })
-            .append("img").attr("src", "icons/iconfinder_gps-not-fixed_326555.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_gps-not-fixed_326555.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
         
         // group
         mainDiv.append('button').attr("id", "btn-group")
@@ -738,7 +786,7 @@
                     document.getElementById("createGroup").style.display = "block"
                 }
             })
-            .append("img").attr("src", "icons/iconfinder_chat_2639908.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_chat_2639908.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
         // quesiton
         mainDiv.append('button').attr("id", "btn-question")
@@ -749,7 +797,7 @@
                     window.location.href = "http://localhost:3001/question"
                 }
             })
-            .append("img").attr("src", "icons/iconfinder_question-circle_383085.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_question-circle_383085.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
         // bookmark
         mainDiv.append('button').attr("id", "btn-bookmark")
@@ -760,7 +808,7 @@
                 document.getElementById("title-model").innerHTML = "Bookmarks"
                 getSaved()
             })
-            .append("img").attr("src", "icons/iconfinder_177_BookmarkUnused_183296.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_177_BookmarkUnused_183296.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
         //setting
         mainDiv.append('button').attr("id", "btn-setting")
@@ -779,11 +827,23 @@
 
                 getSettings()
             })
-            .append("img").attr("src", "icons/iconfinder_settings_2561383.svg").attr("width", "40").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_settings_2561383.svg").attr("width", "30").attr("height", "30")
+
 
         // search
-        let div_search = mainDiv.append('div').attr("class", "searchbar")
-            .style("position", "absolute").style("left", "50%")
+        // let div_search = mainDiv.append('div').attr("class", "searchbar")
+        //     .style("position", "absolute").style("left", "50%").style("margin-top", "-20px").style("margin-left", "-28px")
+        //     .on('click', d => {
+        //         modal.style.display = "block"
+        //         resSearch.style.display = "block"
+        //         resSearch.innerHTML = ""
+        //         document.getElementById("search-icon").style.display = "block"
+        //         document.getElementById("title-model").innerHTML = "Search"
+        //     })
+        // div_search.append("button").attr("class", "search_icon").append("i").attr("class", "fas fa-search fa-lg")
+            
+
+        mainDiv.append('button').attr("id", "btn-search")
             .on('click', d => {
                 modal.style.display = "block"
                 resSearch.style.display = "block"
@@ -791,8 +851,7 @@
                 document.getElementById("search-icon").style.display = "block"
                 document.getElementById("title-model").innerHTML = "Search"
             })
-        div_search.append("button").attr("class", "search_icon").append("i").attr("class", "fas fa-search")
-
+            .append("i").attr("class", "fas fa-search fa-2x").style("color", "black")
 
         // map.addControl(new mapboxgl.GeolocateControl({
         //     positionOptions: {

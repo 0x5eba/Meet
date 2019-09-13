@@ -33,7 +33,7 @@
                             <h2>General Info</h2>
                             <ul>
                                 <li id='lastseen'><span>Last seen</span></li>
-                                <li id='position'><span>Last position</span></li>
+                                <li><span>Position</span><button id='position' type="button" class="btn btn-info">Show on map</button></li>
                             </ul>
                         </div>
                     </div>
@@ -208,6 +208,7 @@
         return time;
     }
 
+
     function getProfile(nickname) {
         let params = JSON.stringify({
             nickname: nickname,
@@ -225,7 +226,10 @@
                     document.getElementById("nickname").innerHTML = profile["nickname"]
                     document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
                     document.getElementById("bio").innerHTML = profile["bio"]
-                    document.getElementById("position").innerHTML = "<span>Last position</span>" + "(" + profile["pos"].x + "," + profile["pos"].y + ")"
+                    document.getElementById("position").onclick = function(){
+                        sessionStorage.setItem("showOnMapProfile", JSON.stringify({x: profile["pos"].x, y: profile["pos"].y}))
+                        window.history.back()
+                    }
                     if(profile["online"] == true){
                         document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
                     } else {

@@ -20,6 +20,8 @@
     <div id="myModal" class="modal">
         <div class="modal-content" id="boxPos">
             <a href="javascript:void(0)" id="exit" class="closebtn" onclick="closeNav()">&times;</a>
+            <h1 style="text-align: center;">Users online</h1>
+            <div id="res-search"></div>
         </div>
     </div>
 
@@ -453,8 +455,8 @@
                 let response = JSON.parse(Http.responseText)
 
                 if (response["confirmation"] == "success") {
-                    let boxPos = document.getElementById("boxPos");
-                    boxPos.innerHTML = '<a id="exit" href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
+                    let boxPos = document.getElementById("res-search");
+                    boxPos.innerHTML = ""
                     
                     if(response["groups"].length > 0 && response["groups"][0]['peopleOnline'].length > 0){
                         response["groups"][0]['peopleOnline'].forEach(function (nickname) {
