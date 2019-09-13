@@ -873,7 +873,7 @@
 
         if(profileData['coords'] === undefined || (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)){
             new mapboxgl.Marker()
-                .setLngLat([state_view.longitude, state_view.latitude])
+                .setLngLat(profileData['coords'])
                 .addTo(map);
         }
         
@@ -912,7 +912,7 @@
                     // })
 
                     map.jumpTo({
-                        center: [state_view.longitude, state_view.latitude],
+                        center: profileData['coords'],
                         zoom: 12,
                     })
                 }
