@@ -40,9 +40,6 @@ router.get('/group', function (req, res) {
 router.get('/profile', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/profile.html'));
 });
-// router.get('/editor', function (req, res) {
-// 	res.sendFile(path.join(__dirname + '/views/editor.html'));
-// });
 
 const fs = require('fs');
 /*

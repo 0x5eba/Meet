@@ -28,7 +28,7 @@
 <body>
     <div>
         <div id="map"></div>
-        <canvas id="deck-canvas"></canvas>
+        <!-- <canvas id="deck-canvas"></canvas> -->
         <div id="control-panel"></div>
     </div>
     <div id="myModal" class="modal">
@@ -91,6 +91,14 @@
                         <option value='dark-v10'>dark</option>
                         <option value='satellite-v9'>satellite</option>
                         <option value='satellite-streets-v11'>satellite streets</option>
+                    </select>
+                </div>
+                <h3>View</h3>
+                <div class="form-group">
+                    <select class="form-control" id="views">
+                        <option value='profiles' selected>profiles</option>
+                        <option value='groups'>groups</option>
+                        <option value='questions'>questions</option>
                     </select>
                 </div>
             </div>
@@ -218,13 +226,13 @@
         width: 45px;
     }
 
-    body,
+    /* body,
     html {
         height: 100%;
         width: 100%;
         margin: 0;
         padding: 0;
-    }
+    } */
 
     .searchbar {
         height: 60px;
@@ -545,6 +553,8 @@
                 bearing: 0,
                 pitch: 30
             }
+            profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
+            sessionStorage.setItem("profile", JSON.stringify(profileData))
             canUpdateStatus = true
             setMap(state_view)
             iamStatus(true)
@@ -557,7 +567,8 @@
     }
 
     function reloadPage(){
-        window.location.href = "http://localhost:3001/"
+        window.location.reload();
+        // window.location.href = "http://localhost:3001/"
     }
 
     function withoutPosition(){
@@ -565,8 +576,7 @@
         sessionStorage.setItem("profile", JSON.stringify(profileData))
 
         closeMenu()
-
-        window.location.href = "http://localhost:3001/"
+        reloadPage()
     }
 
     function handlePermission() {
@@ -578,9 +588,9 @@
             } else if (result.state == 'denied') {
                 noGPS()
             }
-            result.onchange = function () {
-                console.log(result.state);
-            }
+            // result.onchange = function () {
+            //     console.log(result.state);
+            // }
         });
     }
 
@@ -601,7 +611,6 @@
     }
 
     function showError(error) {
-        console.log("error")
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 // alert("User denied the request for Geolocation.")
@@ -623,19 +632,22 @@
     }
 
     function setMap(state_view) {
-        if(state_view.longitude !== 0 && state_view.latitude !== 0){
-            // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
-            for (let a = 0; a < AllProfiles.length; ++a) {
-                if (AllProfiles[a]['nickname'] === profileData['nickname']) {
-                    AllProfiles[a]['coordinates'] = [state_view.longitude, state_view.latitude]
-                    break;
-                }
+        // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
+        let foundProfile = false
+        for (let a = 0; a < AllProfiles.features.length; ++a) {
+            if (AllProfiles.features[a]['nickname'] === profileData['nickname']) {
+                AllProfiles.features[a]['coordinates'] = [state_view.longitude, state_view.latitude]
+                foundProfile = true
+                break;
             }
         }
+        if(foundProfile === false){
+            AllProfiles.features.push({ 'coordinates': profileData['coords'], 'nickname': profileData['nickname'] })
+        }
+        
 
         let showOnMapProfile = JSON.parse(sessionStorage.getItem("showOnMapProfile"))
         if (showOnMapProfile !== null) {
-            console.log("ok")
             state_view.longitude = showOnMapProfile.x
             state_view.latitude = showOnMapProfile.y
             state_view.zoom = 11
@@ -669,90 +681,175 @@
         map.addControl(new mapboxgl.AttributionControl({
             compact: true
         }))
-        
-        const deck = new Deck({
-            canvas: 'deck-canvas',
-            width: '100%',
-            height: '100%',
-            initialViewState: state_view,
-            controller: true,
-            onViewStateChange: ({ viewState }) => {
-                map.jumpTo({
-                    center: [viewState.longitude, viewState.latitude],
-                    zoom: viewState.zoom,
-                    bearing: viewState.bearing,
-                    pitch: viewState.pitch
-                })
-            },
-            layers: [
-                new TextLayer({
-                    id: 'text-question',
-                    data: AllQuestions,
-                    pickable: true,
-                    getPosition: d => d.coordinates,
-                    getText: d => d.title,
-                    // getPixelOffset: d => d.pixelOffset || [0, 1],
-                    // sizeMinPixels: 20,
-                    // sizeMaxPixels: 10,
-                    getSize: 15,
-                    fontWeight: 'bold',
-                    getColor: [31, 58, 147, 255],
-                    getTextAnchor: 'middle',
-                    getAlignmentBaseline: 'top',
-                    getPixelOffset: [5, 5],
-                    onClick: info => changePage(info.object, 'question')
-                }),
-                new TextLayer({
-                    id: 'text-group',
-                    data: Allgroups,
-                    pickable: true,
-                    getPosition: d => d.coordinates,
-                    getText: d => d.name,
-                    getSize: 15,
-                    fontWeight: 'bold',
-                    getColor: [46, 204, 113, 255],
-                    getTextAnchor: 'middle',
-                    getAlignmentBaseline: 'center',
-                    getPixelOffset: [5, 5],
-                    onClick: info => changePage(info.object, 'group')
-                }),
-                new TextLayer({
-                    id: 'text-profile',
-                    data: AllProfiles,
-                    pickable: true,
-                    getPosition: d => d.coordinates,
-                    getText: d => d.nickname,
-                    getSize: 15,
-                    fontWeight: 'bold',
-                    getColor: [217, 30, 24, 255],
-                    getTextAnchor: 'middle',
-                    getAlignmentBaseline: 'bottom',
-                    getPixelOffset: [5, 5],
-                    onClick: info => changePage(info.object, 'profile')
-                }),
 
-                /*
-                new GeoJsonLayer({
-                    id: 'profiles',
-                    data: AllProfiles,
-                    // Styles
-                    filled: true,
-                    pointRadiusMinPixels: 7,
-                    pointRadiusMaxPixels: 4,
-                    opacity: 1,
-                    pointRadiusScale: 500,
-                    getRadius: 10,
-                    radiusMinPixels: 0.5,
-                    getFillColor: [46, 204, 113],
-                    // Interactive props
-                    pickable: true,
-                    autoHighlight: true,
-                    // onHover: info => setTooltip(info.object),
-                    onClick: info => changePage(info.object, 'person')
-                }),
-                */
-            ]
+        map.on('load', function () {
+            map.addSource('earthquakes', {
+                "type": "geojson",
+                "data":  AllProfiles,
+            })
+
+            map.addLayer({
+                "id": "earthquakes-heat",
+                "type": "heatmap",
+                "source": "earthquakes",
+                "maxzoom": 9,
+                "paint": {
+                    // Increase the heatmap weight based on frequency and property magnitude
+                    "heatmap-weight": [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        0, 0,
+                        6, 1
+                    ],
+                    // Increase the heatmap color weight weight by zoom level
+                    // heatmap-intensity is a multiplier on top of heatmap-weight
+                    "heatmap-intensity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 1,
+                        9, 3
+                    ],
+                    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                    // Begin color ramp at 0-stop with a 0-transparancy color
+                    // to create a blur-like effect.
+                    "heatmap-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["heatmap-density"],
+                        0, "rgba(33,102,172,0)",
+                        0.2, "rgb(103,169,207)",
+                        0.4, "rgb(209,229,240)",
+                        0.6, "rgb(253,219,199)",
+                        0.8, "rgb(239,138,98)",
+                        1, "rgb(178,24,43)"
+                    ],
+                    // Adjust the heatmap radius by zoom level
+                    "heatmap-radius": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 2,
+                        9, 20
+                    ],
+                    // Transition from heatmap to circle layer by zoom level
+                    "heatmap-opacity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7, 1,
+                        9, 0
+                    ],
+                }
+            }, 'waterway-label');
+
+            map.addLayer({
+                "id": "earthquakes-point",
+                "type": "circle",
+                "source": "earthquakes",
+                "minzoom": 7,
+                "paint": {
+                    // Size circle radius by earthquake magnitude and zoom level
+                    "circle-radius": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7, [
+                            "interpolate",
+                            ["linear"],
+                            ["get", "mag"],
+                            1, 1,
+                            6, 4
+                        ],
+                        16, [
+                            "interpolate",
+                            ["linear"],
+                            ["get", "mag"],
+                            1, 5,
+                            6, 50
+                        ]
+                    ],
+                    // Color circle by earthquake magnitude
+                    "circle-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        1, "rgba(33,102,172,0)",
+                        2, "rgb(103,169,207)",
+                        3, "rgb(209,229,240)",
+                        4, "rgb(253,219,199)",
+                        5, "rgb(239,138,98)",
+                        6, "rgb(178,24,43)"
+                    ],
+                    "circle-stroke-color": "white",
+                    "circle-stroke-width": 1,
+                    // Transition from heatmap to circle layer by zoom level
+                    "circle-opacity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7, 0,
+                        8, 1
+                    ]
+                }
+            }, 'waterway-label');
+        });
+
+        // When a click event occurs on a feature in the earthquakes-point layer, open a popup at the
+        // location of the feature, with description HTML from its properties.
+        map.on('click', 'earthquakes-point', function (e) {
+            let coordinates = e.features[0].geometry.coordinates.slice();
+            let nickname = e.features[0].properties.nickname
+            let name = e.features[0].properties.name !== undefined ? e.features[0].properties.name : ""
+            let surname = e.features[0].properties.surname !== undefined ? e.features[0].properties.surname : ""
+            
+            let description = "<h2>" + nickname + "</h2></br><p>" + name + " " + surname + "</p>"
+                
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the earthquakes-point layer.
+        map.on('mouseenter', 'earthquakes-point', function () {
+            map.getCanvas().style.cursor = 'pointer';
         })
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'earthquakes-point', function () {
+            map.getCanvas().style.cursor = '';
+        })
+
+        if(profileData['coords'] === undefined || (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)){
+            new mapboxgl.Marker()
+                .setLngLat([state_view.longitude, state_view.latitude])
+                .addTo(map);
+        }
+        
+        // const deck = new Deck({
+        //     canvas: map.getCanvas(),
+        //     width: '100%',
+        //     height: '100%',
+        //     initialViewState: state_view,
+        //     controller: true,
+        //     onViewStateChange: ({ viewState }) => {
+        //         map.jumpTo({
+        //             center: [viewState.longitude, viewState.latitude],
+        //             zoom: viewState.zoom,
+        //             bearing: viewState.bearing,
+        //             pitch: viewState.pitch
+        //         })
+        //     },
+        // })
 
         const mainDiv = d3.select('#control-panel').selectAll('div').data([{ text: "home" }]).enter().append('div')
 
@@ -762,14 +859,19 @@
                 if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
 
                 } else {
-                    deck.setProps({
-                        viewState: {
-                            longitude: state_view.longitude,
-                            latitude: state_view.latitude,
-                            zoom: 11,
-                            transitionInterpolator: new FlyToInterpolator(),
-                            transitionDuration: 1000
-                        }
+                    // deck.setProps({
+                    //     viewState: {
+                    //         longitude: state_view.longitude,
+                    //         latitude: state_view.latitude,
+                    //         zoom: 12,
+                    //         transitionInterpolator: new FlyToInterpolator(),
+                    //         transitionDuration: 1000
+                    //     }
+                    // })
+
+                    map.jumpTo({
+                        center: [state_view.longitude, state_view.latitude],
+                        zoom: 12,
                     })
                 }
             })
@@ -823,6 +925,7 @@
                     var layerId = $(this).children("option:selected").val();
                     map.setStyle('mapbox://styles/mapbox/' + layerId);
                     sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/' + layerId }));
+                    window.location.reload()
                 });
 
                 getSettings()
@@ -861,7 +964,7 @@
         // }));
         // map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
         map.doubleClickZoom.enable();
-        map.touchZoomRotate.enable({ around: 'center' });
+        // map.touchZoomRotate.enable({ around: 'center' });
 
 
         // var marker = new mapboxgl.Marker()
@@ -1023,6 +1126,15 @@
     
 
     $(document).ready(function () {
+        // if (CBview['CBgroups'] === 1) {
+        //     initGroups()
+        // }
+        // if (CBview['CBquestions'] === 1) {
+        //     initQuestions()
+        // }
+        // if (CBview['CBprofiles'] === 1) {
+        //     initProfiles()
+        // }
         initProfiles()
     })
 

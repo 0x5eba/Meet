@@ -222,8 +222,11 @@ router.post('/profile/allProfiles', (req, res) => {
 	// const query = req.body
 	// const search_x = query.x
 	// const search_y = query.y
-	
-	let data = []
+
+	let data = { "type": "FeatureCollection",
+				"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+				"features": [] }
+
 	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { _id: 0, nickname: 1, pos: 1, fakePos: 1 })
 		.then(profiles => {
 			for (let i = 0; i < profiles.length; ++i) {
@@ -237,8 +240,17 @@ router.post('/profile/allProfiles', (req, res) => {
 				// 	data.push(data2)
 				// }
 
-				let data2 = { 'coordinates': [x, y], 'nickname': profiles[i]['nickname'] }
-				data.push(data2)
+				// let data2 = { 'coordinates': [x, y], 'nickname': profiles[i]['nickname'] }
+				// data.push(data2)
+
+				let data2 = { "type": "Feature", 
+							"properties": { 
+								'nickname': profiles[i]['nickname'], 
+								'name': profiles[i]['name'], 
+								'surname': profiles[i]['surname'], 
+								"mag": 2.0 }, 
+							"geometry": { "type": "Point", "coordinates": [x, y] } }
+				data.features.push(data2)
 			}
 			res.json({
 				confirmation: 'success',
@@ -318,12 +330,29 @@ router.get('/groups', (req, res) => {
 })
 
 router.get('/group/allGroups', (req, res) => {
-	let data = []
+	let data = {
+		"type": "FeatureCollection",
+		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+		"features": []
+	}
 	Group.find({}, {_id:0, name:1, pos:1})
 		.then(groups => {
 			for (let i = 0; i < groups.length; ++i) {
-				let data2 = { 'coordinates': [groups[i]['pos']['x'], groups[i]['pos']['y']], 'name': groups[i]['name'] }
-				data.push(data2)
+				let x = groups[i]['pos']['x']
+				let y = groups[i]['pos']['y']
+
+				// (6-1)*((2-0)/(200-0)) + 1
+				// https://stats.stackexchange.com/questions/281162/scale-a-number-between-a-range
+
+				let data2 = {
+					"type": "Feature",
+					"properties": {
+						'name': groups[i]['name'],
+						"mag": 2.0
+					},
+					"geometry": { "type": "Point", "coordinates": [x, y] }
+				}
+				data.features.push(data2)
 			}
 			res.json({
 				confirmation: 'success',
@@ -565,12 +594,29 @@ router.post('/question/create', (req, res) => {
 })
 
 router.get('/question/allQuestions', (req, res) => {
-	let data = []
+	let data = {
+		"type": "FeatureCollection",
+		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+		"features": []
+	}
 	Question.find({}, { _id: 0, title: 1, pos: 1 })
 		.then(questions => {
 			for (let i = 0; i < questions.length; ++i) {
-				let data2 = { 'coordinates': [questions[i]['pos']['x'], questions[i]['pos']['y']], 'title': questions[i]['title'] }
-				data.push(data2)
+				let x = questions[i]['pos']['x']
+				let y = questions[i]['pos']['y']
+
+				// https://stats.stackexchange.com/questions/281162/scale-a-number-between-a-range
+
+				let data2 = {
+					"type": "Feature",
+					"properties": {
+						'title': questions[i]['title'],
+						'details': questions[i]['details'],
+						"mag": (6 - 1.5) * ((2 - 0) / (500 - 0)) + 1.5
+					},
+					"geometry": { "type": "Point", "coordinates": [x, y] }
+				}
+				data.features.push(data2)
 			}
 			res.json({
 				confirmation: 'success',

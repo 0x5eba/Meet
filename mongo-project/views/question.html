@@ -287,7 +287,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    window.location.href = "http://localhost:3001/"
+                    window.history.back()
                 } else {
                     console.log(response)
                 }
