@@ -85,17 +85,17 @@
                 <h3>Map styles</h3>
                 <div class="form-group">
                     <select class="form-control" id="mapStyles">
-                        <option value='streets-v11' selected>streets</option>
-                        <option value='outdoors-v11'>outdoors</option>
+                        <option value='streets-v11' selected>street</option>
+                        <option value='outdoors-v11'>outdoor</option>
                         <option value='light-v10'>light</option>
                         <option value='dark-v10'>dark</option>
                         <option value='satellite-v9'>satellite</option>
-                        <option value='satellite-streets-v11'>satellite streets</option>
+                        <option value='satellite-streets-v11'>satellite street</option>
                     </select>
                 </div>
                 <h3>View</h3>
                 <div class="form-group">
-                    <select class="form-control" id="views">
+                    <select class="form-control" id="CBviews">
                         <option value='profiles' selected>profiles</option>
                         <option value='groups'>groups</option>
                         <option value='questions'>questions</option>
@@ -357,6 +357,7 @@
     const url = 'http://localhost:3001/api/'
 
     var profileData;
+    var CBviews;
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if(profileData === null){
@@ -632,19 +633,42 @@
     }
 
     function setMap(state_view) {
-        // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
-        let foundProfile = false
-        for (let a = 0; a < AllProfiles.features.length; ++a) {
-            if (AllProfiles.features[a]['nickname'] === profileData['nickname']) {
-                AllProfiles.features[a]['coordinates'] = [state_view.longitude, state_view.latitude]
-                foundProfile = true
+        if(CBviews['profiles'] === 1){
+            // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
+            let foundProfile = false
+            for (let a = 0; a < AllProfiles.features.length; ++a) {
+                if (AllProfiles.features[a]['nickname'] === profileData['nickname']) {
+                    AllProfiles.features[a]['coordinates'] = [state_view.longitude, state_view.latitude]
+                    foundProfile = true
+                    break;
+                }
+            }
+            if (foundProfile === false) {
+                AllProfiles.features.push({ 'coordinates': profileData['coords'], 'nickname': profileData['nickname'] })
+            }
+        }
+
+        var dataToDisplay;
+        let optionViews;
+        if (CBviews['groups'] === 1) {
+            dataToDisplay = Allgroups
+            optionViews = 'groups'
+        }
+        else if (CBviews['questions'] === 1) {
+            dataToDisplay = AllQuestions
+            optionViews = 'questions'
+        }
+        else if (CBviews['profiles'] === 1) {
+            dataToDisplay = AllProfiles
+            optionViews = 'profiles'
+        }
+        let optionsView = document.getElementById('CBviews').getElementsByTagName('option')
+        for (let a = 0; a < optionsView.length; ++a) {
+            if (optionsView[a].value === optionViews) {
+                optionsView[a].selected = true
                 break;
             }
         }
-        if(foundProfile === false){
-            AllProfiles.features.push({ 'coordinates': profileData['coords'], 'nickname': profileData['nickname'] })
-        }
-        
 
         let showOnMapProfile = JSON.parse(sessionStorage.getItem("showOnMapProfile"))
         if (showOnMapProfile !== null) {
@@ -658,12 +682,12 @@
         // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
 
         let mapStyle = JSON.parse(sessionStorage.getItem("mapStyle"))
-        let options = document.getElementById('mapStyles').getElementsByTagName('option')
+        let optionsStreet = document.getElementById('mapStyles').getElementsByTagName('option')
         let street = mapStyle['mapStyle'].split("/")
         street = street[street.length-1]
-        for(let a = 0; a < options.length; ++a){
-            if(options[a].value === street){
-                options[a].selected = true
+        for(let a = 0; a < optionsStreet.length; ++a){
+            if(optionsStreet[a].value === street){
+                optionsStreet[a].selected = true
                 break;
             }
         }
@@ -685,7 +709,7 @@
         map.on('load', function () {
             map.addSource('earthquakes', {
                 "type": "geojson",
-                "data":  AllProfiles,
+                "data":  dataToDisplay,
             })
 
             map.addLayer({
@@ -800,12 +824,27 @@
         // location of the feature, with description HTML from its properties.
         map.on('click', 'earthquakes-point', function (e) {
             let coordinates = e.features[0].geometry.coordinates.slice();
-            let nickname = e.features[0].properties.nickname
-            let name = e.features[0].properties.name !== undefined ? e.features[0].properties.name : ""
-            let surname = e.features[0].properties.surname !== undefined ? e.features[0].properties.surname : ""
-            
-            let description = "<h2>" + nickname + "</h2></br><p>" + name + " " + surname + "</p>"
-                
+            let description = ""
+            if (CBviews['groups'] === 1) {
+                let name = e.features[0].properties.name
+
+                description = "<h2>Group</h2><h5>" + name + "</h5>"
+            }
+            else if (CBviews['questions'] === 1) {
+                let title = e.features[0].properties.title
+                let details = e.features[0].properties.details !== undefined ? e.features[0].properties.details : ""
+                details = details.slice(0, 15) + (details.length > 15 ? "..." : "")
+
+                description = "<h2>Question</h2><h5>" + title + "</h5></br><p>" + details + "</p>"
+            }
+            else if (CBviews['profiles'] === 1) {
+                let nickname = e.features[0].properties.nickname
+                let name = e.features[0].properties.name !== undefined ? e.features[0].properties.name : ""
+                let surname = e.features[0].properties.surname !== undefined ? e.features[0].properties.surname : ""
+
+                description = "<h2>Profile</h2><h5>" + nickname + "</h5></br><p>" + name + " " + surname + "</p>"
+            }
+
             // Ensure that if the map is zoomed out such that multiple
             // copies of the feature are visible, the popup appears
             // over the copy being pointed to.
@@ -928,7 +967,17 @@
                     window.location.reload()
                 });
 
-                getSettings()
+                $("#CBviews").change(function () {
+                    var value = $(this).children("option:selected").val();
+                    let view = {
+                        questions: 0,
+                        groups: 0,
+                        profiles: 0,
+                    }
+                    view[value] = 1
+                    sessionStorage.setItem("view", JSON.stringify(view));
+                    window.location.reload()
+                });
             })
             .append("img").attr("src", "icons/iconfinder_settings_2561383.svg").attr("width", "30").attr("height", "30")
 
@@ -976,27 +1025,6 @@
         //     .addTo(map)
 
         // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
-    }
-
-    function getSettings(){
-        
-    }
-
-    function changePage(object, type) {
-        if (object) {
-            if (type === "group") {
-                let href = "http://localhost:3001/group?groupname=" + object['name']
-                window.location.href = href
-            }
-            if (type === "question") {
-                let href = "http://localhost:3001/question?title=" + object['title']
-                window.location.href = href
-            }
-            if (type === "profile") {
-                let href = "http://localhost:3001/profile?nickname=" + object['nickname']
-                window.location.href = href
-            }
-        }
     }
 
     var offline = false
@@ -1049,20 +1077,6 @@
         }
     }
 
-    var AllProfiles = []
-    function initProfiles() {
-        let Http = new XMLHttpRequest()
-        Http.open("POST", url + 'profile/allProfiles', true)
-        Http.send()
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let profiles = JSON.parse(Http.responseText)
-                AllProfiles = profiles['profiles']
-                initGroups()
-            }
-        }
-    }
-
     function createGroup() {
         var groupName = document.getElementById("groupName").value
         if (groupName == "") {
@@ -1095,6 +1109,20 @@
         }
     }
 
+    var AllProfiles = []
+    function initProfiles() {
+        let Http = new XMLHttpRequest()
+        Http.open("POST", url + 'profile/allProfiles', true)
+        Http.send()
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let profiles = JSON.parse(Http.responseText)
+                AllProfiles = profiles['profiles']
+                handlePermission()
+            }
+        }
+    }
+
     var Allgroups = []
     function initGroups() {
         let Http = new XMLHttpRequest()
@@ -1104,7 +1132,7 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let groups = JSON.parse(Http.responseText)
                 Allgroups = groups['groups']
-                initQuestions()
+                handlePermission()
             }
         }
     }
@@ -1126,16 +1154,19 @@
     
 
     $(document).ready(function () {
-        // if (CBview['CBgroups'] === 1) {
-        //     initGroups()
-        // }
-        // if (CBview['CBquestions'] === 1) {
-        //     initQuestions()
-        // }
-        // if (CBview['CBprofiles'] === 1) {
-        //     initProfiles()
-        // }
-        initProfiles()
+        CBviews = JSON.parse(sessionStorage.getItem("view"))
+        if (CBviews['groups'] === 1) {
+            initGroups()
+        }
+        else if (CBviews['questions'] === 1) {
+            initQuestions()
+        }
+        else if (CBviews['profiles'] === 1) {
+            initProfiles()
+        } 
+        else {
+            window.location.href = "http://localhost:3001/login"
+        }
     })
 
 </script>

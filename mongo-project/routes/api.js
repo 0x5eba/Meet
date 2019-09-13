@@ -612,7 +612,7 @@ router.get('/question/allQuestions', (req, res) => {
 					"properties": {
 						'title': questions[i]['title'],
 						'details': questions[i]['details'],
-						"mag": (6 - 1.5) * ((2 - 0) / (500 - 0)) + 1.5
+						"mag": (6 - 2.5) * ((questions[i]['vote'] - 0) / (500 - 0)) + 2.5
 					},
 					"geometry": { "type": "Point", "coordinates": [x, y] }
 				}
