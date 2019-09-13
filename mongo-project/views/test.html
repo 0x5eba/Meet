@@ -828,21 +828,24 @@
             if (CBviews['groups'] === 1) {
                 let name = e.features[0].properties.name
 
-                description = "<h2>Group</h2><h5>" + name + "</h5>"
+                description = "<h2>Group</h2><h5>" + name + "</h5>" + 
+                    "<a href='http://localhost:3001/group?groupname=" + name + "'>Link to the group</a>"
             }
             else if (CBviews['questions'] === 1) {
                 let title = e.features[0].properties.title
                 let details = e.features[0].properties.details !== undefined ? e.features[0].properties.details : ""
                 details = details.slice(0, 15) + (details.length > 15 ? "..." : "")
 
-                description = "<h2>Question</h2><h5>" + title + "</h5></br><p>" + details + "</p>"
+                description = "<h2>Question</h2><h5>" + title + "</h5><p>" + details + "</p>" +
+                    "<a href='http://localhost:3001/question?title=" + title + "'>Link to the question</a>"
             }
             else if (CBviews['profiles'] === 1) {
                 let nickname = e.features[0].properties.nickname
                 let name = e.features[0].properties.name !== undefined ? e.features[0].properties.name : ""
                 let surname = e.features[0].properties.surname !== undefined ? e.features[0].properties.surname : ""
 
-                description = "<h2>Profile</h2><h5>" + nickname + "</h5></br><p>" + name + " " + surname + "</p>"
+                description = "<h2>Profile</h2><h5>" + nickname + "</h5><p>" + name + " " + surname + "</p>" +
+                    "<a href='http://localhost:3001/profile?nickname=" + nickname + "'>Link to the profile</a>"
             }
 
             // Ensure that if the map is zoomed out such that multiple

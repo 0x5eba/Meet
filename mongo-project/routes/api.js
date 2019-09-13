@@ -606,13 +606,14 @@ router.get('/question/allQuestions', (req, res) => {
 				let y = questions[i]['pos']['y']
 
 				// https://stats.stackexchange.com/questions/281162/scale-a-number-between-a-range
+				// (6 - 2.5) * ((questions[i]['vote'] - 0) / (500 - 0)) + 2.5
 
 				let data2 = {
 					"type": "Feature",
 					"properties": {
 						'title': questions[i]['title'],
 						'details': questions[i]['details'],
-						"mag": (6 - 2.5) * ((questions[i]['vote'] - 0) / (500 - 0)) + 2.5
+						"mag": 2.0,
 					},
 					"geometry": { "type": "Point", "coordinates": [x, y] }
 				}
