@@ -47,10 +47,18 @@
 
                     <div class="wrap-input100">
                         <input class="input100" type="text" id="name" name="name" placeholder="Name (optional)">
+                        <span class="focus-input100"></span>
+                        <span class="symbol-input100">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                        </span>
                     </div>
 
                     <div class="wrap-input100">
                         <input class="input100" type="text" id="surname" name="surname" placeholder="Surname (optional)">
+                        <span class="focus-input100"></span>
+                        <span class="symbol-input100">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                        </span>
                     </div>
                     
                     <div class="container-login100-form-btn">
@@ -294,6 +302,8 @@
                             groups: 0,
                             profiles: 1,
                         }
+                        sessionStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+                        
                         sessionStorage.setItem("view", JSON.stringify(view));
 
                         sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));

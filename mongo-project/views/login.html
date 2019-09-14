@@ -264,9 +264,9 @@
         if(check == true){
             let password_value = document.getElementById("password").value
             let hash = SHA256(password_value)
-
+            let nickname = document.getElementById("nickname").value
             let params = JSON.stringify({
-                nickname: document.getElementById("nickname").value,
+                nickname: nickname,
                 password: hash,
             })
 
@@ -279,7 +279,7 @@
                     let response = JSON.parse(Http.responseText)
                     if (response["confirmation"] == "success" && response['data'] != null) {
                         let profile = {
-                            nickname: document.getElementById("nickname").value,
+                            nickname: nickname,
                             password: hash,
                         }
                         sessionStorage.setItem("profile", JSON.stringify(profile));
@@ -288,6 +288,8 @@
                             groups: 0,
                             profiles: 1,
                         }
+                        sessionStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+
                         sessionStorage.setItem("view", JSON.stringify(view));
 
                         sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));

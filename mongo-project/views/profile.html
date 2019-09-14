@@ -228,7 +228,7 @@
                     document.getElementById("bio").innerHTML = profile["bio"]
                     document.getElementById("position").onclick = function(){
                         sessionStorage.setItem("showOnMapProfile", JSON.stringify({x: profile["pos"].x, y: profile["pos"].y}))
-                        window.history.back()
+                        window.location.href = "http://localhost:3001/"
                     }
                     if(profile["online"] == true){
                         document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"

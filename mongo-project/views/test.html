@@ -23,6 +23,9 @@
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/bootstrap-slider.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/css/bootstrap-slider.css">
 </head>
 
 <body>
@@ -93,6 +96,7 @@
                         <option value='satellite-streets-v11'>satellite street</option>
                     </select>
                 </div>
+
                 <h3>View</h3>
                 <div class="form-group">
                     <select class="form-control" id="CBviews">
@@ -101,6 +105,10 @@
                         <option value='questions'>questions</option>
                     </select>
                 </div>
+
+                <h3>Range search</h3>
+                <input id="ex5" type="text" data-slider-min="0" data-slider-max="70" data-slider-step="5" data-slider-value="20" />
+                <span id="ex6CurrentSliderValLabel"> Value: <span id="ex6SliderVal">20</span></span>
             </div>
 
             <div id='createGroup' style="display:none; margin: 30px" class="text-center">
@@ -358,6 +366,9 @@
 
     var profileData;
     var CBviews;
+    var slider = new Slider('#ex5');
+    var rangeView;
+
     function session(){
         profileData = JSON.parse(sessionStorage.getItem("profile"))
         if(profileData === null){
@@ -387,8 +398,11 @@
                 }
             }
         }
+
+        rangeView = JSON.parse(sessionStorage.getItem("rangeView")).range
     }
     session()
+
 
     var modal = document.getElementById("myModal");
     var resSearch = document.getElementById("res-search");
@@ -400,6 +414,7 @@
         document.getElementById("search-icon").style.display = "none"
         document.getElementById("no-gps").style.display = "none"
         document.getElementById("createGroup").style.display = "none"
+        sessionStorage.setItem("rangeView", JSON.stringify({range: rangeView}))
     }
     
     document.getElementsByClassName("close")[0].onclick = function () {
@@ -582,16 +597,21 @@
 
     function handlePermission() {
         navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
-            if (result.state == 'granted') {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else if (result.state == 'prompt') {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else if (result.state == 'denied') {
-                noGPS()
+            // ci metteva troppo senza questo check al "show on map" di profile
+            if (profileData['coords'] !== undefined) {
+                showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
+            } else {
+                if (result.state === 'granted') {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else if (result.state === 'prompt') {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else if (result.state === 'denied') {
+                    noGPS()
+                }
+                // result.onchange = function () {
+                //     console.log(result.state);
+                // }
             }
-            // result.onchange = function () {
-            //     console.log(result.state);
-            // }
         });
     }
 
@@ -637,14 +657,24 @@
             // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
             let foundProfile = false
             for (let a = 0; a < AllProfiles.features.length; ++a) {
-                if (AllProfiles.features[a]['nickname'] === profileData['nickname']) {
-                    AllProfiles.features[a]['coordinates'] = [state_view.longitude, state_view.latitude]
+                if (AllProfiles.features[a].properties['nickname'] === profileData['nickname']) {
+                    AllProfiles.features[a].geometry['coordinates'] = [state_view.longitude, state_view.latitude]
                     foundProfile = true
                     break;
                 }
             }
             if (foundProfile === false) {
-                AllProfiles.features.push({ 'coordinates': profileData['coords'], 'nickname': profileData['nickname'] })
+                let profile = {
+                    "type": "Feature",
+                    "properties": {
+                        'nickname': profileData['nickname'],
+                        // 'name': profileData['name'],
+                        // 'surname': profileData['surname'],
+                        "mag": 2.0
+                    },
+                    "geometry": { "type": "Point", "coordinates": profileData['coords'] }
+                }
+                AllProfiles.features.push(profile)
             }
         }
 
@@ -833,8 +863,9 @@
             }
             else if (CBviews['questions'] === 1) {
                 let title = e.features[0].properties.title
+                title = title.slice(0, 15) + (title.length > 15 ? "..." : "")
                 let details = e.features[0].properties.details !== undefined ? e.features[0].properties.details : ""
-                details = details.slice(0, 15) + (details.length > 15 ? "..." : "")
+                details = details.slice(0, 30) + (details.length > 30 ? "..." : "")
 
                 description = "<h2>Question</h2><h5>" + title + "</h5><p>" + details + "</p>" +
                     "<a href='http://localhost:3001/question?title=" + title + "'>Link to the question</a>"
@@ -871,7 +902,7 @@
             map.getCanvas().style.cursor = '';
         })
 
-        if(profileData['coords'] === undefined || (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)){
+        if(profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
             new mapboxgl.Marker()
                 .setLngLat(profileData['coords'])
                 .addTo(map);
@@ -981,6 +1012,16 @@
                     sessionStorage.setItem("view", JSON.stringify(view));
                     window.location.reload()
                 });
+
+                slider.destroy()
+                document.getElementById("ex5").setAttribute("data-slider-value", rangeView)
+                document.getElementById("ex6SliderVal").textContent = rangeView
+                slider = new Slider('#ex5');
+                slider.on("slide", function (sliderValue) {
+                    document.getElementById("ex6SliderVal").textContent = sliderValue
+                    rangeView = sliderValue
+                });
+                
             })
             .append("img").attr("src", "icons/iconfinder_settings_2561383.svg").attr("width", "30").attr("height", "30")
 
@@ -1114,9 +1155,18 @@
 
     var AllProfiles = []
     function initProfiles() {
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        let params = JSON.stringify({
+            x: x, 
+            y: y, 
+            range: rangeView,
+        })
+
         let Http = new XMLHttpRequest()
         Http.open("POST", url + 'profile/allProfiles', true)
-        Http.send()
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params)
         Http.onreadystatechange = (e) => {
             if (Http.readyState === 4 && Http.status === 200) {
                 let profiles = JSON.parse(Http.responseText)
@@ -1129,7 +1179,8 @@
     var Allgroups = []
     function initGroups() {
         let Http = new XMLHttpRequest()
-        Http.open("GET", url + 'group/allGroups', true)
+        Http.open("POST", url + 'group/allGroups', true)
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send()
         Http.onreadystatechange = (e) => {
             if (Http.readyState === 4 && Http.status === 200) {
@@ -1144,7 +1195,8 @@
     var AllQuestions = []
     function initQuestions() {
         let Http = new XMLHttpRequest()
-        Http.open("GET", url + 'question/allQuestions', true)
+        Http.open("POST", url + 'question/allQuestions', true)
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send()
         Http.onreadystatechange = (e) => {
             if (Http.readyState === 4 && Http.status === 200) {

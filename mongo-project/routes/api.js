@@ -219,9 +219,12 @@ router.post('/profile/create', (req, res) => {
 // res_profile = profiles.filter(function (item) { return (item.fake_position.x > search_x - 10 && item.fake_position.x < search_x + 10) && (item.fake_position.y > search_y - 10 && item.fake_position.y < search_y + 10); })
 
 router.post('/profile/allProfiles', (req, res) => {
-	// const query = req.body
-	// const search_x = query.x
-	// const search_y = query.y
+	const query = req.body
+	const search_x = query.x
+	const search_y = query.y
+	const range_search = query.range
+
+	console.log(query, search_x, search_y, range_search)
 
 	let data = { "type": "FeatureCollection",
 				"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
@@ -234,23 +237,23 @@ router.post('/profile/allProfiles', (req, res) => {
 				let y = profiles[i]['pos']['y']
 				// let fakeX = profiles[i]['fakePos']['x']
 				// let fakeY = profiles[i]['fakePos']['y']
-				
-				// if ((x > search_x - 10 && x < search_x + 10) && (y > search_y - 10 && y < search_y + 10)){
-				// 	let data2 = { 'coordinates': [x, y], 'nickname': profiles[i]['nickname'] }
-				// 	data.push(data2)
-				// }
+
+				if ((x > search_x - range_search && x < search_x + range_search) && (y > search_y - range_search && y < search_y + range_search)){
+					let data2 = {
+						"type": "Feature",
+						"properties": {
+							'nickname': profiles[i]['nickname'],
+							'name': profiles[i]['name'],
+							'surname': profiles[i]['surname'],
+							"mag": 2.0
+						},
+						"geometry": { "type": "Point", "coordinates": [x, y] }
+					}
+					data.features.push(data2)
+				}
 
 				// let data2 = { 'coordinates': [x, y], 'nickname': profiles[i]['nickname'] }
 				// data.push(data2)
-
-				let data2 = { "type": "Feature", 
-							"properties": { 
-								'nickname': profiles[i]['nickname'], 
-								'name': profiles[i]['name'], 
-								'surname': profiles[i]['surname'], 
-								"mag": 2.0 }, 
-							"geometry": { "type": "Point", "coordinates": [x, y] } }
-				data.features.push(data2)
 			}
 			res.json({
 				confirmation: 'success',
@@ -329,7 +332,7 @@ router.get('/groups', (req, res) => {
 		})
 })
 
-router.get('/group/allGroups', (req, res) => {
+router.post('/group/allGroups', (req, res) => {
 	let data = {
 		"type": "FeatureCollection",
 		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
@@ -593,7 +596,7 @@ router.post('/question/create', (req, res) => {
 		})
 })
 
-router.get('/question/allQuestions', (req, res) => {
+router.post('/question/allQuestions', (req, res) => {
 	let data = {
 		"type": "FeatureCollection",
 		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
