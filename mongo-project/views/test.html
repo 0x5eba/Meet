@@ -107,7 +107,7 @@
                 </div>
 
                 <h3>Range search</h3>
-                <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="2" data-slider-value="20" />
+                <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="20" />
                 <span id="ex6CurrentSliderValLabel"> Value: <span id="ex6SliderVal">20</span></span>
             </div>
 
@@ -415,7 +415,7 @@
         document.getElementById("createGroup").style.display = "none"
         if(rangeView !== JSON.parse(sessionStorage.getItem("rangeView")).range){
             sessionStorage.setItem("rangeView", JSON.stringify({ range: rangeView }))
-            reloadPage()
+            window.location.href = "http://localhost:3001/"
         }
     }
     
@@ -584,7 +584,6 @@
 
     function reloadPage(){
         window.location.reload();
-        // window.location.href = "http://localhost:3001/"
     }
 
     function withoutPosition(){
@@ -627,7 +626,6 @@
         profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
         sessionStorage.setItem("profile", JSON.stringify(profileData))
         getData(state_view)
-        
     }
 
     function showError(error) {
@@ -1160,7 +1158,7 @@
         let params = JSON.stringify({
             x: x, 
             y: y, 
-            range: 0.5,
+            range: rangeView / 100,
         })
 
         let Http = new XMLHttpRequest()
@@ -1187,7 +1185,7 @@
         let params = JSON.stringify({
             x: x,
             y: y,
-            range: 0.5,
+            range: rangeView / 100, rangeView
         })
 
         let Http = new XMLHttpRequest()
@@ -1214,7 +1212,7 @@
         let params = JSON.stringify({
             x: x,
             y: y,
-            range: 0.5,
+            range: rangeView / 100,
         })
 
         let Http = new XMLHttpRequest()
