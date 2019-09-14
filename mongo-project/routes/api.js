@@ -228,7 +228,6 @@ router.post('/profile/allProfiles', (req, res) => {
 				"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 				"features": [] }
 
-	console.log(search_x - range_search, search_x + range_search)
 	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 },
 		'pos.x': { "$gt": search_x - range_search }, 'pos.x': { "$lt": search_x + range_search },
 		'pos.y': { "$gt": search_y - range_search }, 'pos.y': { "$lt": search_y + range_search },

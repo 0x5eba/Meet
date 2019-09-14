@@ -107,7 +107,7 @@
                 </div>
 
                 <h3>Range search</h3>
-                <input id="ex5" type="text" data-slider-min="0" data-slider-max="70" data-slider-step="2" data-slider-value="20" />
+                <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="2" data-slider-value="20" />
                 <span id="ex6CurrentSliderValLabel"> Value: <span id="ex6SliderVal">20</span></span>
             </div>
 
@@ -413,7 +413,10 @@
         document.getElementById("search-icon").style.display = "none"
         document.getElementById("no-gps").style.display = "none"
         document.getElementById("createGroup").style.display = "none"
-        sessionStorage.setItem("rangeView", JSON.stringify({range: rangeView}))
+        if(rangeView !== JSON.parse(sessionStorage.getItem("rangeView")).range){
+            sessionStorage.setItem("rangeView", JSON.stringify({ range: rangeView }))
+            reloadPage()
+        }
     }
     
     document.getElementsByClassName("close")[0].onclick = function () {
@@ -1157,7 +1160,7 @@
         let params = JSON.stringify({
             x: x, 
             y: y, 
-            range: rangeView/100,
+            range: 0.5,
         })
 
         let Http = new XMLHttpRequest()
@@ -1184,7 +1187,7 @@
         let params = JSON.stringify({
             x: x,
             y: y,
-            range: rangeView / 100,
+            range: 0.5,
         })
 
         let Http = new XMLHttpRequest()
@@ -1211,7 +1214,7 @@
         let params = JSON.stringify({
             x: x,
             y: y,
-            range: rangeView / 100,
+            range: 0.5,
         })
 
         let Http = new XMLHttpRequest()
