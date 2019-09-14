@@ -107,7 +107,7 @@
                 </div>
 
                 <h3>Range search</h3>
-                <input id="ex5" type="text" data-slider-min="0" data-slider-max="70" data-slider-step="5" data-slider-value="20" />
+                <input id="ex5" type="text" data-slider-min="0" data-slider-max="70" data-slider-step="2" data-slider-value="20" />
                 <span id="ex6CurrentSliderValLabel"> Value: <span id="ex6SliderVal">20</span></span>
             </div>
 
@@ -364,13 +364,12 @@
 
     const url = 'http://localhost:3001/api/'
 
-    var profileData;
+    var profileData = JSON.parse(sessionStorage.getItem("profile"))
     var CBviews;
     var slider = new Slider('#ex5');
     var rangeView;
 
     function session(){
-        profileData = JSON.parse(sessionStorage.getItem("profile"))
         if(profileData === null){
             window.location.href = "http://localhost:3001/login"
         } else if(profileData['nickname'] === null || profileData['password'] === null || 
@@ -571,9 +570,7 @@
             }
             profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
             sessionStorage.setItem("profile", JSON.stringify(profileData))
-            canUpdateStatus = true
-            setMap(state_view)
-            iamStatus(true)
+            getData(state_view)
         } else {
             modal.style.display = "block"
 
@@ -626,9 +623,8 @@
         }
         profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
         sessionStorage.setItem("profile", JSON.stringify(profileData))
-        canUpdateStatus = true
-        setMap(state_view)
-        iamStatus(true)
+        getData(state_view)
+        
     }
 
     function showError(error) {
@@ -902,7 +898,7 @@
             map.getCanvas().style.cursor = '';
         })
 
-        if(profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
+        if(CBviews['profiles'] === 1 && profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
             new mapboxgl.Marker()
                 .setLngLat(profileData['coords'])
                 .addTo(map);
@@ -1154,13 +1150,14 @@
     }
 
     var AllProfiles = []
-    function initProfiles() {
+    function initProfiles(state_view) {
+        console.log("profileData", profileData)
         let x = profileData['coords'][0]
         let y = profileData['coords'][1]
         let params = JSON.stringify({
             x: x, 
             y: y, 
-            range: rangeView,
+            range: rangeView/100,
         })
 
         let Http = new XMLHttpRequest()
@@ -1171,13 +1168,25 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let profiles = JSON.parse(Http.responseText)
                 AllProfiles = profiles['profiles']
-                handlePermission()
+                console.log(AllProfiles)
+
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
             }
         }
     }
 
     var Allgroups = []
-    function initGroups() {
+    function initGroups(state_view) {
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        let params = JSON.stringify({
+            x: x,
+            y: y,
+            range: rangeView / 100,
+        })
+
         let Http = new XMLHttpRequest()
         Http.open("POST", url + 'group/allGroups', true)
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -1186,14 +1195,25 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let groups = JSON.parse(Http.responseText)
                 Allgroups = groups['groups']
-                handlePermission()
+
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
             }
         }
     }
     
 
     var AllQuestions = []
-    function initQuestions() {
+    function initQuestions(state_view) {
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        let params = JSON.stringify({
+            x: x,
+            y: y,
+            range: rangeView / 100,
+        })
+
         let Http = new XMLHttpRequest()
         Http.open("POST", url + 'question/allQuestions', true)
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -1202,26 +1222,32 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let questions = JSON.parse(Http.responseText)
                 AllQuestions = questions['questions']
-                handlePermission()
+
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
             }
         }
     }
     
-
-    $(document).ready(function () {
+    function getData(state_view){
         CBviews = JSON.parse(sessionStorage.getItem("view"))
         if (CBviews['groups'] === 1) {
-            initGroups()
+            initGroups(state_view)
         }
         else if (CBviews['questions'] === 1) {
-            initQuestions()
+            initQuestions(state_view)
         }
         else if (CBviews['profiles'] === 1) {
-            initProfiles()
-        } 
+            initProfiles(state_view)
+        }
         else {
             window.location.href = "http://localhost:3001/login"
         }
+    }
+
+    $(document).ready(function () {
+        handlePermission()
     })
 
 </script>

@@ -224,13 +224,15 @@ router.post('/profile/allProfiles', (req, res) => {
 	const search_y = query.y
 	const range_search = query.range
 
-	console.log(query, search_x, search_y, range_search)
-
 	let data = { "type": "FeatureCollection",
 				"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 				"features": [] }
 
-	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { _id: 0, nickname: 1, pos: 1, fakePos: 1 })
+	console.log(search_x - range_search, search_x + range_search)
+	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 },
+		'pos.x': { "$gt": search_x - range_search }, 'pos.x': { "$lt": search_x + range_search },
+		'pos.y': { "$gt": search_y - range_search }, 'pos.y': { "$lt": search_y + range_search },
+		}, { _id: 0, nickname: 1, pos: 1, fakePos: 1 })
 		.then(profiles => {
 			for (let i = 0; i < profiles.length; ++i) {
 				let x = profiles[i]['pos']['x']
@@ -238,19 +240,20 @@ router.post('/profile/allProfiles', (req, res) => {
 				// let fakeX = profiles[i]['fakePos']['x']
 				// let fakeY = profiles[i]['fakePos']['y']
 
-				if ((x > search_x - range_search && x < search_x + range_search) && (y > search_y - range_search && y < search_y + range_search)){
-					let data2 = {
-						"type": "Feature",
-						"properties": {
-							'nickname': profiles[i]['nickname'],
-							'name': profiles[i]['name'],
-							'surname': profiles[i]['surname'],
-							"mag": 2.0
-						},
-						"geometry": { "type": "Point", "coordinates": [x, y] }
-					}
-					data.features.push(data2)
+				// if ((x > search_x - range_search && x < search_x + range_search) && (y > search_y - range_search && y < search_y + range_search)){
+				// }
+
+				let data2 = {
+					"type": "Feature",
+					"properties": {
+						'nickname': profiles[i]['nickname'],
+						'name': profiles[i]['name'],
+						'surname': profiles[i]['surname'],
+						"mag": 2.0
+					},
+					"geometry": { "type": "Point", "coordinates": [x, y] }
 				}
+				data.features.push(data2)
 
 				// let data2 = { 'coordinates': [x, y], 'nickname': profiles[i]['nickname'] }
 				// data.push(data2)
@@ -333,12 +336,20 @@ router.get('/groups', (req, res) => {
 })
 
 router.post('/group/allGroups', (req, res) => {
+	const query = req.body
+	const search_x = query.x
+	const search_y = query.y
+	const range_search = query.range
+
 	let data = {
 		"type": "FeatureCollection",
 		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 		"features": []
 	}
-	Group.find({}, {_id:0, name:1, pos:1})
+	Group.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 },
+		'pos.x': { "$gt": search_x - range_search }, 'pos.x': { "$lt": search_x + range_search },
+		'pos.y': { "$gt": search_y - range_search }, 'pos.y': { "$lt": search_y + range_search },
+		}, {_id:0, name:1, pos:1})
 		.then(groups => {
 			for (let i = 0; i < groups.length; ++i) {
 				let x = groups[i]['pos']['x']
@@ -597,12 +608,20 @@ router.post('/question/create', (req, res) => {
 })
 
 router.post('/question/allQuestions', (req, res) => {
+	const query = req.body
+	const search_x = query.x
+	const search_y = query.y
+	const range_search = query.range
+
 	let data = {
 		"type": "FeatureCollection",
 		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 		"features": []
 	}
-	Question.find({}, { _id: 0, title: 1, pos: 1 })
+	Question.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 },
+		'pos.x': { "$gt": search_x - range_search }, 'pos.x': { "$lt": search_x + range_search },
+		'pos.y': { "$gt": search_y - range_search }, 'pos.y': { "$lt": search_y + range_search },
+		}, { _id: 0, title: 1, pos: 1 })
 		.then(questions => {
 			for (let i = 0; i < questions.length; ++i) {
 				let x = questions[i]['pos']['x']
