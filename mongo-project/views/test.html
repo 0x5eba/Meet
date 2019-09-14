@@ -899,7 +899,7 @@
             map.getCanvas().style.cursor = '';
         })
 
-        if(CBviews['profiles'] === 1 && profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
+        if(profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
             new mapboxgl.Marker()
                 .setLngLat(profileData['coords'])
                 .addTo(map);
@@ -1185,13 +1185,13 @@
         let params = JSON.stringify({
             x: x,
             y: y,
-            range: rangeView / 100, rangeView
+            range: rangeView / 100,
         })
 
         let Http = new XMLHttpRequest()
         Http.open("POST", url + 'group/allGroups', true)
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send()
+        Http.send(params)
         Http.onreadystatechange = (e) => {
             if (Http.readyState === 4 && Http.status === 200) {
                 let groups = JSON.parse(Http.responseText)
@@ -1218,7 +1218,7 @@
         let Http = new XMLHttpRequest()
         Http.open("POST", url + 'question/allQuestions', true)
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send()
+        Http.send(params)
         Http.onreadystatechange = (e) => {
             if (Http.readyState === 4 && Http.status === 200) {
                 let questions = JSON.parse(Http.responseText)
