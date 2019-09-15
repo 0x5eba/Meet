@@ -121,6 +121,7 @@ router.post('/profile/getSaved', (req, res) => {
 
 router.post('/profile/update', (req, res) => {
 	const nick = req.body.search.nickname
+	var continua = true
 	Profile.find({ nickname: nick })
 		.then(profiles => {
 			if (profiles.length == 0) {
@@ -128,7 +129,7 @@ router.post('/profile/update', (req, res) => {
 					confirmation: 'fail',
 					message: 'User ' + nick + ' does not exist'
 				})
-				return
+				continua = false
 			}
 		})
 		.catch(err => {
@@ -136,28 +137,30 @@ router.post('/profile/update', (req, res) => {
 				confirmation: 'fail',
 				message: err.message
 			})
-			return;
+			continua = false
 		})
+	
+	if (continua === true){
+		const query = req.body
+		// {"search": {"online": "false"}, "update": {"$set":{"online": "true"}}, "extra":{"multi":"true"}}
+		const search = query.search
+		const update = query.update
+		const extra = query.extra
 
-	const query = req.body
-	// {"search": {"online": "false"}, "update": {"$set":{"online": "true"}}, "extra":{"multi":"true"}}
-	const search = query.search
-	const update = query.update
-	const extra = query.extra
-
-	Profile.updateMany(search, update, extra)
-		.then(profile => {
-			res.json({
-				confirmation: 'success',
-				data: profile,
+		Profile.updateMany(search, update, extra)
+			.then(profile => {
+				res.json({
+					confirmation: 'success',
+					data: profile,
+				})
 			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
+			.catch(err => {
+				res.json({
+					confirmation: 'fail',
+					message: err.message
+				})
 			})
-		})
+	}
 })
 
 // router.get('/profile/remove/:id', (req, res) => {
@@ -212,7 +215,6 @@ router.post('/profile/create', (req, res) => {
 				confirmation: 'fail',
 				message: err.message
 			})
-			return;
 		})
 })
 
@@ -380,6 +382,7 @@ router.post('/group/allGroups', (req, res) => {
 router.post('/group/create', (req, res) => {
 	const name = req.body.name
 	const pos = req.body.pos
+	var continua = true
 
 	Group.find({ name: name, pos: pos })
 		.then(group => {
@@ -388,7 +391,7 @@ router.post('/group/create', (req, res) => {
 					confirmation: 'fail',
 					message: 'Group ' + name + ' already exist'
 				})
-				return
+				continua = false
 			}
 		})
 		.catch(err => {
@@ -396,22 +399,24 @@ router.post('/group/create', (req, res) => {
 				confirmation: 'fail',
 				message: err.message
 			})
-			return;
+			continua = false
 		})
 
-	Group.create({ name: name, pos: pos })
-		.then(group => {
-			res.json({
-				confirmation: 'success',
-				data: group,
+	if(continua === true){
+		Group.create({ name: name, pos: pos })
+			.then(group => {
+				res.json({
+					confirmation: 'success',
+					data: group,
+				})
 			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
+			.catch(err => {
+				res.json({
+					confirmation: 'fail',
+					message: err.message
+				})
 			})
-		})
+	}
 })
 
 
@@ -534,6 +539,8 @@ router.post('/chat/write', (req, res) => {
 	const message = req.body.message
 	const time = req.body.time
 
+	var continua = true
+
 	Group.find({ name: name})
 		.then(groups => {
 			if (groups.length == 0) {
@@ -541,7 +548,7 @@ router.post('/chat/write', (req, res) => {
 					confirmation: 'fail',
 					message: "This groups doesn't exist"
 				})
-				return
+				continua = false
 			}
 		})
 		.catch(err => {
@@ -549,22 +556,24 @@ router.post('/chat/write', (req, res) => {
 				confirmation: 'fail',
 				message: err.message
 			})
-			return
+			continua = false
 		})
 
-	GroupMessages.create({ name_group: name, sender: sender, time: time, message: message })
-		.then(message => {
-			res.json({
-				confirmation: 'success',
-				data: message,
+	if (continua === true){
+		GroupMessages.create({ name_group: name, sender: sender, time: time, message: message })
+			.then(message => {
+				res.json({
+					confirmation: 'success',
+					data: message,
+				})
 			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
+			.catch(err => {
+				res.json({
+					confirmation: 'fail',
+					message: err.message
+				})
 			})
-		})
+	}
 })
 
 /*************************
