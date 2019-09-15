@@ -111,8 +111,8 @@
                 <span id="ex6CurrentSliderValLabel" style="margin-left: 20px"> Km: <span id="ex6SliderVal">26</span></span>
             </div>
 
-            <div id='createGroup' style="display:none; margin: 30px" class="text-center">
-                <input type="text" id="groupName" class="form-control" style="border-radius: 10px;"
+            <div id='createGroup' style="display:none; margin: 20px" class="text-center">
+                <input type="text" id="groupName" class="form-control" style="border-radius: 10px; margin: 0 auto; max-width: 600px;"
                     aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder='Name'>
                 <br/><br/>
                 <button type="button" class="btn btn-outline-success" onclick="createGroup();">Create</button>
@@ -362,6 +362,17 @@
 
 <script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script>
 <script>
+    // var _gaq = _gaq || [];
+    // _gaq.push(['_setAccount', 'UA-36251023-1']);
+    // _gaq.push(['_setDomainName', 'sebastienbiollo.com']);
+    // _gaq.push(['_trackPageview']);
+    
+    // (function() {
+    // var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    //     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    //     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    //     })();
+
 
     const url = 'http://localhost:3001/api/'
 
@@ -758,7 +769,7 @@
                 "id": "earthquakes-heat",
                 "type": "heatmap",
                 "source": "earthquakes",
-                "maxzoom": 9,
+                "maxzoom": 11,
                 "paint": {
                     // Increase the heatmap weight based on frequency and property magnitude
                     "heatmap-weight": [
@@ -775,7 +786,7 @@
                         ["linear"],
                         ["zoom"],
                         0, 1,
-                        9, 3
+                        11, 5
                     ],
                     // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
                     // Begin color ramp at 0-stop with a 0-transparancy color
@@ -797,7 +808,7 @@
                         ["linear"],
                         ["zoom"],
                         0, 2,
-                        9, 20
+                        11, 20
                     ],
                     // Transition from heatmap to circle layer by zoom level
                     "heatmap-opacity": [
@@ -805,7 +816,7 @@
                         ["linear"],
                         ["zoom"],
                         7, 1,
-                        9, 0
+                        11, 0
                     ],
                 }
             }, 'waterway-label');
@@ -973,7 +984,7 @@
                     document.getElementById("createGroup").style.display = "block"
                 }
             })
-            .append("img").attr("src", "icons/iconfinder_chat_2639908.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+            .append("i").attr("class", "fas fa-user-friends fa-2x").style("color", "black")
 
         // quesiton
         mainDiv.append('button').attr("id", "btn-question")

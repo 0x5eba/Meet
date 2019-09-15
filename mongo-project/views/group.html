@@ -33,8 +33,7 @@
                 <h1 id="nameGroup"></h1>
             </header>
 
-            <section class="chat" id='chat'>
-            </section>
+            <section class="chat" id='chat'></section>
 
             <input type="text" id="write" placeholder="Write something" />
         </main>
@@ -57,11 +56,9 @@
     }
 
     main {
-        width: 50%;
-        /* width: calc(100% - 20px);
-        max-width: 500px; */
+        width: calc(100% - 30px);
+        max-width: 500px;
         margin: 0 auto;
-        font-family: Helvetica, Arial, Sans, sans-serif;
         box-sizing: border-box;
         transition: all .3s ease;
     }
@@ -88,6 +85,7 @@
         overflow-y: scroll;
         box-sizing: border-box;
         transition: all .3s ease;
+        overflow-wrap: break-word;
     }
 
     .chat p {
@@ -96,22 +94,22 @@
         transition: all .3s ease;
     }
 
-    input {
+    #write {
         width: 100%;
         font: inherit;
         background: #fff;
         border: none;
-        margin-top: 10px;
-        padding: 5px 10px;
+        margin-top: 20px;
+        padding: 10px 10px;
         box-sizing: border-box;
         transition: all .3s ease;
     }
 
-    @media all and (min-width: 500px) {
+    /* @media all and (min-width: 500px) {
         .chat {
             height: calc(100vh - 140px);
         }
-    }
+    } */
 
     .modal {
         position: absolute;
