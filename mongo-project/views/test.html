@@ -41,9 +41,9 @@
             <h1 id="title-model" style="text-align: center;"></h1>
 
             <div id='search-icon' style="display: none;">
-                <div class="d-flex justify-content-center" style="margin:10px; margin-bottom: 30px">
+                <div class="d-flex justify-content-center" style="margin-top:10px; margin-bottom: 30px">
                     <div class="searchbar">
-                        <input class="search_input" type="text" placeholder="Search groups/questions/profiles" id="search_bar" autofocus>
+                        <input class="search_input" type="text" placeholder="Search profiles/groups/questions" id="search_bar" autofocus>
                         <a href="#" class="search_icon" style="color:#e74c3c"><i class="fas fa-search"></i></a>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
             <div id="res-search"></div>
 
             <div id='menu' style="display: none; margin: 3%">
-                <h3>Map styles</h3>
+                <h3>Map themes</h3>
                 <div class="form-group">
                     <select class="form-control" id="mapStyles">
                         <option value='streets-v11' selected>street</option>
@@ -97,7 +97,7 @@
                     </select>
                 </div>
 
-                <h3>View</h3>
+                <h3>View on map</h3>
                 <div class="form-group">
                     <select class="form-control" id="CBviews">
                         <option value='profiles' selected>profiles</option>
@@ -108,14 +108,14 @@
 
                 <h3>Range search</h3>
                 <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="20" />
-                <span id="ex6CurrentSliderValLabel"> Value: <span id="ex6SliderVal">20</span></span>
+                <span id="ex6CurrentSliderValLabel" style="margin-left: 20px"> Km: <span id="ex6SliderVal">26</span></span>
             </div>
 
             <div id='createGroup' style="display:none; margin: 30px" class="text-center">
-                <input type="text" id="groupName" class="form-control"
+                <input type="text" id="groupName" class="form-control" style="border-radius: 10px;"
                     aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder='Name'>
                 <br/><br/>
-                <button type="button" class="btn btn-outline-success" onclick="return createGroup();">Create</button>
+                <button type="button" class="btn btn-outline-success" onclick="createGroup();">Create</button>
             </div>
 
         </div>
@@ -243,6 +243,7 @@
     } */
 
     .searchbar {
+        width: 90%;
         height: 60px;
         background-color: #353b48;
         border-radius: 30px;
@@ -260,7 +261,7 @@
         line-height: 40px;
         transition: width 0.3s linear;
         padding: 0 10px;
-        width: 40vw;
+        width: 75%;
         caret-color: red;
     }
 
@@ -298,9 +299,9 @@
     }
 
     .modal-content {
-        left: 10%;
-        width: 80%;
-        height: 88%;
+        left: 5%;
+        width: 90%;
+        height: 90%;
         border: 1px solid #888;
         background-color: #fefefe;
         padding: 20px;
@@ -323,28 +324,28 @@
     }
 
     #titles {
-        padding: 0px 0px 0px 32px;
+        padding-left: 3%;
         text-decoration: none;
         font-size: 30px;
         color: black;
         display: block;
     }
     #profile {
-        padding: 0px 0px 0px 32px;
+        padding-left: 3%;
         text-decoration: none;
         font-size: 25px;
         color: #FF3333;
         display: block;
     }
     #group {
-        padding: 0px 0px 0px 32px;
+        padding-left: 3%;
         text-decoration: none;
         font-size: 25px;
         color: #32CD32;
         display: block;
     }
     #question {
-        padding: 0px 0px 0px 32px;
+        padding-left: 3%;
         text-decoration: none;
         font-size: 25px;
         color: blue;
@@ -443,6 +444,7 @@
             searchInDB(search, "question")
         } else {
             resSearch.innerHTML = ""
+            getSaved()
         }
     }, 400))
 
@@ -513,6 +515,15 @@
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
                     response = response["data"]
+
+                    if (response != null && ("savedGroup" in response || "savedQuestion" in response)){
+                        let h2 = document.createElement("h2")
+                        h2.innerHTML = "Bookmarks"
+                        h2.setAttribute('id', 'titles')
+                        h2.style.marginBottom = "30px"
+                        h2.style.textDecoration = "underline"
+                        resSearch.appendChild(h2)
+                    }
 
                     if (response != null && "savedGroup" in response){
                         if (response["savedGroup"].length > 0) {
@@ -598,7 +609,11 @@
         navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
             // ci metteva troppo senza questo check al "show on map" di profile
             if (profileData['coords'] !== undefined) {
-                showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
+                if (result.state === 'denied') {
+                    noGPS()
+                } else {
+                    showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
+                }
             } else {
                 if (result.state === 'granted') {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -856,16 +871,16 @@
                 let name = e.features[0].properties.name
 
                 description = "<h2>Group</h2><h5>" + name + "</h5>" + 
-                    "<a href='http://localhost:3001/group?groupname=" + name + "'>Link to the group</a>"
+                    "<a href='http://localhost:3001/group?groupname=" + e.features[0].properties.name + "'>Link to the group</a>"
             }
             else if (CBviews['questions'] === 1) {
                 let title = e.features[0].properties.title
-                title = title.slice(0, 15) + (title.length > 15 ? "..." : "")
+                title = title.slice(0, 30) + (title.length > 30 ? "..." : "")
                 let details = e.features[0].properties.details !== undefined ? e.features[0].properties.details : ""
                 details = details.slice(0, 30) + (details.length > 30 ? "..." : "")
 
                 description = "<h2>Question</h2><h5>" + title + "</h5><p>" + details + "</p>" +
-                    "<a href='http://localhost:3001/question?title=" + title + "'>Link to the question</a>"
+                    "<a href='http://localhost:3001/question?title=" + e.features[0].properties.title + "'>Link to the question</a>"
             }
             else if (CBviews['profiles'] === 1) {
                 let nickname = e.features[0].properties.nickname
@@ -873,7 +888,7 @@
                 let surname = e.features[0].properties.surname !== undefined ? e.features[0].properties.surname : ""
 
                 description = "<h2>Profile</h2><h5>" + nickname + "</h5><p>" + name + " " + surname + "</p>" +
-                    "<a href='http://localhost:3001/profile?nickname=" + nickname + "'>Link to the profile</a>"
+                    "<a href='http://localhost:3001/profile?nickname=" + e.features[0].properties.nickname + "'>Link to the profile</a>"
             }
 
             // Ensure that if the map is zoomed out such that multiple
@@ -969,18 +984,18 @@
                     window.location.href = "http://localhost:3001/question"
                 }
             })
-            .append("img").attr("src", "icons/iconfinder_question-circle_383085.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_social-80_2285232.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
         // bookmark
-        mainDiv.append('button').attr("id", "btn-bookmark")
-            .on('click', d => {
-                modal.style.display = "block"
-                resSearch.style.display = "block"
-                resSearch.innerHTML = ""
-                document.getElementById("title-model").innerHTML = "Bookmarks"
-                getSaved()
-            })
-            .append("img").attr("src", "icons/iconfinder_177_BookmarkUnused_183296.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+        // mainDiv.append('button').attr("id", "btn-bookmark")
+        //     .on('click', d => {
+        //         modal.style.display = "block"
+        //         resSearch.style.display = "block"
+        //         resSearch.innerHTML = ""
+        //         document.getElementById("title-model").innerHTML = "Bookmarks"
+        //         getSaved()
+        //     })
+        //     .append("img").attr("src", "icons/iconfinder_177_BookmarkUnused_183296.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
         //setting
         mainDiv.append('button').attr("id", "btn-setting")
@@ -995,7 +1010,8 @@
                     var layerId = $(this).children("option:selected").val();
                     map.setStyle('mapbox://styles/mapbox/' + layerId);
                     sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/' + layerId }));
-                    window.location.reload()
+                    closeMenu()
+                    reloadPage()
                 });
 
                 $("#CBviews").change(function () {
@@ -1007,15 +1023,20 @@
                     }
                     view[value] = 1
                     sessionStorage.setItem("view", JSON.stringify(view));
-                    window.location.reload()
+                    closeMenu()
+                    reloadPage()
                 });
 
                 slider.destroy()
                 document.getElementById("ex5").setAttribute("data-slider-value", rangeView)
-                document.getElementById("ex6SliderVal").textContent = rangeView
+                let sliderValueKm = rangeView * 1.3
+                sliderValueKm = sliderValueKm.toFixed(1)
+                document.getElementById("ex6SliderVal").textContent = sliderValueKm
                 slider = new Slider('#ex5');
                 slider.on("slide", function (sliderValue) {
-                    document.getElementById("ex6SliderVal").textContent = sliderValue
+                    sliderValueKm = 1.3 * sliderValue
+                    sliderValueKm = sliderValueKm.toFixed(1)
+                    document.getElementById("ex6SliderVal").textContent = sliderValueKm
                     rangeView = sliderValue
                 });
                 
@@ -1043,6 +1064,8 @@
                 resSearch.innerHTML = ""
                 document.getElementById("search-icon").style.display = "block"
                 document.getElementById("title-model").innerHTML = "Search"
+
+                getSaved()
             })
             .append("i").attr("class", "fas fa-search fa-2x").style("color", "black")
 
@@ -1142,7 +1165,7 @@
             if (Http.readyState == 4 && Http.status == 200) {
                 let response = JSON.parse(Http.responseText)
                 if (response["confirmation"] == "success") {
-                    
+                    window.location.href = "http://localhost:3001/group?groupname=" + groupName
                 } else {
                     console.log(response)
                 }
@@ -1152,7 +1175,6 @@
 
     var AllProfiles = []
     function initProfiles(state_view) {
-        console.log("profileData", profileData)
         let x = profileData['coords'][0]
         let y = profileData['coords'][1]
         let params = JSON.stringify({
@@ -1169,7 +1191,6 @@
             if (Http.readyState === 4 && Http.status === 200) {
                 let profiles = JSON.parse(Http.responseText)
                 AllProfiles = profiles['profiles']
-                console.log(AllProfiles)
 
                 canUpdateStatus = true
                 setMap(state_view)

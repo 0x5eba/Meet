@@ -222,16 +222,13 @@ router.post('/profile/allProfiles', (req, res) => {
 	const query = req.body
 	const search_x = query.x
 	const search_y = query.y
-	const range_search = query.range
+	const range_search = Math.pow(query.range, 2)
 
 	let data = { "type": "FeatureCollection",
 				"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 				"features": [] }
 
-	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 },
-		'pos.x': { "$gt": search_x - range_search }, 'pos.x': { "$lt": search_x + range_search },
-		'pos.y': { "$gt": search_y - range_search }, 'pos.y': { "$lt": search_y + range_search },
-		}, { _id: 0, nickname: 1, pos: 1, fakePos: 1 })
+	Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { _id: 0, nickname: 1, pos: 1, fakePos: 1 })
 		.then(profiles => {
 			for (let i = 0; i < profiles.length; ++i) {
 				let x = profiles[i]['pos']['x']
@@ -239,8 +236,8 @@ router.post('/profile/allProfiles', (req, res) => {
 				// let fakeX = profiles[i]['fakePos']['x']
 				// let fakeY = profiles[i]['fakePos']['y']
 
-				// if ((x > search_x - range_search && x < search_x + range_search) && (y > search_y - range_search && y < search_y + range_search)){
-				// }
+				let notInsideCircle = (Math.pow(x - search_x, 2) + Math.pow(y - search_y, 2)) > range_search
+				if (notInsideCircle) continue
 
 				let data2 = {
 					"type": "Feature",
@@ -338,17 +335,14 @@ router.post('/group/allGroups', (req, res) => {
 	const query = req.body
 	const search_x = query.x
 	const search_y = query.y
-	const range_search = query.range
+	const range_search = Math.pow(query.range, 2)
 
 	let data = {
 		"type": "FeatureCollection",
 		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 		"features": []
 	}
-	Group.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 },
-		'pos.x': { "$gt": search_x - range_search }, 'pos.x': { "$lt": search_x + range_search },
-		'pos.y': { "$gt": search_y - range_search }, 'pos.y': { "$lt": search_y + range_search },
-		}, {_id:0, name:1, pos:1})
+	Group.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, {_id:0, name:1, pos:1})
 		.then(groups => {
 			for (let i = 0; i < groups.length; ++i) {
 				let x = groups[i]['pos']['x']
@@ -356,6 +350,9 @@ router.post('/group/allGroups', (req, res) => {
 
 				// (6-1)*((2-0)/(200-0)) + 1
 				// https://stats.stackexchange.com/questions/281162/scale-a-number-between-a-range
+
+				let notInsideCircle = (Math.pow(x - search_x, 2) + Math.pow(y - search_y, 2)) > range_search
+				if (notInsideCircle) continue
 
 				let data2 = {
 					"type": "Feature",
@@ -610,21 +607,21 @@ router.post('/question/allQuestions', (req, res) => {
 	const query = req.body
 	const search_x = query.x
 	const search_y = query.y
-	const range_search = query.range
+	const range_search = Math.pow(query.range, 2)
 
 	let data = {
 		"type": "FeatureCollection",
 		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 		"features": []
 	}
-	Question.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 },
-		'pos.x': { "$gt": search_x - range_search }, 'pos.x': { "$lt": search_x + range_search },
-		'pos.y': { "$gt": search_y - range_search }, 'pos.y': { "$lt": search_y + range_search },
-		}, { _id: 0, title: 1, pos: 1 })
+	Question.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { _id: 0, title: 1, pos: 1 })
 		.then(questions => {
 			for (let i = 0; i < questions.length; ++i) {
 				let x = questions[i]['pos']['x']
 				let y = questions[i]['pos']['y']
+				
+				let notInsideCircle = (Math.pow(x - search_x, 2) + Math.pow(y - search_y, 2)) > range_search
+				if (notInsideCircle) continue
 
 				// https://stats.stackexchange.com/questions/281162/scale-a-number-between-a-range
 				// (6 - 2.5) * ((questions[i]['vote'] - 0) / (500 - 0)) + 2.5
