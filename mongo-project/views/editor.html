@@ -68,9 +68,9 @@
     var editor = new Quill('#editor', options);
 
     editor.on('text-change', function (delta, oldDelta, source) {
-        if (source == 'api') {
+        if (source === 'api') {
             console.log("An API call triggered this change.");
-        } else if (source == 'user') {
+        } else if (source === 'user') {
             var delta = editor.getContents();
             console.log(delta)
 
@@ -159,7 +159,7 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
                 console.log(response)
 
@@ -200,7 +200,7 @@
     Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     Http.send();
     Http.onreadystatechange = (e) => {
-        if (Http.readyState == 4 && Http.status == 200) {
+        if (Http.readyState === 4 && Http.status === 200) {
             let response = JSON.parse(Http.responseText)
             window.emojis = Object.keys(response);
             window.emojiUrls = response;

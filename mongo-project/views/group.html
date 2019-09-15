@@ -195,10 +195,10 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
-                    if(response['data'] == null){
+                if (response["confirmation"] === "success") {
+                    if(response['data'] === null){
                         window.location.href = "http://localhost:3001/"
                     }
                 } else {
@@ -222,7 +222,7 @@
         loadMoreMessages(groupName)
 
         window.setInterval(function () {
-            if(offline == false){
+            if(offline === false){
                 checkNewMessage()
                 updateNOnline()
             }
@@ -244,9 +244,9 @@
                 Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
                 Http.send(params);
                 Http.onreadystatechange = (e) => {
-                    if (Http.readyState == 4 && Http.status == 200) {
+                    if (Http.readyState === 4 && Http.status === 200) {
                         let response = JSON.parse(Http.responseText)
-                        if (response["confirmation"] == "success") {
+                        if (response["confirmation"] === "success") {
                             // Risolto il problema di dover inserire manualmente il messaggio nell'interfaccia
                             checkNewMessage()
                         } else {
@@ -268,9 +268,6 @@
             update: {
                 $addToSet: { savedGroup: groupName }
             },
-            extra: {
-                upsert: true
-            }
         })
 
         const Http = new XMLHttpRequest();
@@ -278,9 +275,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     console.log("saved")
                 } else {
                     console.log(response)
@@ -290,14 +287,14 @@
     }
 
     $(document).mouseleave(function (e) {
-        if (offline == false) {
+        if (offline === false) {
             iamOffline()
             offline = true
         }
     });
     // mouseenter
     $(document).click(function (e) {
-        if (offline == true) {
+        if (offline === true) {
             iamOnline()
             offline = false
         }
@@ -320,9 +317,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
 
                 } else {
                     console.log(response)
@@ -345,9 +342,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
 
                 } else {
                     console.log(response)
@@ -357,7 +354,7 @@
     }
 
     function loadMoreMessages(nameGroup = groupName, update = false) {
-        if (update == true) {
+        if (update === true) {
             limit -= 9
             prevLengthMessages = 0
         }
@@ -373,10 +370,10 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
 
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     if (response["messages"].length > 0) {
                         lastTime = response["messages"][0]["time"]
                     }
@@ -425,10 +422,10 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
 
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     if (response["messages"].length > 0) {
                         lastTime = response["messages"][0]["time"]
                         loadMoreMessages(groupName, true)
@@ -449,10 +446,10 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
 
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     let boxPos = document.getElementById("res-search");
                     boxPos.innerHTML = ""
                     
@@ -483,10 +480,10 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
 
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     console.log("nOnline", response)
                     document.getElementById("user-count").innerHTML = response["nOnline"][0]["nOnline"]
                 } else {

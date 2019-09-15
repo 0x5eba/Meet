@@ -1078,7 +1078,7 @@ Website: http://emilcarlsson.se/
 
     function newMessage() {
         message = $(".message-input input").val();
-        if ($.trim(message) == '') {
+        if ($.trim(message) === '') {
             return false;
         }
         $('<li class="sent"><img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
@@ -1092,7 +1092,7 @@ Website: http://emilcarlsson.se/
     });
 
     $(window).on('keydown', function (e) {
-        if (e.which == 13) {
+        if (e.which === 13) {
             newMessage();
             return false;
         }

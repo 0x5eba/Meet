@@ -48,17 +48,15 @@
 
 
     <div id='showQuestion' style="display:none;">
-        <div class="row">
-            <div class="col-xs-1" style="margin: 30px; margin-right: 40px; margin-top: 20px;" id="divVoteQuestion"></div>
+        <div style="margin: 20px; float: left;" id="divVoteQuestion"></div>
 
-            <div class="col-xs-10">
-                <div class="row"><h3 id="title_show" style="font-weight: bold;"></h3></div></br>
-                <div class="row" id="details_show"></div></br>
-                <div class="row"><button type="button" class="btn btn-info" onclick="saveQuestion();" style="border-radius:10px;">Save in Bookmarks</button></div></br>
-                <div class="row"><div id='creator'></div></div>
-            </div>
+        <div style="overflow-wrap: break-word; margin-left: 70px">
+            <h3 id="title_show" style="font-weight: bold; margin-top: 20px; margin-bottom: 10px;"></h3>
+            <div id="details_show"></div></br>
+            <button type="button" class="btn btn-info" onclick="saveQuestion();" style="border-radius:10px; margin-top: 20px; margin-bottom: 10px">Save in
+                Bookmarks</button>
+            <div id='creator' style="margin-bottom: 20px"></div>
         </div>
-        </br>
 
         <div id='root' style="margin-left: 30px">
         </div>
@@ -96,10 +94,10 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
-                    if (response['data'] == null) {
+                if (response["confirmation"] === "success") {
+                    if (response['data'] === null) {
                         window.location.href = "http://localhost:3001/"
                     }
                 } else {
@@ -178,7 +176,7 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send();
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
                 window.emojis = Object.keys(response);
                 window.emojiUrls = response;
@@ -213,9 +211,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
 
                 } else {
                     console.log(response)
@@ -231,9 +229,6 @@
             },
             update: {
                 $addToSet: { savedQuestion: question["title"] }
-            },
-            extra: {
-                upsert: true, new: true
             }
         })
 
@@ -242,9 +237,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     console.log("saved")
                 } else {
                     console.log(response)
@@ -259,14 +254,13 @@
             alert("Question too short, at least 5 characters")
             return
         }
+        title = title.trim()
 
         let htmlDetails = $('#summernote').summernote('code')
         console.log(htmlDetails)
 
         let d = document.createElement("div")
-        d.innerHTML = htmlDetails.replace(/<br\s*\/?>/gi, ' ')
-        d.innerHTML = d.innerHTML.replace("Powered by Froala Editor", "")
-        let clearDetails = d.innerText
+        let clearDetails = d.innerText.trim()
 
         let x = profileData['coords'][0]
         let y = profileData['coords'][1]
@@ -284,9 +278,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     window.location.href = "http://localhost:3001/question?title=" + title
                 } else {
                     console.log(response)
@@ -304,9 +298,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     question = response["question"]
                     addVoteToQuestion(question)
                     increaseView(question)
@@ -322,9 +316,9 @@
         Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http2.send(params);
         Http2.onreadystatechange = (e) => {
-            if (Http2.readyState == 4 && Http2.status == 200) {
+            if (Http2.readyState === 4 && Http2.status === 200) {
                 response = JSON.parse(Http2.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     createDivAnswers(response["answers"])
                 } else {
                     console.log(response)
@@ -391,9 +385,9 @@
                 // devo cercare il primo elemento con livello+1 e che abbia come parent l'id di questo element
                 while (true) {
                     let Element;
-                    if (queue.length == 0) {
-                        // console.log("queue.length == 0")
-                        if (stack.length == 0) { // done
+                    if (queue.length === 0) {
+                        // console.log("queue.length === 0")
+                        if (stack.length === 0) { // done
                             break
                         }
                         Element = stack[stack.length - 1]
@@ -415,7 +409,7 @@
                         if (findUpLevel["_id"] in dict) {
                             continue
                         }
-                        if (findUpLevel["parent"] == idElement && findUpLevel["level"] == ElementLevel + 1) {
+                        if (findUpLevel["parent"] === idElement && findUpLevel["level"] === ElementLevel + 1) {
 
                             queue.push(findUpLevel)
                             stack.push(findUpLevel)
@@ -430,7 +424,7 @@
                         }
                     }
                     // tolgo definitivamente l'elemento
-                    if (find == false) {
+                    if (find === false) {
                         stack.pop()
                     }
                 }
@@ -550,9 +544,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     getQuestionAndAnswers()
                 } else {
                     console.log("updateVoteAnswer ", response)
@@ -572,9 +566,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     getQuestionAndAnswers()
                 } else {
                     console.log(response)
@@ -662,6 +656,10 @@
 
 
     function createAnswer(level, idParent, data, input) {
+        if (data === "<p><br></p>") {
+            alert("Write something")
+            return
+        }
         let params = JSON.stringify({
             title: title,
             nickname: nick,
@@ -676,9 +674,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     input.setAttribute("myId", response["data"]["_id"])
                     getQuestionAndAnswers()
                 } else {

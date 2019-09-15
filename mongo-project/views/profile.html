@@ -172,10 +172,10 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
-                    if(response['data'] == null){
+                if (response["confirmation"] === "success") {
+                    if(response['data'] === null){
                         window.location.href = "http://localhost:3001/"
                     }
                 } else {
@@ -219,9 +219,9 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     let profile = response["data"]
                     document.getElementById("nickname").innerHTML = profile["nickname"]
                     document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
@@ -230,7 +230,7 @@
                         sessionStorage.setItem("showOnMapProfile", JSON.stringify({x: profile["pos"].x, y: profile["pos"].y}))
                         window.location.href = "http://localhost:3001/"
                     }
-                    if(profile["online"] == true){
+                    if(profile["online"] === true){
                         document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
                     } else {
                         document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + timeConverter(profile["lastSeen"])

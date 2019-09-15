@@ -124,7 +124,7 @@ router.post('/profile/update', (req, res) => {
 	var continua = true
 	Profile.find({ nickname: nick })
 		.then(profiles => {
-			if (profiles.length == 0) {
+			if (profiles.length === 0) {
 				res.json({
 					confirmation: 'fail',
 					message: 'User ' + nick + ' does not exist'
@@ -543,7 +543,7 @@ router.post('/chat/write', (req, res) => {
 
 	Group.find({ name: name})
 		.then(groups => {
-			if (groups.length == 0) {
+			if (groups.length === 0) {
 				res.json({
 					confirmation: 'fail',
 					message: "This groups doesn't exist"
@@ -684,7 +684,7 @@ router.post('/question/updateVote', (req, res) => {
 
 	Question.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } })
 		.then(question => {
-			if (question["nModified"] == 1) {
+			if (question["nModified"] === 1) {
 				Question.updateOne({ _id: search }, update)
 					.then(question => {
 						res.json({
@@ -796,7 +796,7 @@ router.post('/answer/updateVote', (req, res) => {
 
 	Answer.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } })
 		.then(answer => {
-			if (answer["nModified"] == 1) {
+			if (answer["nModified"] === 1) {
 				Answer.updateOne({ _id: search }, update)
 					.then(answer => {
 						res.json({
@@ -898,7 +898,7 @@ router.post('/search/profile', (req, res) => {
 				})
 			} else {
 				var prom1 = new Promise(function (resolve, reject) {
-					if (profiles.length == 0) {
+					if (profiles.length === 0) {
 						resolve()
 					}
 					for (let a = 0; a < profiles.length; ++a) {

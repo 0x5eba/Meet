@@ -100,13 +100,13 @@
     });
 
     function validate (input) {
-        if($(input).attr('type') == 'email' || $(input).attr('name') == 'email') {
-            if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
+        if($(input).attr('type') === 'email' || $(input).attr('name') === 'email') {
+            if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) === null) {
                 return false;
             }
         }
         else {
-            if($(input).val().trim() == ''){
+            if($(input).val().trim() === ''){
                 return false;
             }
         }
@@ -267,18 +267,19 @@
         var check = true;
 
         for (var i = 0; i < input.length; i++) {
-            if (validate(input[i]) == false) {
+            if (validate(input[i]) === false) {
                 showValidate(input[i]);
                 check = false;
             }
         }
 
-        if(check == true){
-            let password_value = document.getElementById("password").value
+        if(check === true){
+            let password_value = document.getElementById("password").value.trim()
+            let nickname = document.getElementById("nickname").value.trim()
             let hash = SHA256(password_value)
 
             let params = JSON.stringify({
-                nickname: document.getElementById("nickname").value,
+                nickname: nickname,
                 password: hash,
                 name: document.getElementById("name").value,
                 surname: document.getElementById("surname").value,
@@ -289,11 +290,11 @@
             Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
             Http.send(params);
             Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
+                if (Http.readyState === 4 && Http.status === 200) {
                     let response = JSON.parse(Http.responseText)
-                    if (response["confirmation"] == "success") {
+                    if (response["confirmation"] === "success") {
                         let profile = {
-                            nickname: document.getElementById("nickname").value,
+                            nickname: nickname,
                             password: hash,
                         }
                         sessionStorage.setItem("profile", JSON.stringify(profile));

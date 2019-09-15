@@ -23,7 +23,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const path = require('path');
 router.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname + '/views/test.html'));
+	res.sendFile(path.join(__dirname + '/views/index.html'));
 });
 router.get('/login', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/login.html'));

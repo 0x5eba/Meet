@@ -1,693 +1,516 @@
-<!-- 
-    Ho iniziato a pensarci il 19 luglio
-    Ho iniziato a lavorarci su il 21 luglio
- -->
-
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-        crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    <title>Home</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://unpkg.com/deck.gl@^7.1.0/dist.min.js"></script>
+
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-        crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-        crossorigin="anonymous">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+        integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/bootstrap-slider.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/css/bootstrap-slider.css">
 </head>
 
 <body>
-    <div id="boxPos">
-        <a href="javascript:void(0)" id="exit" class="closebtn" onclick="closeNav()">&times;</a>
+    <div>
+        <div id="map"></div>
+        <!-- <canvas id="deck-canvas"></canvas> -->
+        <div id="control-panel"></div>
+    </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <span class="close">&times;</span>
+
+            <h1 id="title-model" style="text-align: center;"></h1>
+
+            <div id='search-icon' style="display: none;">
+                <div class="d-flex justify-content-center" style="margin-top:10px; margin-bottom: 30px">
+                    <div class="searchbar">
+                        <input class="search_input" type="text" placeholder="Search profiles/groups/questions" id="search_bar" autofocus>
+                        <a href="#" class="search_icon" style="color:#e74c3c"><i class="fas fa-search"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="no-gps" style="display: none;">
+                <h5 style="margin: 30px">You didn't activate the GPS or you didn't let the website access your location</h5>
+
+                <div class="card-deck">
+                    <div class="card text-white bg-success mb-3" style="max-width: 25rem;">
+                        <!-- <img class="card-img-top" src="#" alt="Card image cap"> -->
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Activate the GPS</h5>
+                            <div class="card-text">
+                                Visit this <a href="https://www.lifewire.com/denying-access-to-your-location-4027789">page</a> to know how to enable access location.
+                                <br>
+                                Then reload the page.
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="button" class="btn btn-dark" onclick="reloadPage()">Reload page</button>
+                        </div>
+                    </div>
+                    <div class="card text-white bg-danger mb-3" style="max-width: 25rem;">
+                        <!-- <img class="card-img-top" src="#" alt="Card image cap"> -->
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Continue without GPS</h5>
+                            <div class="card-text">
+                                Without GPS you can not create groups and questions
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button type="button" class="btn btn-dark" onclick="withoutPosition()">Continue without GPS</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="res-search"></div>
+
+            <div id='menu' style="display: none; margin: 3%">
+                <h3>Map themes</h3>
+                <div class="form-group">
+                    <select class="form-control" id="mapStyles">
+                        <option value='streets-v11' selected>street</option>
+                        <option value='outdoors-v11'>outdoor</option>
+                        <option value='light-v10'>light</option>
+                        <option value='dark-v10'>dark</option>
+                        <option value='satellite-v9'>satellite</option>
+                        <option value='satellite-streets-v11'>satellite street</option>
+                    </select>
+                </div>
+
+                <h3>View on map</h3>
+                <div class="form-group">
+                    <select class="form-control" id="CBviews">
+                        <option value='profiles' selected>profiles</option>
+                        <option value='groups'>groups</option>
+                        <option value='questions'>questions</option>
+                    </select>
+                </div>
+
+                <h3>Range search</h3>
+                <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="20" />
+                <span id="ex6CurrentSliderValLabel" style="margin-left: 20px"> Km: <span id="ex6SliderVal">26</span></span>
+            </div>
+
+            <div id='createGroup' style="display:none; margin: 20px" class="text-center">
+                <input type="text" id="groupName" class="form-control" style="border-radius: 10px; margin: 0 auto; max-width: 600px;"
+                    aria-label="Large" aria-describedby="inputGroup-sizing-sm" placeholder='Name'>
+                <br/><br/>
+                <button type="button" class="btn btn-outline-success" onclick="createGroup();">Create</button>
+            </div>
+
+        </div>
     </div>
 
-    <div id='cntnr'>
-        <ul id='coordsMenu' style="border-bottom: 3px solid black;">
-        </ul>
-        <ul id='items' style="border-bottom: 3px solid black;">
-            <li>Create a group here</li>
-        </ul>
-        <ul id="items">
-            <li>Ask a question here</li>
-        </ul>
-    </div>
-
-    <!-- <label for="fake">Use fake position: </label>
-    <input type="radio" name="fake" value="true" > Yes
-    <input type="radio" name="fake" value="false"checked> No </br> -->
-
-    <p>Select what you want to view, and press reload</p>
-    <input type="checkbox" name="view[]" id="CBprofiles" value="CBprofiles"> Profiles<br>
-    <input type="checkbox" name="view[]" id="CBgroups" value="CBgroups"> Groups<br>
-    <input type="checkbox" name="view[]" id="CBquestions" value="CBquestions"> Questions<br><br>
-    <button onclick="reloadView();">Reload view</button></br></br>
-
-    <button onclick="getSaved();">Bookmark</button></br></br>
-    
-    Search group: <input type="text" name="searchGroup" id="searchGroup"></br></br>
-    Search question: <input type="text" name="searchQuestion" id="searchQuestion"></br></br>
-    Search profile: <input type="text" name="searchProfile" id="searchProfile"></br></br>
-
-    </br>
-    <div id="MyContainer" width="300" height="300" style="width:500;height:500;">
-        <canvas id="canvas" width="2000" height="2000" style="cursor:crosshair;background:url(world_resized.png)"></canvas>
-    </div>
-
-    <!-- <div style="display:none;">
-        <canvas id="hiddenCanvas"  width="2000" height="2000"></canvas>
-    </div> -->
 </body>
 
 </html>
-<style>
-    body {
-        font-family: "Lato", sans-serif;
+
+<style type="text/css">
+    /* #container {
+        width: 100vw;
+        height: 100vh;
+    } */
+
+    #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
     }
 
-    html, body{
-        height: 99%;
-        margin:0;
+    #control-panel {
+        /* width: 100vw;
+        height: 100vh; */
+        font-size: 12px;
+        /* position: absolute; */
+        top: 0;
+        left: 0;
+        margin: 12px;
+        padding: 20px;
+        /* line-height: 2; */
+        z-index: 1;
+        /* background: #fff;
+        border: solid 1px #ccc;
+        border-bottom-color: #bbb;
+        border-radius: 3px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.15); */
     }
 
-    #boxPos {
-        top: 30%; 
-        left: 40%;
-        width: 35%;
-        height: 50%;
-        margin-top: -9em; 
-        margin-left: -15em;
-        border: 1px solid #ccc;
-        background: rgba(13, 19, 13, 0.6);
-        position:fixed;
+    #btn-home {
+        position: absolute;
+        left: 50%;
+        margin-left: -22px;
+        bottom: 30px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    #btn-group {
+        position: absolute;
+        left: 10%;
+        margin-left: -22px;
+        bottom: 30px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    #btn-question {
+        position: absolute;
+        left: 90%;
+        margin-left: -22px;
+        bottom: 30px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    #btn-setting {
+        position: absolute;
+        left: 90%;
+        margin-left: -22px;
+        margin-top: -10px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    #btn-bookmark {
+        position: absolute;
+        left: 10%;
+        margin-left: -22px;
+        margin-top: -10px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    #btn-search {
+        position: absolute;
+        left: 50%;
+        margin-left: -22px;
+        margin-top: -10px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    /* body,
+    html {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    } */
+
+    .searchbar {
+        width: 90%;
+        height: 60px;
+        background-color: #353b48;
+        border-radius: 30px;
+        padding: 10px;
+        /* margin-left: -22px; */
+    }
+
+    .search_input {
+        color: white;
+        border: 0;
+        outline: 0;
+        background: none;
+        /* width: 0; */
+        /* caret-color:transparent; */
+        line-height: 40px;
+        transition: width 0.3s linear;
+        padding: 0 10px;
+        width: 75%;
+        caret-color: red;
+    }
+
+    .search_icon {
+        height: 40px;
+        width: 40px;
+        float: right;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        color: white;
+        border: 0;
+        background: transparent;
+    }
+
+
+    .modal {
+        position: absolute;
         display: none;
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        padding-top: 5%;
+        /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+
+    .modal-content {
+        left: 5%;
+        width: 90%;
+        height: 90%;
+        border: 1px solid #888;
+        background-color: #fefefe;
+        padding: 20px;
         overflow-y: scroll;
         overflow: auto;
     }
 
-    #exit {
-        padding: 8px 8px 8px 32px;
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        text-align: end;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
         text-decoration: none;
-        font-size: 25px;
-        color: white;
-        display: block;
-        transition: 0.3s;
-        text-align: right;
     }
 
     #titles {
-        padding: 8px 8px 8px 32px;
+        padding-left: 3%;
         text-decoration: none;
         font-size: 30px;
-        color: white;
+        color: black;
         display: block;
-        transition: 0.3s;
     }
-    #profiles {
-        padding: 8px 8px 8px 32px;
+    #profile {
+        padding-left: 3%;
         text-decoration: none;
         font-size: 25px;
         color: #FF3333;
         display: block;
-        transition: 0.3s;
     }
-    #groups {
-        padding: 8px 8px 8px 32px;
-        text-decoration: none;
-        font-size: 25px;
-        color: blue;
-        display: block;
-        transition: 0.3s;
-    }
-    #questions {
-        padding: 8px 8px 8px 32px;
+    #group {
+        padding-left: 3%;
         text-decoration: none;
         font-size: 25px;
         color: #32CD32;
         display: block;
-        transition: 0.3s;
+    }
+    #question {
+        padding-left: 3%;
+        text-decoration: none;
+        font-size: 25px;
+        color: blue;
+        display: block;
     }
 
-
-    #items, #coordsMenu {
-        list-style: none;
-        margin: 0px;
-        margin-top: 4px;
-        padding-left: 10px;
-        padding-right: 10px;
-        padding-bottom: 3px;
-        font-size: 17px;
-        color: #333333;
+    .card-deck {
+        margin: 0 auto; /* Added */
+        float: none; /* Added */
+        margin-bottom: 10px; /* Added */
     }
 
-    hr {
-        width: 85%;
-        background-color: #E4E4E4;
-        border-color: #E4E4E4;
-        color: #E4E4E4;
-    }
-
-    #cntnr {
-        display: none;
-        position: fixed;
-        border: 1px solid #B2B2B2;
-        width: 15%;
-        background: #F9F9F9;
-        box-shadow: 3px 3px 2px #E9E9E9;
-        border-radius: 4px;
-    }
-
-    li {
-        padding: 3px;
-        padding-left: 10px;
-    }
-
-    #items :hover {
-        color: white;
-        background: #284570;
-        border-radius: 2px;
-    }
 </style>
 
-<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script>
 <script>
+    // var _gaq = _gaq || [];
+    // _gaq.push(['_setAccount', 'UA-36251023-1']);
+    // _gaq.push(['_setDomainName', 'sebastienbiollo.com']);
+    // _gaq.push(['_trackPageview']);
+    
+    // (function() {
+    // var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    //     ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    //     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    //     })();
 
-    /*
 
-    Una bella idea sarebbe prendere tutti i punti (o un modo per controllare se un punto appartiene a uno specifico stato) e,
-    avendo la posizione "vera" (presa dal gps), controllo se al doppio click ha effettivamente rispettato il suo stato.
-    Facendo in modo anche che si possano creare gruppi e domande solo nel proprio stato
+    const url = 'http://localhost:3001/api/'
 
-    quando clicchi sulla mappa, mi faccio restituire il colore, e nel db controllo il colore associato a quello stato.
-    Devo escludere il colore azzurro (mare) e il nero (scritte)
+    var profileData = JSON.parse(sessionStorage.getItem("profile"))
+    var CBviews;
+    var slider = new Slider('#ex5');
+    var rangeView;
 
-    */
-
-    const url = 'http://localhost:3001/api/';
-    var myPosInMap = {}
-    var currentUrl = new URL(window.location.href);
-
-    var CBview = {}
-    var profileData = {}
     function session(){
-        try {
-            CBview = JSON.parse(sessionStorage.getItem("view"))
-            profileData = JSON.parse(sessionStorage.getItem("profile"))
+        if(profileData === null){
+            window.location.href = "http://localhost:3001/login"
+        } else if(profileData['nickname'] === null || profileData['password'] === null || 
+                profileData['nickname'] === undefined || profileData['password'] === undefined){
+            window.location.href = "http://localhost:3001/login"
+        }
+        let params = JSON.stringify({
+            nickname: profileData['nickname'],
+            password: profileData['password'],
+        })
 
-            if (CBview['CBquestions'] == 1) {
-                document.getElementById("CBquestions").checked = true
-            }
-            if (CBview['CBgroups'] == 1) {
-                document.getElementById("CBgroups").checked = true
-            }
-            if (CBview['CBprofiles'] == 1) {
-                document.getElementById("CBprofiles").checked = true
-            }
-
-            let params = JSON.stringify({
-                nickname: profileData['nickname'],
-                password: profileData['password'],
-            })
-
-            let Http = new XMLHttpRequest();
-            Http.open("POST", url + 'profile/login', true);
-            Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            Http.send(params);
-            Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
-                    let response = JSON.parse(Http.responseText)
-                    if (response["confirmation"] == "success") {
-                        if (response['data'] == null) {
-                            window.location.href = "http://localhost:3001"
-                        }
-                    } else {
-                        window.location.href = "http://localhost:3001"
+        let Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/login', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] === "success") {
+                    if(response['data'] === null){
+                        window.location.href = "http://localhost:3001/login"
                     }
+                } else {
+                    window.location.href = "http://localhost:3001/login"
                 }
             }
         }
-        catch (err) {
-            window.location.href = "http://localhost:3001"
-        }
+
+        rangeView = JSON.parse(sessionStorage.getItem("rangeView")).range
     }
     session()
+
+
+    var modal = document.getElementById("myModal");
+    var resSearch = document.getElementById("res-search");
+    function closeMenu(){
+        document.getElementById("title-model").innerHTML = ""
+        modal.style.display = "none"
+        resSearch.style.display = "none"
+        document.getElementById("menu").style.display = "none"
+        document.getElementById("search-icon").style.display = "none"
+        document.getElementById("no-gps").style.display = "none"
+        document.getElementById("createGroup").style.display = "none"
+        if(rangeView !== JSON.parse(sessionStorage.getItem("rangeView")).range){
+            sessionStorage.setItem("rangeView", JSON.stringify({ range: rangeView }))
+            window.location.href = "http://localhost:3001/"
+        }
+    }
     
-
-    var coordsQuestionOrGroup = {}
-    $('#canvas').on('contextmenu', function (e) {
-        e.preventDefault();
-
-        let rect = canvas.getBoundingClientRect();
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
-        coordsQuestionOrGroup = { x: x, y: y }
-        document.getElementById("coordsMenu").innerHTML = "<li>Here is (" + x + ", " + y + ")</li>"
-
-        // $("#cntnr").css("left", e.pageX);
-        // $("#cntnr").css("top", e.pageY);
-        $("#cntnr").fadeIn(200, startFocusOut());
-    });
-    function startFocusOut() {
-        $(document).on("click", function () {
-            $("#cntnr").hide();
-            $(document).off("click");
-        });
+    document.getElementsByClassName("close")[0].onclick = function () {
+        closeMenu()
     }
-    $("#items > li").click(function () {
-        let nick = profileData['nickname']
-        if ($(this).text() == "Create a group here") {
-            window.location.href = "http://localhost:3001/group" + '?action=create&x=' + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
-        }
-        if ($(this).text() == "Ask a question here") {
-            window.location.href = "http://localhost:3001/question" + '?action=create&x=' + coordsQuestionOrGroup.x + "&y=" + coordsQuestionOrGroup.y
-        }
-    });
 
-    var navOpen = false
-    function openNav() {
-        let div = document.getElementById("boxPos");
-        if (div.style.display === "block") {
-            div.style.display = "none";
+    function delay(callback, ms) {
+        var timer = 0;
+        return function () {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                callback.apply(context, args);
+            }, ms || 0);
+        };
+    }
+
+    $("#search_bar").keyup(delay(function (e) {
+        let search = $("#search_bar").val()
+        if(search !== ""){
+            resSearch.innerHTML = ""
+            searchInDB(search, "group")
+            searchInDB(search, "profile")
+            searchInDB(search, "question")
         } else {
-            div.style.display = "block";
+            resSearch.innerHTML = ""
+            getSaved()
         }
-        navOpen = true
-    }
-    function closeNav() {
-        let div = document.getElementById("boxPos");
-        if (div.style.display === "none") {
-            div.style.display = "block";
-        } else {
-            div.style.display = "none";
-        }
-        document.getElementById("boxPos").innerHTML = '<a id="exit" href="javascript: void (0)" class="closebtn" onclick="closeNav()">&times;</a>'
-        navOpen = false
-    }
-    // window.addEventListener("click", function (event) {
-    //     if(navOpen == true){
-    //         closeNav()
-    //     }
-    // });
+    }, 400))
 
-    function reloadView() {
-        let chk_arr = document.getElementsByName("view[]")
-        for (let k = 0; k < chk_arr.length; k++) {
-            if (chk_arr[k].checked == false) {
-                CBview[chk_arr[k].value] = 0
-            } else {
-                CBview[chk_arr[k].value] = 1
-            }
-        }
-
-        sessionStorage.setItem("view", JSON.stringify(CBview))
-
-        window.location.href = currentUrl
-    }
-
-    var searchGroup = document.getElementById("searchGroup");
-    searchGroup.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            let params = JSON.stringify({
-                search: this.value,
-            })
-            searchGroup.value = ""
-
-            let Http = new XMLHttpRequest();
-            Http.open("POST", url + 'search/group', true);
-            Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            Http.send(params);
-            Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
-                    let response = JSON.parse(Http.responseText)
-                    if (response["confirmation"] == "success") {
-                        
-                        let boxPos = document.getElementById("boxPos")
-                        if (navOpen == false) {
-
-                            response["group"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                let href = "http://localhost:3001/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                                a.setAttribute('href', href);
-                                a.setAttribute('id', 'groups')
-                                let textnode = document.createTextNode(element['name']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
-
-                            openNav()
-                        } else {
-                            closeNav()
-                        }
-
-                    } else {
-                        console.log(response)
-                    }
-                }
-            }
-        }
-    })
-    var searchQuestion = document.getElementById("searchQuestion");
-    searchQuestion.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            let params = JSON.stringify({
-                search: this.value,
-            })
-            searchQuestion.value = ""
-
-            let Http = new XMLHttpRequest();
-            Http.open("POST", url + 'search/question', true);
-            Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            Http.send(params);
-            Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
-                    let response = JSON.parse(Http.responseText)
-                    if (response["confirmation"] == "success") {
-
-                        console.log(response)
-                        
-                        let boxPos = document.getElementById("boxPos")
-                        if (navOpen == false) {
-
-                            response["question"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                let href = "http://localhost:3001/question" + '?action=show&title=' + element['title'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                                a.setAttribute('href', href);
-                                a.setAttribute('id', 'questions')
-                                let textnode = document.createTextNode(element['title']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
-
-                            openNav()
-                        } else {
-                            closeNav()
-                        }
-
-                    } else {
-                        console.log(response)
-                    }
-                }
-            }
-        }
-    })
-    var searchProfile = document.getElementById("searchProfile");
-    searchProfile.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            let params = JSON.stringify({
-                search: this.value,
-            })
-            searchProfile.value = ""
-
-            let Http = new XMLHttpRequest();
-            Http.open("POST", url + 'search/profile', true);
-            Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-            Http.send(params);
-            Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
-                    let response = JSON.parse(Http.responseText)
-                    if (response["confirmation"] == "success") {
-                        let boxPos = document.getElementById("boxPos")
-                        if (navOpen == false) {
-                            
-                            console.log(response)
-                            response["profile"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                a.setAttribute('href', "http://localhost:3001/profile?id=" + element["_id"]);
-                                a.setAttribute('id', 'profiles')
-                                let textnode = document.createTextNode(element['nickname']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
-
-                            openNav()
-                        } else {
-                            closeNav()
-                        }
-                    } else {
-                        console.log(response)
-                    }
-                }
-            }
-        }
-    })
-
-
-    function doClickAction(e) {
-        getPosProfiles(e)
-    }
-    function doDoubleClickAction(e) {
-        setMyPosition(e)
-    }
-    var timer = 0;
-    var delay = 200;
-    var prevent = false;
-    $("#canvas").on("click", function (event) {
-        timer = setTimeout(function () {
-            if (!prevent) {
-                doClickAction(event);
-            }
-            prevent = false;
-        }, delay);
-    })
-    .on("dblclick", function (event) {
-        clearTimeout(timer);
-        prevent = true;
-        doDoubleClickAction(event);
-    });
-
-    var img = new Image();
-    img.onload = function () {
-        var height = img.height;
-        var width = img.width;
-        document.getElementById('canvas').width = width;
-        document.getElementById('canvas').height = height;
-        document.getElementById('MyContainer').style.width = width;
-        document.getElementById('MyContainer').style.height = height;
-
-        // document.getElementById("hiddenCanvas").getContext("2d").drawImage(img, width, height);
-    }
-    img.src = 'world_resized.png';
-
-
-    function setMyPosition(event) {
-        let rect = canvas.getBoundingClientRect();
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
-
-        // let c = document.createElement('canvas')
-        // let context = c.getContext && c.getContext('2d')
-        // context.drawImage(img, 0, 0);
-        // data = context.getImageData(parseInt(y, 10), parseInt(x, 10), 1, 1);
-
-        // console.log(x, y)
-        // console.log(data)
-
-        myPosInMap = { x: x, y: y }
-
-        let nick = profileData['nickname']
-        var params = {};
-        params = JSON.stringify({
-            "search": { "nickname": nick }, "update": {
-                "$set": {
-                    pos: { x: myPosInMap.x, y: myPosInMap.y },
-                }
-            }, "extra": {}
-        })
-        
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/update', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
-                    drawCoordinates(x, y, '#800080');
-                } else {
-                    console.log(response["message"])
-                }
-            }
-        }
-    }
-
-    function drawCoordinates(x, y, color = '#ff2626') {
-        let ctx = document.getElementById("canvas").getContext("2d");
-        let pointSize = 2;
-
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(x, y, pointSize, 0, Math.PI * 2, true);
-        ctx.fill();
-    }
-
-    function getPosProfiles(event) {
-        let rect = canvas.getBoundingClientRect();
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
-
-        if (navOpen == false) {
-            let boxPos = document.getElementById("boxPos")
-            let nick = profileData['nickname']
-            
-            if (CBview['CBprofiles'] == 1) {
-                let Http = new XMLHttpRequest();
-                Http.open("POST", url + 'pos/profiles', true);
-                Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                let params = JSON.stringify({ x: x, y: y })
-                Http.send(params);
-                Http.onreadystatechange = (e) => {
-                    if (Http.readyState == 4 && Http.status == 200) {
-                        let profiles = JSON.parse(Http.responseText)
-                        
-                        if (profiles["confirmation"] == "success") {
-                            if (profiles["profiles"].length > 0) {
-                                let p = document.createElement("p");
-                                let textnode = document.createTextNode("Profiles");
-                                p.setAttribute('id', 'titles')
-                                p.appendChild(textnode);
-                                boxPos.appendChild(p)
-                            }
-
-                            profiles["profiles"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                a.setAttribute('href', "http://localhost:3001/profile?id=" + element["_id"]);
-                                a.setAttribute('id', 'profiles')
-                                let textnode = document.createTextNode(element['nickname']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
-                        } else {
-                            console.log(profiles)
-                        }
-                    }
-                }
-            }
-
-            if (CBview['CBgroups'] == 1) {
-                let Http2 = new XMLHttpRequest();
-                Http2.open("POST", url + 'pos/groups', true);
-                Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                let params2 = JSON.stringify({ x: x, y: y })
-                Http2.send(params2);
-                Http2.onreadystatechange = (e) => {
-                    if (Http2.readyState == 4 && Http2.status == 200) {
-                        let groups = JSON.parse(Http2.responseText)
-                        
-                        if (groups["confirmation"] == "success") {
-                            if(groups["groups"].length > 0){
-                                let p = document.createElement("p");
-                                let textnode = document.createTextNode("Groups");
-                                p.setAttribute('id', 'titles')
-                                p.appendChild(textnode);
-                                boxPos.appendChild(p)
-                            }
-
-                            groups["groups"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                let href = "http://localhost:3001/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                                a.setAttribute('href', href);
-                                a.setAttribute('id', 'groups')
-                                let textnode = document.createTextNode(element['name']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
-                        } else {
-                            console.log(groups)
-                        }
-                    }
-                }
-            }
-
-            if (CBview['CBquestions'] == 1) {
-                let Http3 = new XMLHttpRequest();
-                Http3.open("POST", url + 'pos/questions', true);
-                Http3.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                let params3 = JSON.stringify({ x: x, y: y })
-                Http3.send(params3);
-                Http3.onreadystatechange = (e) => {
-                    if (Http3.readyState == 4 && Http3.status == 200) {
-                        let questions = JSON.parse(Http3.responseText)
-                        
-                        if (questions["confirmation"] == "success") {
-                            if (questions["questions"].length > 0) {
-                                let p = document.createElement("p");
-                                let textnode = document.createTextNode("Questions");
-                                p.setAttribute('id', 'titles')
-                                p.appendChild(textnode);
-                                boxPos.appendChild(p)
-                            }
-
-                            questions["questions"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                let href = "http://localhost:3001/question" + '?action=show&title=' + element['title'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                                a.setAttribute('href', href);
-                                a.setAttribute('id', 'questions')
-                                let textnode = document.createTextNode(element['title']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
-                        } else {
-                            console.log(questions)
-                        }
-                    }
-                }
-            }
-
-            openNav()
-        } else {
-            closeNav()
-        }
-    }
-
-    var offline = false
-    $(document).mouseleave(function (e) {
-        if (offline == false) {
-            iamStatus(false)
-            offline = true
-        }
-    });
-    // mouseenter
-    $(document).click(function (e) {
-        if(offline == true){
-            iamStatus(true)
-            offline = false
-        }
-    });
-    iamStatus(true)
-
-    function iamStatus(status) {
-        let nick = profileData['nickname']
+    function searchInDB(search, type) {
         let params = JSON.stringify({
-            search: {
-                nickname: nick
-            },
-            update: {
-                online: status,
-                lastSeen: Date.now()
-            }
+            search: search,
         })
 
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/update/status', true);
+        let Http = new XMLHttpRequest();
+        Http.open("POST", url + 'search/' + type, true);
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
+                    if(response[type].length > 0){
 
+                        let p = document.createElement("p")
+                        let textnode = document.createTextNode(type.charAt(0).toUpperCase() + type.slice(1) + "s");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode)
+                        resSearch.appendChild(p)
+
+                        response[type].forEach(function (element) {
+                            let a = document.createElement("a")
+                            if (type === "group"){
+                                let href = "http://localhost:3001/group?groupname=" + element['name']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['name'])
+                            }
+                            if (type === "question") {
+                                let href = "http://localhost:3001/question?title=" + element['title']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['title'])
+                            }
+                            if (type === "profile") {
+                                let href = "http://localhost:3001/profile?nickname=" + element['nickname']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['nickname'])
+                            }
+                            
+                            a.appendChild(textnode)
+                            resSearch.appendChild(a)
+                        })
+                    }
                 } else {
                     console.log(response)
                 }
             }
         }
     }
-    
 
     function getSaved() {
         let nick = profileData['nickname']
@@ -699,57 +522,58 @@
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] == "success") {
+                if (response["confirmation"] === "success") {
                     response = response["data"]
-                    console.log(response)
-                    let boxPos = document.getElementById("boxPos")
-                    if (navOpen == false) {
-                        
-                        if (response != null && "savedGroup" in response){
-                            if (response["savedGroup"].length > 0) {
-                                let p = document.createElement("p");
-                                let textnode = document.createTextNode("Groups");
-                                p.setAttribute('id', 'titles')
-                                p.appendChild(textnode);
-                                boxPos.appendChild(p)
-                            }
 
-                            response["savedGroup"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                let href = "http://localhost:3001/group" + '?action=show&groupname=' + element['name'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                                a.setAttribute('href', href);
-                                a.setAttribute('id', 'groups')
-                                let textnode = document.createTextNode(element['name']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
+                    if (response != null && ("savedGroup" in response || "savedQuestion" in response)){
+                        let h2 = document.createElement("h2")
+                        h2.innerHTML = "Bookmarks"
+                        h2.setAttribute('id', 'titles')
+                        h2.style.marginBottom = "30px"
+                        h2.style.textDecoration = "underline"
+                        resSearch.appendChild(h2)
+                    }
+
+                    if (response != null && "savedGroup" in response){
+                        if (response["savedGroup"].length > 0) {
+                            let p = document.createElement("p");
+                            let textnode = document.createTextNode("Groups");
+                            p.setAttribute('id', 'titles')
+                            p.appendChild(textnode);
+                            resSearch.appendChild(p)
                         }
 
-                        if (response != null && "savedQuestion" in response) {
-                            if (response["savedQuestion"].length > 0) {
-                                let p = document.createElement("p");
-                                let textnode = document.createTextNode("Questions");
-                                p.setAttribute('id', 'titles')
-                                p.appendChild(textnode);
-                                boxPos.appendChild(p)
-                            }
+                        response["savedGroup"].forEach(function (element) {
+                            let a = document.createElement("a");
+                            let href = "http://localhost:3001/group?groupname=" + element
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', "group")
+                            let textnode = document.createTextNode(element)
+                            a.appendChild(textnode);
+                            resSearch.appendChild(a)
+                        });
+                    }
 
-                            response["savedQuestion"].forEach(function (element) {
-                                let a = document.createElement("a");
-                                let href = "http://localhost:3001/question" + '?action=show&title=' + element['question'] + "&x=" + element.pos.x + "&y=" + element.pos.y
-                                a.setAttribute('href', href);
-                                a.setAttribute('id', 'questions')
-                                let textnode = document.createTextNode(element['question']);
-                                a.appendChild(textnode);
-                                boxPos.appendChild(a)
-                            });
+                    if (response != null && "savedQuestion" in response) {
+                        if (response["savedQuestion"].length > 0) {
+                            let p = document.createElement("p");
+                            let textnode = document.createTextNode("Questions");
+                            p.setAttribute('id', 'titles')
+                            p.appendChild(textnode);
+                            resSearch.appendChild(p)
                         }
 
-                        openNav()
-                    } else {
-                        closeNav()
+                        response["savedQuestion"].forEach(function (element) {
+                            let a = document.createElement("a");
+                            let href = "http://localhost:3001/question?title=" + element
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', "question")
+                            let textnode = document.createTextNode(element)
+                            a.appendChild(textnode);
+                            resSearch.appendChild(a)
+                        });
                     }
 
                 } else {
@@ -760,60 +584,705 @@
         }
     }
 
-    function initProfiles() {
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/allProfiles', true);
-        Http.send();
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
-                let profiles = JSON.parse(Http.responseText)
-                profiles["profiles"].forEach(function (element) {
-                    let pos = element['pos']
-                    drawCoordinates(pos.x, pos.y);
+    function noGPS(){
+        if(profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0){
+            const state_view = {
+                latitude: 0,
+                longitude: 0,
+                zoom: 2,
+                bearing: 0,
+                pitch: 30
+            }
+            profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
+            sessionStorage.setItem("profile", JSON.stringify(profileData))
+            getData(state_view)
+        } else {
+            modal.style.display = "block"
+
+            document.getElementById("title-model").innerHTML = "No GPS found"
+            document.getElementById("no-gps").style.display = "block"
+        }   
+    }
+
+    function reloadPage(){
+        window.location.reload();
+    }
+
+    function withoutPosition(){
+        profileData['coords'] = [0, 0]
+        sessionStorage.setItem("profile", JSON.stringify(profileData))
+
+        closeMenu()
+        reloadPage()
+    }
+
+    function handlePermission() {
+        navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
+            // ci metteva troppo senza questo check al "show on map" di profile
+            if (profileData['coords'] !== undefined) {
+                if (result.state === 'denied') {
+                    noGPS()
+                } else {
+                    showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
+                }
+            } else {
+                if (result.state === 'granted') {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else if (result.state === 'prompt') {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else if (result.state === 'denied') {
+                    noGPS()
+                }
+                // result.onchange = function () {
+                //     console.log(result.state);
+                // }
+            }
+        });
+    }
+
+    var canUpdateStatus = false
+    function showPosition(position) {
+        const state_view = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            zoom: 8,
+            bearing: 0,
+            pitch: 20,
+        }
+        profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
+        sessionStorage.setItem("profile", JSON.stringify(profileData))
+        getData(state_view)
+    }
+
+    function showError(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                // alert("User denied the request for Geolocation.")
+                noGPS()
+                break
+            case error.POSITION_UNAVAILABLE:
+                // alert("Location information is unavailable.")
+                noGPS()
+                break
+            case error.TIMEOUT:
+                // alert("The request to get user location timed out.")
+                noGPS()
+                break
+            case error.UNKNOWN_ERROR:
+                // alert("An unknown error occurred.")
+                noGPS()
+                break
+        }
+    }
+
+    function setMap(state_view) {
+        if(CBviews['profiles'] === 1){
+            // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
+            let foundProfile = false
+            for (let a = 0; a < AllProfiles.features.length; ++a) {
+                if (AllProfiles.features[a].properties['nickname'] === profileData['nickname']) {
+                    AllProfiles.features[a].geometry['coordinates'] = [state_view.longitude, state_view.latitude]
+                    foundProfile = true
+                    break;
+                }
+            }
+            if (foundProfile === false) {
+                let profile = {
+                    "type": "Feature",
+                    "properties": {
+                        'nickname': profileData['nickname'],
+                        // 'name': profileData['name'],
+                        // 'surname': profileData['surname'],
+                        "mag": 2.0
+                    },
+                    "geometry": { "type": "Point", "coordinates": profileData['coords'] }
+                }
+                AllProfiles.features.push(profile)
+            }
+        }
+
+        var dataToDisplay;
+        let optionViews;
+        if (CBviews['groups'] === 1) {
+            dataToDisplay = Allgroups
+            optionViews = 'groups'
+        }
+        else if (CBviews['questions'] === 1) {
+            dataToDisplay = AllQuestions
+            optionViews = 'questions'
+        }
+        else if (CBviews['profiles'] === 1) {
+            dataToDisplay = AllProfiles
+            optionViews = 'profiles'
+        }
+        let optionsView = document.getElementById('CBviews').getElementsByTagName('option')
+        for (let a = 0; a < optionsView.length; ++a) {
+            if (optionsView[a].value === optionViews) {
+                optionsView[a].selected = true
+                break;
+            }
+        }
+
+        let showOnMapProfile = JSON.parse(sessionStorage.getItem("showOnMapProfile"))
+        if (showOnMapProfile !== null) {
+            state_view.longitude = showOnMapProfile.x
+            state_view.latitude = showOnMapProfile.y
+            state_view.zoom = 11
+            sessionStorage.removeItem("showOnMapProfile");
+        }
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
+        // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
+
+        let mapStyle = JSON.parse(sessionStorage.getItem("mapStyle"))
+        let optionsStreet = document.getElementById('mapStyles').getElementsByTagName('option')
+        let street = mapStyle['mapStyle'].split("/")
+        street = street[street.length-1]
+        for(let a = 0; a < optionsStreet.length; ++a){
+            if(optionsStreet[a].value === street){
+                optionsStreet[a].selected = true
+                break;
+            }
+        }
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: mapStyle['mapStyle'],
+            // interactive: false, // Note: deck.gl will be in charge of interaction and event handling
+            center: [state_view.longitude, state_view.latitude],
+            zoom: state_view.zoom,
+            bearing: state_view.bearing,
+            pitch: state_view.pitch,
+            attributionControl: false,
+        })
+        map.addControl(new mapboxgl.AttributionControl({
+            compact: true
+        }))
+
+        map.on('load', function () {
+            map.addSource('earthquakes', {
+                "type": "geojson",
+                "data":  dataToDisplay,
+            })
+
+            map.addLayer({
+                "id": "earthquakes-heat",
+                "type": "heatmap",
+                "source": "earthquakes",
+                "maxzoom": 11,
+                "paint": {
+                    // Increase the heatmap weight based on frequency and property magnitude
+                    "heatmap-weight": [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        0, 0,
+                        6, 1
+                    ],
+                    // Increase the heatmap color weight weight by zoom level
+                    // heatmap-intensity is a multiplier on top of heatmap-weight
+                    "heatmap-intensity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 1,
+                        11, 5
+                    ],
+                    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                    // Begin color ramp at 0-stop with a 0-transparancy color
+                    // to create a blur-like effect.
+                    "heatmap-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["heatmap-density"],
+                        0, "rgba(33,102,172,0)",
+                        0.2, "rgb(103,169,207)",
+                        0.4, "rgb(209,229,240)",
+                        0.6, "rgb(253,219,199)",
+                        0.8, "rgb(239,138,98)",
+                        1, "rgb(178,24,43)"
+                    ],
+                    // Adjust the heatmap radius by zoom level
+                    "heatmap-radius": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 2,
+                        11, 20
+                    ],
+                    // Transition from heatmap to circle layer by zoom level
+                    "heatmap-opacity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7, 1,
+                        11, 0
+                    ],
+                }
+            }, 'waterway-label');
+
+            map.addLayer({
+                "id": "earthquakes-point",
+                "type": "circle",
+                "source": "earthquakes",
+                "minzoom": 7,
+                "paint": {
+                    // Size circle radius by earthquake magnitude and zoom level
+                    "circle-radius": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7, [
+                            "interpolate",
+                            ["linear"],
+                            ["get", "mag"],
+                            1, 1,
+                            6, 4
+                        ],
+                        16, [
+                            "interpolate",
+                            ["linear"],
+                            ["get", "mag"],
+                            1, 5,
+                            6, 50
+                        ]
+                    ],
+                    // Color circle by earthquake magnitude
+                    "circle-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        1, "rgba(33,102,172,0)",
+                        2, "rgb(103,169,207)",
+                        3, "rgb(209,229,240)",
+                        4, "rgb(253,219,199)",
+                        5, "rgb(239,138,98)",
+                        6, "rgb(178,24,43)"
+                    ],
+                    "circle-stroke-color": "white",
+                    "circle-stroke-width": 1,
+                    // Transition from heatmap to circle layer by zoom level
+                    "circle-opacity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7, 0,
+                        8, 1
+                    ]
+                }
+            }, 'waterway-label');
+        });
+
+        // When a click event occurs on a feature in the earthquakes-point layer, open a popup at the
+        // location of the feature, with description HTML from its properties.
+        map.on('click', 'earthquakes-point', function (e) {
+            let coordinates = e.features[0].geometry.coordinates.slice();
+            let description = ""
+            if (CBviews['groups'] === 1) {
+                let name = e.features[0].properties.name
+
+                description = "<h2>Group</h2><h5>" + name + "</h5>" + 
+                    "<a href='http://localhost:3001/group?groupname=" + e.features[0].properties.name + "'>Link to the group</a>"
+            }
+            else if (CBviews['questions'] === 1) {
+                let title = e.features[0].properties.title
+                title = title.slice(0, 30) + (title.length > 30 ? "..." : "")
+                let details = e.features[0].properties.details !== undefined ? e.features[0].properties.details : ""
+                details = details.slice(0, 30) + (details.length > 30 ? "..." : "")
+
+                description = "<h2>Question</h2><h5>" + title + "</h5><p>" + details + "</p>" +
+                    "<a href='http://localhost:3001/question?title=" + e.features[0].properties.title + "'>Link to the question</a>"
+            }
+            else if (CBviews['profiles'] === 1) {
+                let nickname = e.features[0].properties.nickname
+                let name = e.features[0].properties.name !== undefined ? e.features[0].properties.name : ""
+                let surname = e.features[0].properties.surname !== undefined ? e.features[0].properties.surname : ""
+
+                description = "<h2>Profile</h2><h5>" + nickname + "</h5><p>" + name + " " + surname + "</p>" +
+                    "<a href='http://localhost:3001/profile?nickname=" + e.features[0].properties.nickname + "'>Link to the profile</a>"
+            }
+
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(description)
+                .addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the earthquakes-point layer.
+        map.on('mouseenter', 'earthquakes-point', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        })
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'earthquakes-point', function () {
+            map.getCanvas().style.cursor = '';
+        })
+
+        if(profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
+            new mapboxgl.Marker()
+                .setLngLat(profileData['coords'])
+                .addTo(map);
+        }
+        
+        // const deck = new Deck({
+        //     canvas: map.getCanvas(),
+        //     width: '100%',
+        //     height: '100%',
+        //     initialViewState: state_view,
+        //     controller: true,
+        //     onViewStateChange: ({ viewState }) => {
+        //         map.jumpTo({
+        //             center: [viewState.longitude, viewState.latitude],
+        //             zoom: viewState.zoom,
+        //             bearing: viewState.bearing,
+        //             pitch: viewState.pitch
+        //         })
+        //     },
+        // })
+
+        const mainDiv = d3.select('#control-panel').selectAll('div').data([{ text: "home" }]).enter().append('div')
+
+        // home
+        mainDiv.append('button').attr("id", "btn-home")
+            .on('click', d => {
+                if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
+
+                } else {
+                    // deck.setProps({
+                    //     viewState: {
+                    //         longitude: state_view.longitude,
+                    //         latitude: state_view.latitude,
+                    //         zoom: 12,
+                    //         transitionInterpolator: new FlyToInterpolator(),
+                    //         transitionDuration: 1000
+                    //     }
+                    // })
+
+                    map.jumpTo({
+                        center: profileData['coords'],
+                        zoom: 12,
+                    })
+                }
+            })
+            .append("img").attr("src", "icons/iconfinder_gps-not-fixed_326555.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+        
+        // group
+        mainDiv.append('button').attr("id", "btn-group")
+            .on('click', d => {
+                if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
+                    
+                } else {
+                    modal.style.display = "block"
+                    document.getElementById("title-model").innerHTML = "Create a group"
+                    document.getElementById("createGroup").style.display = "block"
+                }
+            })
+            .append("i").attr("class", "fas fa-user-friends fa-2x").style("color", "black")
+
+        // quesiton
+        mainDiv.append('button').attr("id", "btn-question")
+            .on('click', d => {
+                if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
+
+                } else {
+                    window.location.href = "http://localhost:3001/question"
+                }
+            })
+            .append("img").attr("src", "icons/iconfinder_social-80_2285232.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+
+        // bookmark
+        // mainDiv.append('button').attr("id", "btn-bookmark")
+        //     .on('click', d => {
+        //         modal.style.display = "block"
+        //         resSearch.style.display = "block"
+        //         resSearch.innerHTML = ""
+        //         document.getElementById("title-model").innerHTML = "Bookmarks"
+        //         getSaved()
+        //     })
+        //     .append("img").attr("src", "icons/iconfinder_177_BookmarkUnused_183296.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+
+        //setting
+        mainDiv.append('button').attr("id", "btn-setting")
+            .on('click', d => {
+                modal.style.display = "block"
+                resSearch.style.display = "block"
+                document.getElementById("menu").style.display = "block"
+                resSearch.innerHTML = ""
+                document.getElementById("title-model").innerHTML = "Settings"
+
+                $("#mapStyles").change(function () {
+                    var layerId = $(this).children("option:selected").val();
+                    map.setStyle('mapbox://styles/mapbox/' + layerId);
+                    sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/' + layerId }));
+                    closeMenu()
+                    reloadPage()
                 });
+
+                $("#CBviews").change(function () {
+                    var value = $(this).children("option:selected").val();
+                    let view = {
+                        questions: 0,
+                        groups: 0,
+                        profiles: 0,
+                    }
+                    view[value] = 1
+                    sessionStorage.setItem("view", JSON.stringify(view));
+                    closeMenu()
+                    reloadPage()
+                });
+
+                slider.destroy()
+                document.getElementById("ex5").setAttribute("data-slider-value", rangeView)
+                let sliderValueKm = rangeView * 1.3
+                sliderValueKm = sliderValueKm.toFixed(1)
+                document.getElementById("ex6SliderVal").textContent = sliderValueKm
+                slider = new Slider('#ex5');
+                slider.on("slide", function (sliderValue) {
+                    sliderValueKm = 1.3 * sliderValue
+                    sliderValueKm = sliderValueKm.toFixed(1)
+                    document.getElementById("ex6SliderVal").textContent = sliderValueKm
+                    rangeView = sliderValue
+                });
+                
+            })
+            .append("img").attr("src", "icons/iconfinder_settings_2561383.svg").attr("width", "30").attr("height", "30")
+
+
+        // search
+        // let div_search = mainDiv.append('div').attr("class", "searchbar")
+        //     .style("position", "absolute").style("left", "50%").style("margin-top", "-20px").style("margin-left", "-28px")
+        //     .on('click', d => {
+        //         modal.style.display = "block"
+        //         resSearch.style.display = "block"
+        //         resSearch.innerHTML = ""
+        //         document.getElementById("search-icon").style.display = "block"
+        //         document.getElementById("title-model").innerHTML = "Search"
+        //     })
+        // div_search.append("button").attr("class", "search_icon").append("i").attr("class", "fas fa-search fa-lg")
+            
+
+        mainDiv.append('button').attr("id", "btn-search")
+            .on('click', d => {
+                modal.style.display = "block"
+                resSearch.style.display = "block"
+                resSearch.innerHTML = ""
+                document.getElementById("search-icon").style.display = "block"
+                document.getElementById("title-model").innerHTML = "Search"
+
+                getSaved()
+            })
+            .append("i").attr("class", "fas fa-search fa-2x").style("color", "black")
+
+        // map.addControl(new mapboxgl.GeolocateControl({
+        //     positionOptions: {
+        //         enableHighAccuracy: true
+        //     },
+        //     trackUserLocation: true
+        // }));
+        // map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
+        map.doubleClickZoom.enable();
+        // map.touchZoomRotate.enable({ around: 'center' });
+
+
+        // var marker = new mapboxgl.Marker()
+        //     .setLngLat([30.5, 50.5])
+        //     .addTo(map);
+        // var popup = new mapboxgl.Popup()
+        //     .setLngLat([state_view.longitude, state_view.latitude])
+        //     .setHTML('<h1>I am Here</h1>')
+        //     .addTo(map)
+
+        // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
+    }
+
+    var offline = false
+    $(document).mouseleave(function (e) {
+        if (offline === false && canUpdateStatus === true) {
+            iamStatus(false)
+            offline = true
+        }
+    });
+    $(document).click(function (e) {
+        if(offline === true && canUpdateStatus === true){
+            iamStatus(true)
+            offline = false
+        }
+    });
+    $(document).mouseenter(function (e) {
+        if(offline === true && canUpdateStatus === true){
+            iamStatus(true)
+            offline = false
+        }
+    });
+
+    
+    function iamStatus(status) {
+        let nick = profileData['nickname']
+        let params = JSON.stringify({
+            search: {
+                nickname: nick
+            },
+            update: {
+                online: status,
+                lastSeen: Date.now(),
+                pos: { x: profileData['coords'][0], y: profileData['coords'][1]}
+            }
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/update/status', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] === "success") {
+
+                } else {
+                    console.log(response)
+                }
             }
         }
     }
 
-    function initGroups() {
-        let Http = new XMLHttpRequest();
-        Http.open("GET", url + 'group/allGroups', true);
-        Http.send();
+    function createGroup() {
+        var groupName = document.getElementById("groupName").value
+        if (groupName === "") {
+            alert("Insert a group name")
+            return
+        }
+        if (groupName.length > 20 || !groupName.match(/^[0-9a-zA-Z ]+$/)) {
+            alert("Only Alphanumerical, no space and max 20 length")
+            return
+        }
+        groupName = groupName.trim()
+        
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        let params = JSON.stringify({
+            name: groupName,
+            pos: { x: x, y: y }
+        })
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/create', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
-                let profiles = JSON.parse(Http.responseText)
-                profiles["groups"].forEach(function (element) {
-                    drawCoordinates(element.pos.x, element.pos.y, '#0000FF');
-                });
+            if (Http.readyState === 4 && Http.status === 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] === "success") {
+                    window.location.href = "http://localhost:3001/group?groupname=" + groupName
+                } else {
+                    console.log(response)
+                }
             }
         }
     }
 
-    function initQuestions() {
-        let Http = new XMLHttpRequest();
-        Http.open("GET", url + 'question/allQuestions', true);
-        Http.send();
+    var AllProfiles = []
+    function initProfiles(state_view) {
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        let params = JSON.stringify({
+            x: x, 
+            y: y, 
+            range: rangeView / 100,
+        })
+
+        let Http = new XMLHttpRequest()
+        Http.open("POST", url + 'profile/allProfiles', true)
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params)
         Http.onreadystatechange = (e) => {
-            if (Http.readyState == 4 && Http.status == 200) {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let profiles = JSON.parse(Http.responseText)
+                AllProfiles = profiles['profiles']
+
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
+            }
+        }
+    }
+
+    var Allgroups = []
+    function initGroups(state_view) {
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        let params = JSON.stringify({
+            x: x,
+            y: y,
+            range: rangeView / 100,
+        })
+
+        let Http = new XMLHttpRequest()
+        Http.open("POST", url + 'group/allGroups', true)
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params)
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let groups = JSON.parse(Http.responseText)
+                Allgroups = groups['groups']
+
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
+            }
+        }
+    }
+    
+
+    var AllQuestions = []
+    function initQuestions(state_view) {
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        let params = JSON.stringify({
+            x: x,
+            y: y,
+            range: rangeView / 100,
+        })
+
+        let Http = new XMLHttpRequest()
+        Http.open("POST", url + 'question/allQuestions', true)
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params)
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
                 let questions = JSON.parse(Http.responseText)
-                questions["questions"].forEach(function (element) {
-                    drawCoordinates(element.pos.x, element.pos.y, '#32CD32');
-                });
+                AllQuestions = questions['questions']
+
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
             }
         }
     }
+    
+    function getData(state_view){
+        CBviews = JSON.parse(sessionStorage.getItem("view"))
+        if (CBviews['groups'] === 1) {
+            initGroups(state_view)
+        }
+        else if (CBviews['questions'] === 1) {
+            initQuestions(state_view)
+        }
+        else if (CBviews['profiles'] === 1) {
+            initProfiles(state_view)
+        }
+        else {
+            window.location.href = "http://localhost:3001/login"
+        }
+    }
 
-    setTimeout(function () { 
-        if (CBview['CBgroups'] == 1) {
-            initGroups()
-        }
-        if (CBview['CBquestions'] == 1) {
-            initQuestions()
-        }
-        if (CBview['CBprofiles'] == 1) {
-            initProfiles()
-        }
-
-    }, 300);
+    $(document).ready(function () {
+        handlePermission()
+    })
 
 </script>
