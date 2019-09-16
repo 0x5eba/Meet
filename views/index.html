@@ -1040,13 +1040,25 @@
 
                 slider.destroy()
                 document.getElementById("ex5").setAttribute("data-slider-value", rangeView)
-                let sliderValueKm = rangeView * 1.3
-                sliderValueKm = sliderValueKm.toFixed(1)
+                let sliderValueKm
+                if(rangeView !== 99999999){
+                    sliderValueKm = rangeView * 1.3
+                    sliderValueKm = sliderValueKm.toFixed(1)
+                } else {
+                    sliderValueKm = "Everywhere"
+                }
+                
                 document.getElementById("ex6SliderVal").textContent = sliderValueKm
                 slider = new Slider('#ex5');
                 slider.on("slide", function (sliderValue) {
-                    sliderValueKm = 1.3 * sliderValue
-                    sliderValueKm = sliderValueKm.toFixed(1)
+                    if (sliderValue === 50) {
+                        sliderValue = 99999999
+                        sliderValueKm = "Everywhere"
+                    } else {
+                        sliderValueKm = rangeView * 1.3
+                        sliderValueKm = sliderValueKm.toFixed(1)
+                    }
+
                     document.getElementById("ex6SliderVal").textContent = sliderValueKm
                     rangeView = sliderValue
                 });
