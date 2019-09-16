@@ -527,7 +527,7 @@
                 if (response["confirmation"] === "success") {
                     response = response["data"]
 
-                    if (response != null && ("savedGroup" in response || "savedQuestion" in response)){
+                    if (response != null && ( ("savedGroup" in response && response["savedGroup"].length > 0) || ("savedQuestion" in response && response["savedQuestion"].length > 0) )){
                         let h2 = document.createElement("h2")
                         h2.innerHTML = "Bookmarks"
                         h2.setAttribute('id', 'titles')
