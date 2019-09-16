@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/heatmap-layer/max-vs.glsl.js"],"names":[],"mappings":"AAAA,eAAgB;;;;;;;;;;CAAhB","sourcesContent":["export default `\\\n#version 300 es\nin vec4 inTexture;\nout vec4 outTexture;\n\nvoid main()\n{\noutTexture = inTexture;\ngl_Position = vec4(0, 0, 0, 1.);\n}\n`;\n"],"file":"max-vs.glsl.js"}

@@ -1,0 +1,106 @@
+export default `\
+#define SHADER_NAME arc-layer-vertex-shader
+
+attribute vec3 positions;
+attribute vec4 instanceSourceColors;
+attribute vec4 instanceTargetColors;
+attribute vec4 instancePositions;
+attribute vec4 instancePositions64Low;
+attribute vec3 instancePickingColors;
+attribute float instanceWidths;
+attribute float instanceHeights;
+attribute float instanceTilts;
+
+uniform float numSegments;
+uniform float opacity;
+uniform float widthScale;
+uniform float widthMinPixels;
+uniform float widthMaxPixels;
+
+varying vec4 vColor;
+varying vec2 uv;
+
+float paraboloid(vec2 source, vec2 target, float ratio) {
+
+  vec2 x = mix(source, target, ratio);
+  vec2 center = mix(source, target, 0.5);
+
+  float dSourceCenter = distance(source, center);
+  float dXCenter = distance(x, center);
+  return (dSourceCenter + dXCenter) * (dSourceCenter - dXCenter);
+}
+
+// offset vector by strokeWidth pixels
+// offset_direction is -1 (left) or 1 (right)
+vec2 getExtrusionOffset(vec2 line_clipspace, float offset_direction, float width) {
+  // normalized direction of the line
+  vec2 dir_screenspace = normalize(line_clipspace * project_uViewportSize);
+  // rotate by 90 degrees
+  dir_screenspace = vec2(-dir_screenspace.y, dir_screenspace.x);
+
+  return dir_screenspace * offset_direction * width / 2.0;
+}
+
+float getSegmentRatio(float index) {
+  return smoothstep(0.0, 1.0, index / (numSegments - 1.0));
+}
+
+vec3 getPos(vec2 source, vec2 target, float segmentRatio) {
+  float vertexHeight = sqrt(max(0.0, paraboloid(source, target, segmentRatio))) * instanceHeights;
+
+  float tiltAngle = radians(instanceTilts);
+  vec2 tiltDirection = normalize(target - source);
+  vec2 tilt = vec2(-tiltDirection.y, tiltDirection.x) * vertexHeight * sin(tiltAngle);
+
+  return vec3(
+    mix(source, target, segmentRatio) + tilt,
+    vertexHeight * cos(tiltAngle)
+  );
+}
+
+void main(void) {
+  geometry.worldPosition = vec3(instancePositions.xy, 0.0);
+  geometry.worldPositionAlt = vec3(instancePositions.zw, 0.0);
+
+  vec2 source = project_position(geometry.worldPosition, instancePositions64Low.xy).xy;
+  vec2 target = project_position(geometry.worldPositionAlt, instancePositions64Low.zw).xy;
+
+  float segmentIndex = positions.x;
+  float segmentRatio = getSegmentRatio(segmentIndex);
+  // if it's the first point, use next - current as direction
+  // otherwise use current - prev
+  float indexDir = mix(-1.0, 1.0, step(segmentIndex, 0.0));
+  float nextSegmentRatio = getSegmentRatio(segmentIndex + indexDir);
+
+  vec3 currPos = getPos(source, target, segmentRatio);
+  vec3 nextPos = getPos(source, target, nextSegmentRatio);
+  vec4 curr = project_common_position_to_clipspace(vec4(currPos, 1.0));
+  vec4 next = project_common_position_to_clipspace(vec4(nextPos, 1.0));
+  geometry.position = vec4(currPos, 1.0);
+  uv = vec2(segmentRatio, positions.y);
+  geometry.uv = uv;
+
+  // Multiply out width and clamp to limits
+  // mercator pixels are interpreted as screen pixels
+  float widthPixels = clamp(
+    project_size_to_pixel(instanceWidths * widthScale),
+    widthMinPixels, widthMaxPixels
+  );
+
+  // extrude
+  vec3 offset = vec3(
+    getExtrusionOffset((next.xy - curr.xy) * indexDir, positions.y, widthPixels),
+    0.0);
+  DECKGL_FILTER_SIZE(offset, geometry);
+  gl_Position = curr + vec4(project_pixel_size_to_clipspace(offset.xy), 0.0, 0.0);
+  DECKGL_FILTER_GL_POSITION(gl_Position, geometry);
+
+  vec4 color = mix(instanceSourceColors, instanceTargetColors, segmentRatio);
+  vColor = vec4(color.rgb, color.a * opacity);
+  DECKGL_FILTER_COLOR(vColor, geometry);
+
+  // Set color to be rendered to picking fbo (also used to check for selection highlight).
+  picking_setPickingColor(instancePickingColors);
+}
+`;
+//# sourceMappingURL=arc-layer-vertex.glsl.js.map
