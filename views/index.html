@@ -29,11 +29,26 @@
 </head>
 
 <body>
-    <div>
+    <div id="no-gps" style="display: none; text-align:center; position: relative; width: 100%; height: 100%;">
+        <img src="NoGPS.png" width="100%" height="100%" style="filter: brightness(40%);">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%;">  
+            <h1 style="margin: 30px; color: white">Welcome!</h1>
+            <p style="margin: 10px; color: white">To use the map is necessary the access to your location</p>
+            <button style="margin: 20px; font-size: 16px; background-color: #008CBA; border-radius: 20px; color: white" 
+            type="button" class="btn" onclick="reloadPage()">Enable GPS and Reload
+            </button>
+            <br>
+            <button style="margin: 20px; margin-top: 0; font-size: 8px; border-radius: 20px; background-color: #e7e7e7; opacity: 0.5;" type="button" 
+                class="btn" onclick="withoutPosition()">Continue without GPS</button>
+        </div>
+    </div>
+
+    <div id="map_controller">
         <div id="map"></div>
         <!-- <canvas id="deck-canvas"></canvas> -->
         <div id="control-panel"></div>
     </div>
+
     <div id="myModal" class="modal">
         <div class="modal-content" id="modal-content">
             <span class="close">&times;</span>
@@ -45,39 +60,6 @@
                     <div class="searchbar">
                         <input class="search_input" type="text" placeholder="Search profiles/groups/questions" id="search_bar" autofocus>
                         <a href="#" class="search_icon" style="color:#e74c3c"><i class="fas fa-search"></i></a>
-                    </div>
-                </div>
-            </div>
-
-            <div id="no-gps" style="display: none;">
-                <h5 style="margin: 30px">You didn't activate the GPS or you didn't let the website access your location</h5>
-
-                <div class="card-deck">
-                    <div class="card text-white bg-success mb-3" style="max-width: 25rem;">
-                        <!-- <img class="card-img-top" src="#" alt="Card image cap"> -->
-                        <div class="card-body">
-                            <h5 class="card-title text-center">Activate the GPS</h5>
-                            <div class="card-text">
-                                Visit this <a href="https://www.lifewire.com/denying-access-to-your-location-4027789">page</a> to know how to enable access location.
-                                <br>
-                                Then reload the page.
-                            </div>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button type="button" class="btn btn-dark" onclick="reloadPage()">Reload page</button>
-                        </div>
-                    </div>
-                    <div class="card text-white bg-danger mb-3" style="max-width: 25rem;">
-                        <!-- <img class="card-img-top" src="#" alt="Card image cap"> -->
-                        <div class="card-body">
-                            <h5 class="card-title text-center">Continue without GPS</h5>
-                            <div class="card-text">
-                                Without GPS you can not create groups and questions
-                            </div>
-                        </div>
-                        <div class="card-footer text-center">
-                            <button type="button" class="btn btn-dark" onclick="withoutPosition()">Continue without GPS</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -591,15 +573,22 @@
                 longitude: 0,
                 zoom: 2,
                 bearing: 0,
-                pitch: 30
+                pitch: 20
             }
             profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
             sessionStorage.setItem("profile", JSON.stringify(profileData))
             getData(state_view)
         } else {
-            modal.style.display = "block"
+            let view = {
+                questions: 0,
+                groups: 1,
+                profiles: 0,
+            }
+            sessionStorage.setItem("view", JSON.stringify(view));
+            CBviews = view
 
-            document.getElementById("title-model").innerHTML = "No GPS found"
+            document.getElementById("map_controller").style.display = "none"
+
             document.getElementById("no-gps").style.display = "block"
         }   
     }
@@ -680,8 +669,7 @@
     }
 
     function setMap(state_view) {
-        if(CBviews['profiles'] === 1 && profileData['coords'] !== undefined && (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)){
-
+        if (CBviews['profiles'] === 1 && profileData['coords'] !== undefined && (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)) {
             // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
             let foundProfile = false
             for (let a = 0; a < AllProfiles.features.length; ++a) {
@@ -958,7 +946,8 @@
         mainDiv.append('button').attr("id", "btn-home")
             .on('click', d => {
                 if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
-
+                    document.getElementById("map_controller").style.display = "none"
+                    document.getElementById("no-gps").style.display = "block"
                 } else {
                     // deck.setProps({
                     //     viewState: {
@@ -982,7 +971,8 @@
         mainDiv.append('button').attr("id", "btn-group")
             .on('click', d => {
                 if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
-                    
+                    document.getElementById("map_controller").style.display = "none"
+                    document.getElementById("no-gps").style.display = "block"
                 } else {
                     modal.style.display = "block"
                     document.getElementById("title-model").innerHTML = "Create a group"
@@ -995,7 +985,8 @@
         mainDiv.append('button').attr("id", "btn-question")
             .on('click', d => {
                 if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
-
+                    document.getElementById("map_controller").style.display = "none"
+                    document.getElementById("no-gps").style.display = "block"
                 } else {
                     window.location.href = "http://localhost:3001/question"
                 }
