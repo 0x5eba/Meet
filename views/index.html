@@ -623,7 +623,11 @@
                 if (result.state === 'denied') {
                     noGPS()
                 } else {
-                    showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
+                    if(profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
+                        showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
+                    } else { // vuol dire che all'inizio ha bloccato, poi ha riacconsentito, e quindi e' ancora in [0, 0]
+                        navigator.geolocation.getCurrentPosition(showPosition, showError);
+                    }
                 }
             } else {
                 if (result.state === 'granted') {
@@ -676,7 +680,8 @@
     }
 
     function setMap(state_view) {
-        if(CBviews['profiles'] === 1){
+        if(CBviews['profiles'] === 1 && profileData['coords'] !== undefined && (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)){
+
             // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
             let foundProfile = false
             for (let a = 0; a < AllProfiles.features.length; ++a) {
