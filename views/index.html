@@ -579,13 +579,13 @@
             sessionStorage.setItem("profile", JSON.stringify(profileData))
             getData(state_view)
         } else {
-            let view = {
-                questions: 0,
-                groups: 1,
-                profiles: 0,
-            }
-            sessionStorage.setItem("view", JSON.stringify(view));
-            CBviews = view
+            // let view = {
+            //     questions: 0,
+            //     groups: 1,
+            //     profiles: 0,
+            // }
+            // sessionStorage.setItem("view", JSON.stringify(view));
+            // CBviews = view
 
             document.getElementById("map_controller").style.display = "none"
 
