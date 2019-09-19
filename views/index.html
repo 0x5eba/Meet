@@ -429,6 +429,12 @@
     }
 
     $("#search_bar").keyup(delay(function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+
         let search = $("#search_bar").val()
         if(search !== ""){
             resSearch.innerHTML = ""

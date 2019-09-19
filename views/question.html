@@ -29,6 +29,28 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" onclick="window.history.back();">
+            <img style="border-radius:50%;" src="/logo/Infinity Art iPhone Wallpaper.png" width="40" height="40"
+                class="d-inline-block align-top" alt="">
+        </a>
+    
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <button type="button" class="btn btn-info" onclick="saveQuestion();"
+                        style="border-radius:10px; margin: 10px; margin-left: 0px;">Save in
+                        Bookmarks</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
     <div id='askQuestion' style="display:none;">
         <div style="margin: 20px; width: 90%">
             <h2 style="text-align: center; margin: 30px">Ask a question</h2>
@@ -53,8 +75,6 @@
         <div style="overflow-wrap: break-word; margin-left: 70px">
             <h3 id="title_show" style="font-weight: bold; margin-top: 20px; margin-bottom: 10px;"></h3>
             <div id="details_show"></div></br>
-            <button type="button" class="btn btn-info" onclick="saveQuestion();" style="border-radius:10px; margin-top: 20px; margin-bottom: 10px">Save in
-                Bookmarks</button>
             <div id='creator' style="margin-bottom: 20px"></div>
         </div>
 

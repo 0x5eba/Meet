@@ -10,11 +10,11 @@ This is the website for you. Check this out [sebastienbiollo.com](https://sebast
 
 ### Features
 
-- [x] To see people near you (up to 60 km or everywhere) in a personalized map, if you want to make friends or meet new people
+- [x] See people near you (up to 60 km or everywhere) in a personalized map, if you want to make friends or meet new people
 - [x] Create chat groups to keep in touch with people who have the same interests as you
 - [x] Ask questions of any kinds
 - [ ] Being able to change your position in a place you want to visit
 
 ### Contribute
 
-I have done everything alone. Feel free to contact me if you would like to help me as back-end developer.
+I have done everything alone. Feel free to contact me if you would like to help me as back-end or front-end developer.
