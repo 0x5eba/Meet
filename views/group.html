@@ -486,7 +486,15 @@
         }
     }
 
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
+
     function filterInput(filter, chat, div){
+        if (chat === undefined || chat === null) {
+            return
+        }
+        filter = escapeRegExp(filter)
         for (let i = chat.length - 1; i >= 0; i--) {
             let element = chat[i]
             var myReg = new RegExp("\\b(" + filter + ")\\b", "gi");
