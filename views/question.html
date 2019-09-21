@@ -43,7 +43,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <button type="button" class="btn btn-info" onclick="saveQuestion();"
+                    <button type="button" id="buttonSaveQuestion" class="btn btn-info" onclick="saveQuestion();"
                         style="border-radius:10px; margin: 10px; margin-left: 0px;">Save in
                         Bookmarks</button>
                 </li>
@@ -206,6 +206,7 @@
     getEmoji()
     
     if (title === null) {
+        document.getElementById("buttonSaveQuestion").style.display = "none"
         $('#summernote').summernote(optionsEditor);
 
         document.getElementById("askQuestion").style.display = "block"

@@ -20,6 +20,25 @@ let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
+// const Cities = require("./models/Cities")
+// const Countries = require("./models/Countries")
+// const Languages = require("./models/Languages")
+
+// const cities = require('cities.json')
+// const countriesList = require('countries-list')
+// const countries = countriesList['countries']
+// const languages = countriesList['languagesAll']
+
+// const collections = Object.keys(db.collections)
+// if (!collections.includes('cities')){
+// 	Cities.insertMany(cities)
+// }
+// if (!collections.includes('Countries')) {
+// 	Countries.insertMany(countries)
+// }
+// if (!collections.includes('Languages')) {
+// 	Languages.insertMany(languages)
+// }
 
 const path = require('path');
 router.get('/', function (req, res) {

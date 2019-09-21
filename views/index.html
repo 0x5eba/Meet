@@ -66,6 +66,15 @@
 
             <div id="res-search"></div>
 
+            <div id="changePos" style="display: none;" class="text-center">
+                <h3 style="text-align: center; margin: 30px">Do you want to change your location?</h3>
+                <button type="button" class="btn btn-info" onclick="ContinueChangePos()"
+                    style="border-radius:10px; margin: 10px; margin-left: 0px;">Change location</button>
+                <button type="button" class="btn btn-secondary" onclick="backOriginalPos();"
+                    style="border-radius:10px; margin: 10px; margin-left: 0px;">Original location</button>
+            </div>
+            
+
             <div id='menu' style="display: none; margin: 3%">
                 <h3>Map themes</h3>
                 <div class="form-group">
@@ -190,7 +199,7 @@
         width: 45px;
     }
 
-    #btn-bookmark {
+    #btn-changePos {
         position: absolute;
         left: 10%;
         margin-left: -22px;
@@ -403,6 +412,7 @@
         document.getElementById("title-model").innerHTML = ""
         modal.style.display = "none"
         resSearch.style.display = "none"
+        document.getElementById("changePos").style.display = "none"
         document.getElementById("menu").style.display = "none"
         document.getElementById("search-icon").style.display = "none"
         document.getElementById("no-gps").style.display = "none"
@@ -648,6 +658,7 @@
             bearing: 0,
             pitch: 20,
         }
+        
         profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
         sessionStorage.setItem("profile", JSON.stringify(profileData))
         getData(state_view)
@@ -675,7 +686,40 @@
     }
 
     function setMap(state_view) {
-        if (CBviews['profiles'] === 1 && profileData['coords'] !== undefined && (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)) {
+        if(JSON.parse(sessionStorage.getItem("changePos")) !== null){
+            setMapChangePos()
+            return
+        }
+
+        if (profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0){
+            state_view.longitude = profileData['fakePos'][0]
+            state_view.latitude = profileData['fakePos'][1]
+            state_view.zoom = 8
+
+            if(CBviews['profiles'] === 1){
+                let foundProfile = false
+                for (let a = 0; a < AllProfiles.features.length; ++a) {
+                    if (AllProfiles.features[a].properties['nickname'] === profileData['nickname']) {
+                        AllProfiles.features[a].geometry['coordinates'] = [state_view.longitude, state_view.latitude]
+                        AllProfiles.features[a].properties['mag'] = 3.0
+                        foundProfile = true
+                        break;
+                    }
+                }
+                if (foundProfile === false) {
+                    let profile = {
+                        "type": "Feature",
+                        "properties": {
+                            'nickname': profileData['nickname'],
+                            "mag": 6.0
+                        },
+                        "geometry": { "type": "Point", "coordinates": profileData['fakePos'] }
+                    }
+                    AllProfiles.features.push(profile)
+                }
+            }
+        }
+        else if (CBviews['profiles'] === 1 && profileData['coords'] !== undefined && (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)) {
             // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
             let foundProfile = false
             for (let a = 0; a < AllProfiles.features.length; ++a) {
@@ -827,25 +871,25 @@
                 "minzoom": 7,
                 "paint": {
                     // Size circle radius by earthquake magnitude and zoom level
-                    "circle-radius": [
-                        "interpolate",
-                        ["linear"],
-                        ["zoom"],
-                        7, [
-                            "interpolate",
-                            ["linear"],
-                            ["get", "mag"],
-                            1, 1,
-                            6, 4
-                        ],
-                        16, [
-                            "interpolate",
-                            ["linear"],
-                            ["get", "mag"],
-                            1, 5,
-                            6, 50
-                        ]
-                    ],
+                    // "circle-radius": [
+                    //     "interpolate",
+                    //     ["linear"],
+                    //     ["zoom"],
+                    //     7, [
+                    //         "interpolate",
+                    //         ["linear"],
+                    //         ["get", "mag"],
+                    //         1, 1,
+                    //         6, 4
+                    //     ],
+                    //     16, [
+                    //         "interpolate",
+                    //         ["linear"],
+                    //         ["get", "mag"],
+                    //         1, 5,
+                    //         6, 50
+                    //     ]
+                    // ],
                     // Color circle by earthquake magnitude
                     "circle-color": [
                         "interpolate",
@@ -929,6 +973,12 @@
                 .setLngLat(profileData['coords'])
                 .addTo(map);
         }
+
+        if (profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0) {
+            new mapboxgl.Marker({ "color": "#b40219" })
+                .setLngLat(profileData['fakePos'])
+                .addTo(map);
+        }
         
         // const deck = new Deck({
         //     canvas: map.getCanvas(),
@@ -951,10 +1001,16 @@
         // home
         mainDiv.append('button').attr("id", "btn-home")
             .on('click', d => {
-                if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
+                if (profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0) {
+                    map.jumpTo({
+                        center: profileData['fakePos'],
+                        zoom: 12,
+                    })
+                }
+                else if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
                     document.getElementById("map_controller").style.display = "none"
                     document.getElementById("no-gps").style.display = "block"
-                } else {
+                } else if (profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
                     // deck.setProps({
                     //     viewState: {
                     //         longitude: state_view.longitude,
@@ -999,16 +1055,15 @@
             })
             .append("img").attr("src", "icons/iconfinder_social-80_2285232.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
-        // bookmark
-        // mainDiv.append('button').attr("id", "btn-bookmark")
-        //     .on('click', d => {
-        //         modal.style.display = "block"
-        //         resSearch.style.display = "block"
-        //         resSearch.innerHTML = ""
-        //         document.getElementById("title-model").innerHTML = "Bookmarks"
-        //         getSaved()
-        //     })
-        //     .append("img").attr("src", "icons/iconfinder_177_BookmarkUnused_183296.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+        // changePos
+        mainDiv.append('button').attr("id", "btn-changePos")
+            .on('click', d => {
+                modal.style.display = "block"
+                resSearch.style.display = "block"
+                changePos.style.display = "block"
+                document.getElementById("title-model").innerHTML = "Change location"
+            })
+            .append("img").attr("src", "icons/iconfinder_50_location_map_pointer_travel_4308078.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
         //setting
         mainDiv.append('button').attr("id", "btn-setting")
@@ -1116,6 +1171,92 @@
         // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
     }
 
+    function setMapChangePos() {
+        sessionStorage.removeItem("changePos")
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
+
+        let mapStyle = JSON.parse(sessionStorage.getItem("mapStyle"))
+        let optionsStreet = document.getElementById('mapStyles').getElementsByTagName('option')
+        let street = mapStyle['mapStyle'].split("/")
+        street = street[street.length - 1]
+        for (let a = 0; a < optionsStreet.length; ++a) {
+            if (optionsStreet[a].value === street) {
+                optionsStreet[a].selected = true
+                break;
+            }
+        }
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: mapStyle['mapStyle'],
+            zoom: 1,
+            bearing: 0,
+            pitch: 0,
+            attributionControl: false,
+        })
+        map.addControl(new mapboxgl.AttributionControl({
+            compact: true
+        }))
+        map.doubleClickZoom.enable();
+
+        map.on('mousemove', function (e) {
+            // map.getCanvas().style.cursor = "url('icons/iconfinder_17_Location_1815566.png'), auto"
+            map.getCanvas().style.cursor = "pointer"
+        });
+
+        map.on('click', function (e) {
+            let coords = e.lngLat   
+            let details = "<p style=\"margin-top: 10px;\">Do you want to go here?</p><button type=\"button\" class=\"btn btn-success\" onclick='setFakePos(" + coords['lng'] + "," + coords['lat'] + ")'>Yes</button>"
+
+            new mapboxgl.Popup()
+                .setLngLat(coords)
+                .setHTML(details)
+                .addTo(map);
+        });
+
+        if (profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0) {
+            new mapboxgl.Marker()
+                .setLngLat(profileData['coords'])
+                .addTo(map);
+        }
+    }
+
+    function setFakePos(x, y) {
+        let nick = profileData['nickname']
+        let fakepos = {
+            x: x,
+            y: y,
+        }
+        let params = JSON.stringify({
+            search: {
+                nickname: nick
+            },
+            update: {
+                fakePos: fakepos
+            }
+        })
+
+        profileData['fakePos'] = [x, y]
+        sessionStorage.setItem("profile", JSON.stringify(profileData))
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'profile/update', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] === "success") {
+                    reloadPage()
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+
     var offline = false
     $(document).mouseleave(function (e) {
         if (offline === false && canUpdateStatus === true) {
@@ -1151,7 +1292,7 @@
         })
 
         const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/update/status', true);
+        Http.open("POST", url + 'profile/update', true);
         Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
         Http.send(params);
         Http.onreadystatechange = (e) => {
@@ -1200,10 +1341,19 @@
         }
     }
 
+    function ContinueChangePos() {
+        sessionStorage.setItem("changePos", JSON.stringify({}))
+        window.location.reload()
+    }
+
+    function backOriginalPos() {
+        delete profileData['fakePos']
+        sessionStorage.setItem("profile", JSON.stringify(profileData))
+        window.location.reload()
+    }
+
     var AllProfiles = []
-    function initProfiles(state_view) {
-        let x = profileData['coords'][0]
-        let y = profileData['coords'][1]
+    function initProfiles(state_view, x, y) {
         let params = JSON.stringify({
             x: x, 
             y: y, 
@@ -1227,9 +1377,7 @@
     }
 
     var Allgroups = []
-    function initGroups(state_view) {
-        let x = profileData['coords'][0]
-        let y = profileData['coords'][1]
+    function initGroups(state_view, x, y) {
         let params = JSON.stringify({
             x: x,
             y: y,
@@ -1254,9 +1402,7 @@
     
 
     var AllQuestions = []
-    function initQuestions(state_view) {
-        let x = profileData['coords'][0]
-        let y = profileData['coords'][1]
+    function initQuestions(state_view, x, y) {
         let params = JSON.stringify({
             x: x,
             y: y,
@@ -1280,15 +1426,31 @@
     }
     
     function getData(state_view){
+        if(JSON.parse(sessionStorage.getItem("changePos")) !== null){
+            setMapChangePos()
+            return
+        }
+
+
+        // TODO non dovrei fare la request se profileData['coords'] = [0, 0]
+
+
+        let x = profileData['coords'][0]
+        let y = profileData['coords'][1]
+        if(profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0){
+            x = profileData['fakePos'][0]
+            y = profileData['fakePos'][1]
+        } 
+
         CBviews = JSON.parse(sessionStorage.getItem("view"))
         if (CBviews['groups'] === 1) {
-            initGroups(state_view)
+            initGroups(state_view, x, y)
         }
         else if (CBviews['questions'] === 1) {
-            initQuestions(state_view)
+            initQuestions(state_view, x, y)
         }
         else if (CBviews['profiles'] === 1) {
-            initProfiles(state_view)
+            initProfiles(state_view, x, y)
         }
         else {
             window.location.href = "http://localhost:3001/login"

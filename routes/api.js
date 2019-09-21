@@ -8,6 +8,8 @@ const Group = require("../models/Group")
 const GroupMessages = require("../models/GroupMessages")
 const Question = require("../models/Question")
 const Answer = require("../models/Answer")
+// const Cities = require("../models/Cities")
+
 
 function sha256(p) {
 	return crypto.createHash('sha256').update(p).digest('base64');
@@ -101,23 +103,6 @@ router.post('/profile/getSaved', (req, res) => {
 			})
 		})
 })
-
-// router.post('/profile/id', (req, res) => {
-// 	const id = req.body.id
-// 	Profile.findById(id)
-// 		.then(profile => {
-// 			res.json({
-// 				confirmation: 'success',
-// 				profile: profile,
-// 			})
-// 		})
-// 		.catch(err => {
-// 			res.json({
-// 				confirmation: 'fail',
-// 				message: err.message
-// 			})
-// 		})
-// })
 
 router.post('/profile/update', (req, res) => {
 	const nick = req.body.search.nickname
@@ -293,7 +278,7 @@ router.post('/profile/update/saved', (req, res) => {
 		})
 })
 
-router.post('/profile/update/status', (req, res) => {
+router.post('/profile/update', (req, res) => {
 	const query = req.body
 	const search = query.search
 	const update = query.update
@@ -919,6 +904,47 @@ router.post('/search/profile', (req, res) => {
 					})
 				})
 			}
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+
+/*************************
+*         CITIES         *
+**************************/
+
+router.post('/cities/allCities', (req, res) => {
+	let data = {
+		"type": "FeatureCollection",
+		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+		"features": []
+	}
+
+	Cities.find()
+		.then(cities => {
+			for (let i = 0; i < cities.length; ++i) {
+				// console.log(cities[i]['lng'], cities[i]['lat'])
+				let data2 = {
+					"type": "Feature",
+					"properties": {
+						'country': cities[i]['country'],
+						'name': cities[i]['name'],
+						"mag": 2.0
+					},
+					"geometry": { "type": "Point", "coordinates": [cities[i]['lng'], cities[i]['lat']] }
+				}
+				data.features.push(data2)
+			}
+
+			res.json({
+				confirmation: 'success',
+				cities: data,
+			})
 		})
 		.catch(err => {
 			res.json({
