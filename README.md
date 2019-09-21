@@ -17,4 +17,4 @@ This is the website for you. Check this out [sebastienbiollo.com](https://sebast
 
 ### Contribute
 
-I have done everything alone. Feel free to contact me if you would like to help me as back-end or front-end developer.
+I have done everything by my own. Feel free to contact me if you would like to help me as back-end or front-end developer.
