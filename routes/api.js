@@ -369,7 +369,7 @@ router.post('/group/create', (req, res) => {
 	const pos = req.body.pos
 	var continua = true
 
-	Group.find({ name: name, pos: pos })
+	Group.find({ name: name })
 		.then(group => {
 			if (group.length > 0) {
 				res.json({
@@ -582,19 +582,41 @@ router.get('/questions', (req, res) => {
 })
 
 router.post('/question/create', (req, res) => {
-	Question.create(req.body)
+	const title = req.body.title
+	let continua = true
+	Question.find({ title: title })
 		.then(question => {
-			res.json({
-				confirmation: 'success',
-				data: question,
-			})
+			if (question.length > 0) {
+				res.json({
+					confirmation: 'fail',
+					message: 'question ' + title + ' already exist'
+				})
+				continua = false
+			}
 		})
 		.catch(err => {
 			res.json({
 				confirmation: 'fail',
 				message: err.message
 			})
+			continua = false
 		})
+
+	if (continua === true) {
+		Question.create(req.body)
+			.then(question => {
+				res.json({
+					confirmation: 'success',
+					data: question,
+				})
+			})
+			.catch(err => {
+				res.json({
+					confirmation: 'fail',
+					message: err.message
+				})
+			})
+	}
 })
 
 router.post('/question/allQuestions', (req, res) => {
@@ -603,12 +625,14 @@ router.post('/question/allQuestions', (req, res) => {
 	const search_y = query.y
 	const range_search = Math.pow(query.range, 2)
 
+	var timestampNow = Date.now()
+
 	let data = {
 		"type": "FeatureCollection",
 		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 		"features": []
 	}
-	Question.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { _id: 0, title: 1, pos: 1 })
+	Question.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { _id: 0, title: 1, pos: 1, time: 1 })
 		.then(questions => {
 			for (let i = 0; i < questions.length; ++i) {
 				let x = questions[i]['pos']['x']
@@ -616,6 +640,9 @@ router.post('/question/allQuestions', (req, res) => {
 				
 				let notInsideCircle = (Math.pow(x - search_x, 2) + Math.pow(y - search_y, 2)) > range_search
 				if (notInsideCircle) continue
+
+				// 3600000 = 1000 * 60 * 60 
+				if (Math.floor((timestampNow - questions[i]['time']) / 3600000) > 24) continue
 
 				// https://stats.stackexchange.com/questions/281162/scale-a-number-between-a-range
 				// (6 - 2.5) * ((questions[i]['vote'] - 0) / (500 - 0)) + 2.5

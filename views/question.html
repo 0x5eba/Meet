@@ -60,9 +60,10 @@
             </div>
             </br>
 
-            <div id="summernote"></div>
+            <textarea maxlength="1000" id="summernote"></textarea>
 
             </br>
+            <p>The question expire after 24 hours, but you can still find it in the search bar</p>
             <button type="button" class="btn btn-outline-primary" onclick="return askQuestion();"
                 style="border-color: #1569C7">Create</button>
         </div>
@@ -93,6 +94,8 @@
     var nick = ""
     var title = currentUrl.searchParams.get("title");
     var question = {};
+
+    var coordToUse = "coords"
 
     var profileData;
     function session() {
@@ -126,13 +129,16 @@
             }
         }  
 
-        if (title === null && profileData['coords'] === undefined) {
-            window.location.href = "http://localhost:3001/"
+        if (title === null && profileData['fakePos'] === undefined) {
+            if(profileData['coords'] === undefined || (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0)){
+                window.location.href = "http://localhost:3001/"
+            } else { // vuol dire che non ha fakePos, ma ha coords
+                coordToUse = 'coords'
+            }
         }
-        if (title === null && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
-            window.location.href = "http://localhost:3001/"
+        if(title === null && profileData['fakePos'] !== undefined){
+            coordToUse = 'fakePos'
         }
-        
     }
     session()
 
@@ -141,6 +147,18 @@
         placeholder: 'Write : and a letter for emoji, example :smile',
         tabsize: 2,
         height: 300,
+        // callbacks: {
+        //     onKeydown: function (e) {
+        //         if(e['currentTarget']['innerText'].length > (title === null ? 1000 : 300)){
+        //             if (!(e.which == '8')) // del
+        //                 e.preventDefault();
+        //         }
+        //     },
+        //     onPaste: function (e) {
+        //         console.log(e)
+        //         console.log('Called event paste');
+        //     }
+        // },
         hint: {
             match: /:([\-+\w]+)$/,
             search: function (keyword, callback) {
@@ -283,8 +301,8 @@
         let d = document.createElement("div")
         let clearDetails = d.innerText.trim()
 
-        let x = profileData['coords'][0]
-        let y = profileData['coords'][1]
+        let x = profileData[coordToUse][0]
+        let y = profileData[coordToUse][1]
 
         let params = JSON.stringify({
             nickname: nick,
@@ -352,7 +370,7 @@
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["html"]
         let creator = document.getElementById("creator")
-        creator.innerHTML = "Created by <b>" + question['nickname'] + "</b>"
+        creator.innerHTML = "Created by <b> <a href='http://localhost:3001/profile?nickname=" + question["nickname"] + "'>" + question["nickname"] + "</a></b>"
     }
 
     function createDivAnswers(answers) {
@@ -367,7 +385,8 @@
         textarea.setAttribute("id", "mainAnswerEditor")
         textarea.setAttribute("level", 0)
         textarea.setAttribute("idParent", "root")
-        
+        textarea.setAttribute("maxlength", "300")
+
         let buttonEditorMainAnswer = document.createElement("button");
         buttonEditorMainAnswer.onclick = function () {
             let answer = $('#mainAnswerEditor').summernote('code')
@@ -611,7 +630,7 @@
         textDiv.setAttribute("class", "col-xs-11")
 
         let creator = document.createElement("p")
-        creator.innerHTML = "<b>" + element["nickname"] + "</b>"
+        creator.innerHTML = "<b><a href='http://localhost:3001/profile?nickname=" + element["nickname"] + "'>" + element["nickname"] + "</a></b>"
         let p = document.createElement("p")
         p.innerHTML = element["data"]
         let button = document.createElement("button")
@@ -633,6 +652,7 @@
             textarea.setAttribute("id", "answerEditor" + parenId)
             textarea.setAttribute("level", parentLevel + 1)
             textarea.setAttribute("idParent", parenId)
+            textarea.setAttribute("maxlength", "300")
 
             let buttonEditorMainAnswer = document.createElement("button");
             buttonEditorMainAnswer.onclick = function () {

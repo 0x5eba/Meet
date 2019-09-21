@@ -51,7 +51,7 @@
 
     <div id="myModal" class="modal">
         <div class="modal-content" id="modal-content">
-            <span class="close">&times;</span>
+            <span id="closeModal" class="close">&times;</span>
 
             <h1 id="title-model" style="text-align: center;"></h1>
 
@@ -67,7 +67,7 @@
             <div id="res-search"></div>
 
             <div id="changePos" style="display: none;" class="text-center">
-                <h3 style="text-align: center; margin: 30px">Do you want to change your location?</h3>
+                <h3 id="textChangePos" style="text-align: center; margin: 30px">You can change your location</h3>
                 <button type="button" class="btn btn-info" onclick="ContinueChangePos()"
                     style="border-radius:10px; margin: 10px; margin-left: 0px;">Change location</button>
                 <button type="button" class="btn btn-secondary" onclick="backOriginalPos();"
@@ -423,7 +423,7 @@
         }
     }
     
-    document.getElementsByClassName("close")[0].onclick = function () {
+    document.getElementById("closeModal").onclick = function () {
         closeMenu()
     }
 
@@ -618,7 +618,16 @@
         sessionStorage.setItem("profile", JSON.stringify(profileData))
 
         closeMenu()
-        reloadPage()
+
+        modal.style.display = "block"
+        resSearch.style.display = "block"
+        document.getElementById("changePos").style.display = "block"
+        document.getElementById("title-model").innerHTML = "New location"
+
+        document.getElementById("closeModal").onclick = function () {}
+        document.getElementById("closeModal").innerHTML = ""
+
+        document.getElementById("textChangePos").innerHTML = "You can select a location to stay temporarily"
     }
 
     function handlePermission() {
@@ -1009,8 +1018,8 @@
                     })
                 }
                 else if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
-                    document.getElementById("map_controller").style.display = "none"
-                    document.getElementById("no-gps").style.display = "block"
+                    // document.getElementById("map_controller").style.display = "none"
+                    // document.getElementById("no-gps").style.display = "block"
                 } else if (profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
                     // deck.setProps({
                     //     viewState: {
@@ -1034,8 +1043,8 @@
         mainDiv.append('button').attr("id", "btn-group")
             .on('click', d => {
                 if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
-                    document.getElementById("map_controller").style.display = "none"
-                    document.getElementById("no-gps").style.display = "block"
+                    // document.getElementById("map_controller").style.display = "none"
+                    // document.getElementById("no-gps").style.display = "block"
                 } else {
                     modal.style.display = "block"
                     document.getElementById("title-model").innerHTML = "Create a group"
@@ -1047,11 +1056,14 @@
         // quesiton
         mainDiv.append('button').attr("id", "btn-question")
             .on('click', d => {
-                if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
-                    document.getElementById("map_controller").style.display = "none"
-                    document.getElementById("no-gps").style.display = "block"
-                } else {
+                if(profileData['fakePos'] !== undefined){
                     window.location.href = "http://localhost:3001/question"
+                }
+                if (profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0) {
+                    window.location.href = "http://localhost:3001/question"
+                } else {
+                    // document.getElementById("map_controller").style.display = "none"
+                    // document.getElementById("no-gps").style.display = "block"
                 }
             })
             .append("img").attr("src", "icons/iconfinder_social-80_2285232.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
@@ -1061,7 +1073,7 @@
             .on('click', d => {
                 modal.style.display = "block"
                 resSearch.style.display = "block"
-                changePos.style.display = "block"
+                document.getElementById("changePos").style.display = "block"
                 document.getElementById("title-model").innerHTML = "Change location"
             })
             .append("img").attr("src", "icons/iconfinder_50_location_map_pointer_travel_4308078.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
@@ -1098,24 +1110,14 @@
 
                 slider.destroy()
                 document.getElementById("ex5").setAttribute("data-slider-value", rangeView)
-                let sliderValueKm
-                if(rangeView !== 99999999){
-                    sliderValueKm = rangeView * 1.3
-                    sliderValueKm = sliderValueKm.toFixed(1)
-                } else {
-                    sliderValueKm = "Everywhere"
-                }
+                sliderValueKm = rangeView * 1.3
+                sliderValueKm = sliderValueKm.toFixed(1)
                 
                 document.getElementById("ex6SliderVal").textContent = sliderValueKm
                 slider = new Slider('#ex5');
                 slider.on("slide", function (sliderValue) {
-                    if (sliderValue === 50) {
-                        sliderValue = 99999999
-                        sliderValueKm = "Everywhere"
-                    } else {
-                        sliderValueKm = rangeView * 1.3
-                        sliderValueKm = sliderValueKm.toFixed(1)
-                    }
+                    sliderValueKm = rangeView * 1.3
+                    sliderValueKm = sliderValueKm.toFixed(1)
 
                     document.getElementById("ex6SliderVal").textContent = sliderValueKm
                     rangeView = sliderValue
