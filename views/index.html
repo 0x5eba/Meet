@@ -582,8 +582,32 @@
         }
     }
 
+    var infoIP
     function noGPS(){
         if(profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0){
+
+            /*
+            let Http = new XMLHttpRequest();
+            Http.open("GET", 'http://ip-api.com/json', true);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+                if (Http.readyState === 4 && Http.status === 200) {
+                    infoIP = JSON.parse(Http.responseText)
+
+                    const state_view = {
+                        latitude: infoIP['lat'],
+                        longitude: infoIP['lon'],
+                        zoom: 7,
+                        bearing: 0,
+                        pitch: 20
+                    }
+
+                    profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
+                    sessionStorage.setItem("profile", JSON.stringify(profileData))
+                    getData(state_view)
+                }
+            }*/
+
             const state_view = {
                 latitude: 0,
                 longitude: 0,
@@ -591,9 +615,11 @@
                 bearing: 0,
                 pitch: 20
             }
+
             profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
             sessionStorage.setItem("profile", JSON.stringify(profileData))
             getData(state_view)
+
         } else {
             // let view = {
             //     questions: 0,
@@ -619,15 +645,17 @@
 
         closeMenu()
 
-        modal.style.display = "block"
-        resSearch.style.display = "block"
-        document.getElementById("changePos").style.display = "block"
-        document.getElementById("title-model").innerHTML = "New location"
+        reloadPage()
 
-        document.getElementById("closeModal").onclick = function () {}
-        document.getElementById("closeModal").innerHTML = ""
+        // modal.style.display = "block"
+        // resSearch.style.display = "block"
+        // document.getElementById("changePos").style.display = "block"
+        // document.getElementById("title-model").innerHTML = "New location"
 
-        document.getElementById("textChangePos").innerHTML = "You can select a location to stay temporarily"
+        // document.getElementById("closeModal").onclick = function () {}
+        // document.getElementById("closeModal").innerHTML = ""
+
+        // document.getElementById("textChangePos").innerHTML = "You can select a location to stay temporarily"
     }
 
     function handlePermission() {
@@ -1072,7 +1100,6 @@
         mainDiv.append('button').attr("id", "btn-changePos")
             .on('click', d => {
                 modal.style.display = "block"
-                resSearch.style.display = "block"
                 document.getElementById("changePos").style.display = "block"
                 document.getElementById("title-model").innerHTML = "Change location"
             })
