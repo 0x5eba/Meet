@@ -537,7 +537,7 @@ router.post('/group/showOnMap', (req, res) => {
 								'nickname': subs[a],
 								'name': profile['name'],
 								'surname': profile['surname'],
-								"mag": 2.0
+								"mag": 1.0
 							},
 							"geometry": { "type": "Point", "coordinates": [x, y] }
 						}

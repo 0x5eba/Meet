@@ -1401,6 +1401,8 @@
                 if (response["confirmation"] === "success") {
                     AllProfiles = response['subscribers']
 
+                    sessionStorage.removeItem("showSubscribers");
+
                     canUpdateStatus = true
                     setMap(state_view)
                     iamStatus(true)
