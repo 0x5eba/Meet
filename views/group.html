@@ -21,6 +21,7 @@
         <a class="navbar-brand" onclick="window.location.href='http://localhost:3001/'">
             <img style="border-radius:50%;" src="/logo/Infinity Art iPhone Wallpaper.png" width="40" height="40" class="d-inline-block align-top" alt="">
         </a>
+        <button type="button" class="btn btn-warning" onclick="showSubscribers();" style="border-radius:10px; margin-right: 10px;">Subscribers on map</button>
         
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -390,6 +391,11 @@
                 }
             }
         }
+    }
+
+    function showSubscribers() {
+        sessionStorage.setItem("showSubscribers", JSON.stringify({ groupName: groupName }))
+        window.location.href = "http://localhost:3001/"
     }
 
     function saveGroup(){

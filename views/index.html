@@ -932,11 +932,15 @@
                         "interpolate",
                         ["linear"],
                         ["get", "mag"],
-                        1, "rgba(33,102,172,0)",
+                        // 1, "rgba(33,102,172,0)",
+                        // 2, "rgb(103,169,207)",
+                        // 3, "rgb(209,229,240)",
+                        // 4, "rgb(253,219,199)",
+                        // 5, "rgb(239,138,98)",
+                        // 6, "rgb(178,24,43)"
+
+                        1, "rgb(46, 204, 113)",
                         2, "rgb(103,169,207)",
-                        3, "rgb(209,229,240)",
-                        4, "rgb(253,219,199)",
-                        5, "rgb(239,138,98)",
                         6, "rgb(178,24,43)"
                     ],
                     "circle-stroke-color": "white",
@@ -1381,6 +1385,32 @@
         }
     }
 
+    function showSubscribers(state_view) {
+        let groupName = JSON.parse(sessionStorage.getItem("showSubscribers"))['groupName']
+        let params = JSON.stringify({
+            name: groupName,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/showOnMap', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] === "success") {
+                    AllProfiles = response['subscribers']
+
+                    canUpdateStatus = true
+                    setMap(state_view)
+                    iamStatus(true)
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
     function ContinueChangePos() {
         sessionStorage.setItem("changePos", JSON.stringify({}))
         window.location.reload()
@@ -1466,8 +1496,22 @@
     }
     
     function getData(state_view){
+        CBviews = JSON.parse(sessionStorage.getItem("view"))
+
         if(JSON.parse(sessionStorage.getItem("changePos")) !== null){
             setMapChangePos()
+            return
+        }
+
+        if(JSON.parse(sessionStorage.getItem("showSubscribers")) !== null){
+            let view = {
+                questions: 0,
+                groups: 0,
+                profiles: 1,
+            }
+            CBviews = view
+            sessionStorage.setItem("view", JSON.stringify(view));
+            showSubscribers(state_view)
             return
         }
 
@@ -1481,8 +1525,7 @@
             x = profileData['fakePos'][0]
             y = profileData['fakePos'][1]
         } 
-
-        CBviews = JSON.parse(sessionStorage.getItem("view"))
+        
         if (CBviews['groups'] === 1) {
             initGroups(state_view, x, y)
         }

@@ -509,6 +509,64 @@ router.post('/group/updateSub', (req, res) => {
 		})
 })
 
+router.post('/group/showOnMap', (req, res) => {
+	const query = req.body
+	const groupname = query.name
+
+	let data = {
+		"type": "FeatureCollection",
+		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+		"features": []
+	}
+
+	Group.findOne({ name: groupname }, { subscribers: 1 })
+		.then(group => {
+			var subs = group['subscribers']
+
+			var prom1 = new Promise(function (resolve, reject) {
+				if (subs.length === 0) {
+					resolve()
+				}
+				for (let a = 0; a < subs.length; ++a) {
+					Profile.findOne({ nickname: subs[a], 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { pos: 1 }).then(profile => {
+						let x = profile['pos']['x']
+						let y = profile['pos']['y']
+						let data2 = {
+							"type": "Feature",
+							"properties": {
+								'nickname': subs[a],
+								'name': profile['name'],
+								'surname': profile['surname'],
+								"mag": 2.0
+							},
+							"geometry": { "type": "Point", "coordinates": [x, y] }
+						}
+						data.features.push(data2)
+						resolve();
+					})
+					.catch(err => {
+						console.log(err);
+					})
+				}
+			})
+
+			var promisesArray = [prom1];
+			Promise.all(promisesArray).then(values => {
+				res.json({
+					confirmation: 'success',
+					subscribers: data,
+				})
+			})
+
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 
 /*************************
 *     GROUP MESSAGES     *
