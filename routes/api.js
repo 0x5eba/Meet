@@ -464,6 +464,51 @@ router.post('/group/nOnline', (req, res) => {
 		})
 })
 
+router.post('/group/subscribe', (req, res) => {
+	const namegroup = req.body.name
+	const nickname = req.body.nick
+
+	Group.find({ name: namegroup, subscribers: { $in: [nickname] }})
+		.then(isSub => {
+			if (isSub.length > 0){
+				res.json({
+					confirmation: 'success',
+					data: "isSub",
+				})
+			} else {
+				res.json({
+					confirmation: 'success',
+					data: "isNotSub",
+				})
+			}
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
+router.post('/group/updateSub', (req, res) => {
+	const query = req.body
+	const nick = query.nick
+	const groupname = query.name
+
+	Group.updateOne({ name: groupname }, { $addToSet: { subscribers: nick } })
+		.then(group => {
+			res.json({
+				confirmation: 'success',
+			})
+		})
+		.catch(err => {
+			res.json({
+				confirmation: 'fail',
+				message: err.message
+			})
+		})
+})
+
 
 /*************************
 *     GROUP MESSAGES     *

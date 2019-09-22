@@ -18,7 +18,7 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" onclick="window.history.back();">
+        <a class="navbar-brand" onclick="window.location.href='http://localhost:3001/'">
             <img style="border-radius:50%;" src="/logo/Infinity Art iPhone Wallpaper.png" width="40" height="40" class="d-inline-block align-top" alt="">
         </a>
         
@@ -33,7 +33,7 @@
                     <button type="button" class="btn btn-info" onclick="saveGroup();" style="border-radius:10px;">Save in Bookmarks</button>
                 </li>
             </ul>
-            <input id="search_bar" type="search" placeholder="Search" aria-label="Search" style="border-radius:20px; margin: 10px; margin-left: 0;">
+            <input id="search_bar" type="search" placeholder="Search words" aria-label="Search" style="border-radius:20px; margin: 10px; margin-left: 0;">
         </div>
     </nav>
 
@@ -47,12 +47,14 @@
 
     <div id='showGroup' style="display:none;">
         <main>
-            <a href="javascript:void(0)" class="user-count" id="user-count" onclick="updatePeopleOnline(); openNav();">0</a>
+            <a href="javascript:void(0)" class="user-count" id="user-count" onclick="updatePeopleOnline();">0</a>
             <h3 id="nameGroup" style="margin: 10px; margin-left: 0px; overflow-wrap: break-word;"></h3>
 
             <section class="chat" id='chat'></section>
 
-            <textarea name="text" id="write" placeholder="Write something" wrap="soft"></textarea>
+            <button id="btnSubscribe" type="button" class="btn btn-info" onclick="subscribe()" style="display: none">Subscribe</button>
+
+            <textarea name="text" id="write" placeholder="Write something" wrap="soft" style="display: none"></textarea>
 
             <!-- <input type="text" id="write" placeholder="Write something"  style="border: 1px solid black; border-radius:10px;"/> -->
         </main>
@@ -140,6 +142,18 @@
         border-radius:10px;
     }
 
+    #btnSubscribe {
+        width: 100%;
+        font: inherit;
+        border: none;
+        margin-top: 20px;
+        padding: 10px 10px;
+        box-sizing: border-box;
+        transition: all .3s ease;
+        resize:none;
+        border-radius:10px;
+    }
+
     /* @media all and (min-width: 500px) {
         .chat {
             height: calc(100vh - 140px);
@@ -153,7 +167,7 @@
         /* Stay in place */
         z-index: 1;
         /* Sit on top */
-        padding-top: 100px;
+        padding-top: 5%;
         /* Location of the box */
         left: 0;
         top: 0;
@@ -166,9 +180,9 @@
     }
 
     .modal-content {
-        left: 10%;
-        width: 80%;
-        height: 80%;
+        left: 5%;
+        width: 90%;
+        height: 90%;
         border: 1px solid #888;
         background-color: #fefefe;
         padding: 20px;
@@ -249,11 +263,10 @@
     if (groupName === null) {
 
     } else {
-        var write = document.getElementById("write");
+        checkIfSubscribed()
         
         document.getElementById("nameGroup").innerHTML = groupName
         document.getElementById("showGroup").style.display = "block"
-        // window.history.replaceState(null, null, window.location.pathname);
 
         iamOnline()
         loadMoreMessages(groupName)
@@ -294,8 +307,38 @@
                 writeMessages(answersChat, chat)
             }
         }, 400))
-        
+    }
 
+    function checkIfSubscribed() {
+        let params = JSON.stringify({
+            name: groupName,
+            nick: nick,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/subscribe', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] === "success") {
+                    if(response['data'] !== null && response['data'] === "isSub"){
+                        showWrite()
+                    } else {
+                        document.getElementById("btnSubscribe").style.display = "block"
+                    }
+                } else {
+                    console.log(response)
+                }
+            }
+        }
+    }
+
+    function showWrite() {
+        document.getElementById("btnSubscribe").style.display = "none"
+        let write = document.getElementById("write")
+        write.style.display = "block"
         write.addEventListener("keyup", function (event) {
             if (event.keyCode === 13) {
 
@@ -325,6 +368,28 @@
                 write.value = ""
             }
         });
+    }
+
+    function subscribe() {
+        let params = JSON.stringify({
+            name: groupName,
+            nick: nick,
+        })
+
+        const Http = new XMLHttpRequest();
+        Http.open("POST", url + 'group/updateSub', true);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        Http.send(params);
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState === 4 && Http.status === 200) {
+                let response = JSON.parse(Http.responseText)
+                if (response["confirmation"] === "success") {
+                    showWrite()
+                } else {
+                    console.log(response)
+                }
+            }
+        }
     }
 
     function saveGroup(){
@@ -568,6 +633,8 @@
                 } else {
                     console.log(response)
                 }
+
+                openNav();
             }
         }
     }
@@ -585,7 +652,6 @@
                 let response = JSON.parse(Http.responseText)
 
                 if (response["confirmation"] === "success") {
-                    console.log("nOnline", response)
                     document.getElementById("user-count").innerHTML = response["nOnline"][0]["nOnline"]
                 } else {
                     console.log(response)

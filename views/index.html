@@ -907,7 +907,6 @@
                 "source": "earthquakes",
                 "minzoom": 7,
                 "paint": {
-                    // "circle-radius": 7,
                     // Size circle radius by earthquake magnitude and zoom level
                     "circle-radius": [
                         "interpolate",
@@ -924,8 +923,8 @@
                             "interpolate",
                             ["linear"],
                             ["get", "mag"],
-                            1, 10,
-                            6, 10
+                            1, 8,
+                            6, 8
                         ]
                     ],
                     // Color circle by earthquake magnitude
@@ -1006,15 +1005,26 @@
             map.getCanvas().style.cursor = '';
         })
 
+        var html = '<div class="marker-popup">I am a custom pop-up</div>';
+        var customPopUp = new mapboxgl.Popup(
+            {
+                anchor: 'bottom',   // To show popup on top
+                offset: { 'bottom': [0, -10] },  // To prevent popup from over shadowing the marker.
+                closeOnClick: false   // To prevent close on mapClick.
+            }
+        ).setHTML(html);
+
         if(profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
             new mapboxgl.Marker()
                 .setLngLat(profileData['coords'])
+                // .setPopup(customPopUp)
                 .addTo(map);
         }
 
         if (profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0) {
             new mapboxgl.Marker({ "color": "#b40219" })
                 .setLngLat(profileData['fakePos'])
+                // .setPopup(customPopUp)
                 .addTo(map);
         }
         

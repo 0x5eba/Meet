@@ -8,6 +8,7 @@ const Group = new mongoose.Schema({
     
     pos: { x: { type: SchemaTypes.Double, require: true, default: 0 }, y: { type: SchemaTypes.Double, require: true, default: 0 }},
     peopleOnline: { type: [String], default: [] },
+    subscribers: { type: [String], default: [] },
 })
 
 Group.index({
