@@ -14,6 +14,9 @@ const Answer = require("../models/Answer")
 function sha256(p) {
 	return crypto.createHash('sha256').update(p).digest('base64');
 }
+function escapeRegExp(string) {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
 
 /*************************
 *       PROFILES         *
@@ -947,6 +950,8 @@ router.post('/answer/updateVote', (req, res) => {
 
 router.post('/search/question', (req, res) => {
 	const search = req.body.search
+	search = escapeRegExp(search)
+
 	// .sort({ "score": { "$meta": "textScore" }, vote: 'desc', time: 'desc', views: 'desc'})
 	// Question.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
 	// 	"score": { "$meta": "textScore" }
@@ -974,6 +979,8 @@ router.post('/search/question', (req, res) => {
 
 router.post('/search/group', (req, res) => {
 	const search = req.body.search
+	search = escapeRegExp(search)
+
 	// Group.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
 	// 	"score": { "$meta": "textScore" }
 	// })
@@ -995,6 +1002,8 @@ router.post('/search/group', (req, res) => {
 
 router.post('/search/profile', (req, res) => {
 	const search = req.body.search
+	search = escapeRegExp(search)
+
 	// Profile.find({ "$text": { "$search": search } }, { "score": { "$meta": "textScore" } }).sort({
 	// 	"score": { "$meta": "textScore" }
 	// })
