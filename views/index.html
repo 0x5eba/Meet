@@ -273,7 +273,7 @@
     .modal {
         position: absolute;
         display: none;
-        position: fixed;
+        /* position: fixed; */
         /* Stay in place */
         z-index: 1;
         /* Sit on top */
@@ -290,9 +290,17 @@
     }
 
     .modal-content {
-        left: 5%;
+        display: inline-block;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
         width: 90%;
-        height: 90%;
+        height: 90%; 
+        max-width: 700px;
+        max-height: 90%;
         border: 1px solid #888;
         background-color: #fefefe;
         padding: 20px;
