@@ -30,7 +30,7 @@ app.use(express.static(__dirname + '/public/'));
 
 const api = require('./routes/api')
 
-const dbRoute = 'mongodb://localhost:27017/meet';
+const dbRoute = 'mongodb://localhost:27017/test';
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false);
 mongoose.connect(dbRoute, { useNewUrlParser: true });
