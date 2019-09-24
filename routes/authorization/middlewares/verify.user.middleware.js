@@ -25,20 +25,19 @@ exports.hasAuthValidFields = (req, res, next) => {
 exports.isPasswordAndUserMatch = (req, res, next) => {
     UserModel.findByNickname(req.body.nickname)
         .then((user)=>{
-            if(!user[0]){
+            console.log(user)
+            if (!user){
                 res.status(404).send({});
-            } else if(user.length > 1){
-                res.status(403).send({ errors: ['Nickname already token']});
-            } else{
-                let passwordFields = user[0].password.split('$');
+            } else {
+                let passwordFields = user.password.split('$');
                 let salt = passwordFields[0];
                 let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
                 if (hash === passwordFields[1]) {
                     req.body = {
-                        userId: user[0]._id,
-                        nickname: user[0].nickname,
-                        permissionLevel: user[0].permissionLevel,
-                        name: user[0].firstName + ' ' + user[0].lastName,
+                        userId: user._id,
+                        nickname: user.nickname,
+                        permissionLevel: user.permissionLevel,
+                        name: user.firstName + ' ' + user.lastName,
                     };
                     return next();
                 } else {

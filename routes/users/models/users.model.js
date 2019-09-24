@@ -1,7 +1,6 @@
-const mongoose = require('../../common/services/mongoose.service').mongoose;
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
     nickname: String,
@@ -9,33 +8,16 @@ const userSchema = new Schema({
     permissionLevel: Number
 });
 
-userSchema.virtual('id').get(function () {
-    return this._id.toHexString();
-});
-
-// Ensure virtual fields are serialised.
-userSchema.set('toJSON', {
-    virtuals: true
-});
-
-userSchema.findById = function (cb) {
-    return this.model('Users').find({id: this.id}, cb);
-};
-
 const User = mongoose.model('Users', userSchema);
 
-
 exports.findByNickname = (nickname) => {
-    return User.find({ nickname: nickname});
+    return User.findOne({ nickname: nickname});
 };
 
 exports.findById = (id) => {
-    return User.findById(id)
+    return User.findById(id, { password: 0, permissionLevel: 0 })
         .then((result) => {
-            result = result.toJSON();
-            delete result._id;
-            delete result.__v;
-            return result;
+            return result.toJSON();
         });
 };
 
@@ -44,11 +26,9 @@ exports.createUser = (userData) => {
     return user.save();
 };
 
-exports.list = (perPage, page) => {
+exports.list = () => {
     return new Promise((resolve, reject) => {
-        User.find()
-            // .limit(perPage)
-            // .skip(perPage * page)
+        User.find({}, { password: 0, permissionLevel: 0 })
             .exec(function (err, users) {
                 if (err) {
                     reject(err);
@@ -64,7 +44,7 @@ exports.patchUser = (id, userData) => {
         User.findById(id, function (err, user) {
             if (err) reject(err);
             for (let i in userData) {
-                if (i in ['firstName', 'lastName', 'password']){
+                if (['firstName', 'lastName', 'password'].includes(i)){
                     user[i] = userData[i];
                 }
             }

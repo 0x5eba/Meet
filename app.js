@@ -8,11 +8,29 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public/'));
 // app.use(bodyParser.urlencoded({ extended: false }));
 
+// const AuthorizationRouter = require('./routes/authorization/routes.config');
+// const UsersRouter = require('./routes/users/routes.config');
+
+// app.use(function (req, res, next) {
+// 	res.header('Access-Control-Allow-Origin', '*');
+// 	res.header('Access-Control-Allow-Credentials', 'true');
+// 	res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+// 	res.header('Access-Control-Expose-Headers', 'Content-Length');
+// 	res.header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, X-Requested-With, Range');
+// 	if (req.method === 'OPTIONS') {
+// 		return res.send(200);
+// 	} else {
+// 		return next();
+// 	}
+// });
+
+// AuthorizationRouter.routesConfig(app);
+// UsersRouter.routesConfig(app);
 
 
 const api = require('./routes/api')
 
-const dbRoute = 'mongodb://localhost:27017/test';
+const dbRoute = 'mongodb://localhost:27017/meet';
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false);
 mongoose.connect(dbRoute, { useNewUrlParser: true });
@@ -59,11 +77,10 @@ router.get('/group', function (req, res) {
 router.get('/profile', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/profile.html'));
 });
-router.get('/chat', function (req, res) {
-	res.sendFile(path.join(__dirname + '/views/chat.html'));
-});
+// router.get('/chat', function (req, res) {
+// 	res.sendFile(path.join(__dirname + '/views/chat.html'));
+// });
 
-const fs = require('fs');
 /*
 const FroalaEditor = require(path.join(__dirname + '/public/wysiwyg-editor-node-sdk/lib/froalaEditor.js'));
 router.post('/upload_image', function (req, res) {
@@ -107,7 +124,7 @@ router.post('/delete_file', function (req, res) {
 app.use('/', router)
 app.use('/api', api) // sample API Routes
 
-
+const fs = require('fs');
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 app.listen(process.env.PORT || config.port, config.ip, () => {
