@@ -24,7 +24,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-
 </head>
 
 <body>
@@ -170,34 +169,17 @@
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
     
-    var profileData;
+    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var profileData = JSON.parse(localStorage.getItem("profile"))
+        
     function session(){
-        profileData = JSON.parse(sessionStorage.getItem("profile"))
-        if(profileData === null){
-            window.location.href = "http://localhost:3001/"
-        } else if(profileData['nickname'] === null || profileData['password'] === null){
-            window.location.href = "http://localhost:3001/"
-        }
-        let params = JSON.stringify({
-            nickname: profileData['nickname'],
-            password: profileData['password'],
-        })
-
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/login', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    if(response['data'] === null){
-                        window.location.href = "http://localhost:3001/"
-                    }
-                } else {
-                    window.location.href = "http://localhost:3001/"
-                }
+        if (authToken === null) {
+            let auth = JSON.parse(localStorage.getItem("auth"))
+            if (authToken === null) {
+                window.location.href = "http://localhost:3001/login"
             }
+            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
+            authToken = JSON.parse(sessionStorage.getItem("authToken"))
         }
     }
     session()
@@ -224,37 +206,38 @@
         return time;
     }
 
-
     function getProfile(nickname) {
         let params = JSON.stringify({
             nickname: nickname,
         })
+        $.ajax({
+            url: url + 'profile/nickname',
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'GET',
+            dataType: 'json',
+            data: params,
+            success: (profile) => {
 
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/nickname', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    let profile = response["data"]
-                    document.getElementById("nickname").innerHTML = profile["nickname"]
-                    document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
-                    document.getElementById("bio").innerHTML = profile["bio"]
-                    document.getElementById("position").onclick = function(){
-                        sessionStorage.setItem("showOnMapProfile", JSON.stringify({x: profile["pos"].x, y: profile["pos"].y}))
-                        window.location.href = "http://localhost:3001/"
-                    }
-                    if(profile["online"] === true){
-                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
-                    } else {
-                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + timeConverter(profile["lastSeen"])
-                    }
-                } else {
-                    console.log(response)
+                document.getElementById("nickname").innerHTML = profile["nickname"]
+                document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
+                document.getElementById("bio").innerHTML = profile["bio"]
+                document.getElementById("position").onclick = function () {
+                    sessionStorage.setItem("showOnMapProfile", JSON.stringify({ x: profile["pos"].x, y: profile["pos"].y }))
+                    window.location.href = "http://localhost:3001/"
                 }
+                if (profile["online"] === true) {
+                    document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
+                } else {
+                    document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + timeConverter(profile["lastSeen"])
+                }
+
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 </script>

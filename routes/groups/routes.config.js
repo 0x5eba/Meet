@@ -1,4 +1,4 @@
-const UsersController = require('./controllers/users.controller');
+const GroupController = require('./groups.controller');
 const PermissionMiddleware = require('../common/middlewares/auth.permission.middleware');
 const ValidationMiddleware = require('../common/middlewares/auth.validation.middleware');
 const config = require('../common/config/env.config');
@@ -7,30 +7,36 @@ const ADMIN = config.permissionLevels.ADMIN;
 const FREE = config.permissionLevels.NORMAL_USER;
 
 exports.routesConfig = function (app) {
-    app.post('/users', [
-        UsersController.uniqueNickname,
-        UsersController.insert
+    app.post('/api/groups/create', [
+        GroupController.uniqueName,
+        GroupController.insert
     ]);
-    app.get('/users', [
+    app.get('/api/groups', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
-        UsersController.list
+        GroupController.list
     ]);
-    app.get('/users/:userId', [
+    app.get('/api/group/:groupId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        // PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        GroupController.getById
+    ]);
+    app.patch('/api/group/:groupId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
-        UsersController.getById
+        GroupController.patchById
     ]);
-    app.patch('/users/:userId', [
-        ValidationMiddleware.validJWTNeeded,
-        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
-        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
-        UsersController.patchById
-    ]);
-    app.delete('/users/:userId', [
+    app.delete('/api/group/:groupId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
-        UsersController.removeById
+        GroupController.removeById
+    ]);
+
+    app.post('/api/group/allGroups', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.allGroups
     ]);
 };

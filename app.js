@@ -8,29 +8,27 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public/'));
 // app.use(bodyParser.urlencoded({ extended: false }));
 
-// const AuthorizationRouter = require('./routes/authorization/routes.config');
-// const UsersRouter = require('./routes/users/routes.config');
+const AuthorizationRouter = require('./routes/authorization/routes.config');
+const UsersRouter = require('./routes/profiles/routes.config');
 
-// app.use(function (req, res, next) {
-// 	res.header('Access-Control-Allow-Origin', '*');
-// 	res.header('Access-Control-Allow-Credentials', 'true');
-// 	res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-// 	res.header('Access-Control-Expose-Headers', 'Content-Length');
-// 	res.header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, X-Requested-With, Range');
-// 	if (req.method === 'OPTIONS') {
-// 		return res.send(200);
-// 	} else {
-// 		return next();
-// 	}
-// });
+app.use(function (req, res, next) {
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Credentials', 'true');
+	res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+	res.header('Access-Control-Expose-Headers', 'Content-Length');
+	res.header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, X-Requested-With, Range');
+	if (req.method === 'OPTIONS') {
+		return res.send(200);
+	} else {
+		return next();
+	}
+});
 
-// AuthorizationRouter.routesConfig(app);
-// UsersRouter.routesConfig(app);
+AuthorizationRouter.routesConfig(app);
+UsersRouter.routesConfig(app);
 
 
-const api = require('./routes/api')
-
-const dbRoute = 'mongodb://localhost:27017/test';
+const dbRoute = 'mongodb://localhost:27017/meet';
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false);
 mongoose.connect(dbRoute, { useNewUrlParser: true });
@@ -120,9 +118,10 @@ router.post('/delete_file', function (req, res) {
 })
 */
 
-// set routes
 app.use('/', router)
-app.use('/api', api) // sample API Routes
+
+// const api = require('./routes/api')
+// app.use('/api', api) // sample API Routes
 
 const fs = require('fs');
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));

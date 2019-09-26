@@ -270,28 +270,25 @@
 
     function saveQuestion() {
         let params = JSON.stringify({
-            search: {
-                nickname: nick,
+            savedQuestion: question["title"]
+        })
+        $.ajax({
+            url: url + 'profile/bookmark/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
             },
-            update: {
-                $addToSet: { savedQuestion: question["title"] }
+            method: 'GET',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                console.log("saved")
+                console.log(response)
+            },
+            error: (err) => {
+                console.log(err)
             }
         })
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/update/saved', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    console.log("saved")
-                } else {
-                    console.log(response)
-                }
-            }
-        }
     }
 
     function askQuestion() {

@@ -35,6 +35,8 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/bootstrap-slider.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/css/bootstrap-slider.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -43,11 +45,11 @@
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%;">  
             <h1 style="margin: 30px; color: white">Welcome!</h1>
             <p style="margin: 10px; color: white">To use the map is necessary the access to your location</p>
-            <button style="margin: 20px; font-size: 16px; background-color: #008CBA; border-radius: 20px; color: white" 
+            <button style="margin: 20px; font-size: 20px; background-color: #008CBA; border-radius: 20px; color: white" 
             type="button" class="btn" onclick="reloadPage()">Enable GPS and Reload
             </button>
             <br>
-            <button style="margin: 20px; margin-top: 0; font-size: 8px; border-radius: 20px; background-color: #e7e7e7; opacity: 0.5;" type="button" 
+            <button style="margin: 20px; margin-top: 0; font-size: 12px; border-radius: 20px; background-color: #e7e7e7; opacity: 0.5;" type="button" 
                 class="btn" onclick="withoutPosition()">Continue without GPS</button>
         </div>
     </div>
@@ -368,57 +370,33 @@
 
 </style>
 
-<script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script>
 <script>
-    // var _gaq = _gaq || [];
-    // _gaq.push(['_setAccount', 'UA-36251023-1']);
-    // _gaq.push(['_setDomainName', 'sebastienbiollo.com']);
-    // _gaq.push(['_trackPageview']);
-    
-    // (function() {
-    // var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    //     ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    //     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    //     })();
-
 
     const url = 'http://localhost:3001/api/'
 
-    var profileData = JSON.parse(sessionStorage.getItem("profile"))
+    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var profileData = JSON.parse(localStorage.getItem("profile"))
+    var mapStyle = JSON.parse(localStorage.getItem("mapStyle"))
     var CBviews;
     var slider = new Slider('#ex5');
     var rangeView;
 
     function session(){
-        if(profileData === null){
-            window.location.href = "http://localhost:3001/login"
-        } else if(profileData['nickname'] === null || profileData['password'] === null || 
-                profileData['nickname'] === undefined || profileData['password'] === undefined){
-            window.location.href = "http://localhost:3001/login"
-        }
-        let params = JSON.stringify({
-            nickname: profileData['nickname'],
-            password: profileData['password'],
-        })
-
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/login', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    if(response['data'] === null){
-                        window.location.href = "http://localhost:3001/login"
-                    }
-                } else {
-                    window.location.href = "http://localhost:3001/login"
-                }
+        if(authToken === null){
+            let auth = JSON.parse(localStorage.getItem("auth"))
+            if(authToken === null){
+                window.location.href = "http://localhost:3001/login"
             }
+            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
+            authToken = JSON.parse(sessionStorage.getItem("authToken"))
         }
 
         rangeView = JSON.parse(sessionStorage.getItem("rangeView")).range
+        if(rangeView === null){
+            sessionStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+        }
+
+        handlePermission()
     }
     session()
 
@@ -528,75 +506,71 @@
     }
 
     function getSaved() {
-        let nick = profileData['nickname']
-        let params = JSON.stringify({
-            nick: nick,
-        })
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/getSaved', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    response = response["data"]
 
-                    if (response != null && ( ("savedGroup" in response && response["savedGroup"].length > 0) || ("savedQuestion" in response && response["savedQuestion"].length > 0) )){
-                        let h2 = document.createElement("h2")
-                        h2.innerHTML = "Bookmarks"
-                        h2.setAttribute('id', 'titles')
-                        h2.style.marginBottom = "30px"
-                        h2.style.textDecoration = "underline"
-                        resSearch.appendChild(h2)
-                    }
+        $.ajax({
+            url: url + 'profile/getSaved/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            success: (response) => {
 
-                    if (response != null && "savedGroup" in response){
-                        if (response["savedGroup"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Groups");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            resSearch.appendChild(p)
-                        }
-
-                        response["savedGroup"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3001/group?groupname=" + element
-                            a.setAttribute('href', href)
-                            a.setAttribute('id', "group")
-                            let textnode = document.createTextNode(element)
-                            a.appendChild(textnode);
-                            resSearch.appendChild(a)
-                        });
-                    }
-
-                    if (response != null && "savedQuestion" in response) {
-                        if (response["savedQuestion"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Questions");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            resSearch.appendChild(p)
-                        }
-
-                        response["savedQuestion"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3001/question?title=" + element
-                            a.setAttribute('href', href)
-                            a.setAttribute('id', "question")
-                            let textnode = document.createTextNode(element)
-                            a.appendChild(textnode);
-                            resSearch.appendChild(a)
-                        });
-                    }
-
-                } else {
-                    console.log(response)
+                if (response !== null && (("savedGroup" in response && response["savedGroup"].length > 0) || ("savedQuestion" in response && response["savedQuestion"].length > 0))) {
+                    let h2 = document.createElement("h2")
+                    h2.innerHTML = "Bookmarks"
+                    h2.setAttribute('id', 'titles')
+                    h2.style.marginBottom = "30px"
+                    h2.style.textDecoration = "underline"
+                    resSearch.appendChild(h2)
                 }
 
+                if (response !== null && "savedGroup" in response) {
+                    if (response["savedGroup"].length > 0) {
+                        let p = document.createElement("p");
+                        let textnode = document.createTextNode("Groups");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode);
+                        resSearch.appendChild(p)
+                    }
+
+                    response["savedGroup"].forEach(function (element) {
+                        let a = document.createElement("a");
+                        let href = "http://localhost:3001/group?groupname=" + element
+                        a.setAttribute('href', href)
+                        a.setAttribute('id', "group")
+                        let textnode = document.createTextNode(element)
+                        a.appendChild(textnode);
+                        resSearch.appendChild(a)
+                    });
+                }
+
+                if (response !== null && "savedQuestion" in response) {
+                    if (response["savedQuestion"].length > 0) {
+                        let p = document.createElement("p");
+                        let textnode = document.createTextNode("Questions");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode);
+                        resSearch.appendChild(p)
+                    }
+
+                    response["savedQuestion"].forEach(function (element) {
+                        let a = document.createElement("a");
+                        let href = "http://localhost:3001/question?title=" + element
+                        a.setAttribute('href', href)
+                        a.setAttribute('id', "question")
+                        let textnode = document.createTextNode(element)
+                        a.appendChild(textnode);
+                        resSearch.appendChild(a)
+                    });
+                }
+
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     var infoIP
@@ -831,7 +805,6 @@
         mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
         // const AIR_PORTS = 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson'
 
-        let mapStyle = JSON.parse(sessionStorage.getItem("mapStyle"))
         let optionsStreet = document.getElementById('mapStyles').getElementsByTagName('option')
         let street = mapStyle['mapStyle'].split("/")
         street = street[street.length-1]
@@ -1284,37 +1257,30 @@
     }
 
     function setFakePos(x, y) {
-        let nick = profileData['nickname']
-        let fakepos = {
-            x: x,
-            y: y,
-        }
         let params = JSON.stringify({
-            search: {
-                nickname: nick
-            },
-            update: {
-                fakePos: fakepos
+            fakePos: {
+                x: x,
+                y: y,
             }
         })
-
-        profileData['fakePos'] = [x, y]
-        sessionStorage.setItem("profile", JSON.stringify(profileData))
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/update', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    reloadPage()
-                } else {
-                    console.log(response)
-                }
+        $.ajax({
+            url: url + 'profile/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                profileData['fakePos'] = [x, y]
+                sessionStorage.setItem("profile", JSON.stringify(profileData))
+                reloadPage()
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
 
@@ -1340,32 +1306,26 @@
 
     
     function iamStatus(status) {
-        let nick = profileData['nickname']
         let params = JSON.stringify({
-            search: {
-                nickname: nick
+            lastSeen: Date.now(),
+            pos: { x: profileData['coords'][0], y: profileData['coords'][1] }
+        })
+        $.ajax({
+            url: url + 'profile/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
             },
-            update: {
-                online: status,
-                lastSeen: Date.now(),
-                pos: { x: profileData['coords'][0], y: profileData['coords'][1]}
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+
+            },
+            error: (err) => {
+                console.log(err)
             }
         })
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/update', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-
-                } else {
-                    console.log(response)
-                }
-            }
-        }
     }
 
     function createGroup() {
@@ -1444,29 +1404,64 @@
     var AllProfiles = []
     function initProfiles(state_view, x, y) {
         let params = JSON.stringify({
-            x: x, 
-            y: y, 
+            x: x,
+            y: y,
             range: rangeView / 100,
         })
+        $.ajax({
+            url: url + 'profile/allProfiles',
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                AllProfiles = response
 
-        let Http = new XMLHttpRequest()
-        Http.open("POST", url + 'profile/allProfiles', true)
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params)
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let profiles = JSON.parse(Http.responseText)
-                AllProfiles = profiles['profiles']
+                console.log(response)
 
                 canUpdateStatus = true
                 setMap(state_view)
                 iamStatus(true)
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     var Allgroups = []
     function initGroups(state_view, x, y) {
+        let params = JSON.stringify({
+            x: x,
+            y: y,
+            range: rangeView / 100,
+        })
+        $.ajax({
+            url: url + 'group/allGroups',
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                AllProfiles = response
+
+                console.log(response)
+
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
+            },
+            error: (err) => {
+                console.log(err)
+            }
+        })
+
         let params = JSON.stringify({
             x: x,
             y: y,
@@ -1516,7 +1511,7 @@
     
     function getData(state_view){
         CBviews = JSON.parse(sessionStorage.getItem("view"))
-
+        
         if(JSON.parse(sessionStorage.getItem("changePos")) !== null){
             setMapChangePos()
             return
@@ -1532,6 +1527,16 @@
             sessionStorage.setItem("view", JSON.stringify(view));
             showSubscribers(state_view)
             return
+        }
+
+        if (CBviews === null) {
+            let view = {
+                questions: 0,
+                groups: 0,
+                profiles: 1,
+            }
+            sessionStorage.setItem("view", JSON.stringify(view));
+            CBviews = view
         }
 
 
@@ -1558,9 +1563,5 @@
             window.location.href = "http://localhost:3001/login"
         }
     }
-
-    $(document).ready(function () {
-        handlePermission()
-    })
 
 </script>

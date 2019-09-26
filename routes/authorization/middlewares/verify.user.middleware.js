@@ -1,4 +1,4 @@
-const UserModel = require('../../users/models/users.model');
+const UserModel = require('../../profiles/profiles.model');
 const crypto = require('crypto');
 
 exports.hasAuthValidFields = (req, res, next) => {
@@ -25,7 +25,6 @@ exports.hasAuthValidFields = (req, res, next) => {
 exports.isPasswordAndUserMatch = (req, res, next) => {
     UserModel.findByNickname(req.body.nickname)
         .then((user)=>{
-            console.log(user)
             if (!user){
                 res.status(404).send({});
             } else {
@@ -36,7 +35,6 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                     req.body = {
                         userId: user._id,
                         nickname: user.nickname,
-                        permissionLevel: user.permissionLevel,
                         name: user.firstName + ' ' + user.lastName,
                     };
                     return next();

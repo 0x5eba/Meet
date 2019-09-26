@@ -29,10 +29,11 @@ exports.validJWTNeeded = (req, res, next) => {
             if (authorization[0] !== 'Bearer') {
                 return res.status(401).send();
             } else {
-                req.jwt = jwt.verify(authorization[1], secret, function (err, decoded) {
+                jwt.verify(authorization[1], secret, function (err, decoded) {
                     if (err) return res.status(400).send({ error: 'Invalid token' });
+                    req.jwt = decoded
+                    return next();
                 })
-                return next();
             }
 
         } catch (err) {
