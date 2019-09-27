@@ -45,11 +45,17 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         ProfileController.getSaved
     ]);
-    app.patch('/api/profile/bookmark/:userId', [
+    app.patch('/api/profile/bookmarkGroup/:userId&:groupId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
-        ProfileController.patchByIdBookmark
+        ProfileController.patchByIdBookmarkGroup
+    ]);
+    app.patch('/api/profile/bookmarkQuestion/:userId&:questionId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        ProfileController.patchByIdBookmarkQuestion
     ]);
     app.post('/api/profile/allProfiles', [
         ValidationMiddleware.validJWTNeeded,

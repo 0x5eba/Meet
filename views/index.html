@@ -373,18 +373,18 @@
 <script>
 
     const url = 'http://localhost:3001/api/'
-
-    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
-    var profileData = JSON.parse(localStorage.getItem("profile"))
+    
     var mapStyle = JSON.parse(localStorage.getItem("mapStyle"))
     var CBviews;
     var slider = new Slider('#ex5');
     var rangeView;
 
+    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
         if(authToken === null){
             let auth = JSON.parse(localStorage.getItem("auth"))
-            if(authToken === null){
+            if(auth === null){
                 window.location.href = "http://localhost:3001/login"
             }
             sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
@@ -476,7 +476,7 @@
                         response[type].forEach(function (element) {
                             let a = document.createElement("a")
                             if (type === "group"){
-                                let href = "http://localhost:3001/group?groupname=" + element['name']
+                                let href = "http://localhost:3001/group?groupid=" + element['name']
                                 a.setAttribute('href', href)
                                 a.setAttribute('id', type)
                                 textnode = document.createTextNode(element['name'])
@@ -537,7 +537,7 @@
 
                     response["savedGroup"].forEach(function (element) {
                         let a = document.createElement("a");
-                        let href = "http://localhost:3001/group?groupname=" + element
+                        let href = "http://localhost:3001/group?groupid=" + element
                         a.setAttribute('href', href)
                         a.setAttribute('id', "group")
                         let textnode = document.createTextNode(element)
@@ -956,7 +956,7 @@
                 let name = e.features[0].properties.name
 
                 description = "<h2>Group</h2><h5>" + name + "</h5>" + 
-                    "<a href='http://localhost:3001/group?groupname=" + e.features[0].properties.name + "'>Link to the group</a>"
+                    "<a href='http://localhost:3001/group?groupid=" + e.features[0].properties.name + "'>Link to the group</a>"
             }
             else if (CBviews['questions'] === 1) {
                 let title = e.features[0].properties.title
@@ -1339,55 +1339,52 @@
             return
         }
         groupName = groupName.trim()
-        
-        let x = profileData['coords'][0]
-        let y = profileData['coords'][1]
+
         let params = JSON.stringify({
-            name: groupName,
-            pos: { x: x, y: y }
+            name: groupName
         })
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/create', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    window.location.href = "http://localhost:3001/group?groupname=" + groupName
-                } else {
-                    console.log(response)
-                }
+        $.ajax({
+            url: url + 'group/create/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                window.location.href = "http://localhost:3001/group?groupid=" + response['id']
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function showSubscribers(state_view) {
-        let groupName = JSON.parse(sessionStorage.getItem("showSubscribers"))['groupName']
-        let params = JSON.stringify({
-            name: groupName,
-        })
+        let groupId = JSON.parse(sessionStorage.getItem("showSubscribers"))['groupId']
+        sessionStorage.removeItem("showSubscribers");
 
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/showOnMap', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    AllProfiles = response['subscribers']
+        $.ajax({
+            url: url + 'group/showSubs/' + groupId,
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                AllProfiles = response
 
-                    sessionStorage.removeItem("showSubscribers");
-
-                    canUpdateStatus = true
-                    setMap(state_view)
-                    iamStatus(true)
-                } else {
-                    console.log(response)
-                }
+                canUpdateStatus = true
+                setMap(state_view)
+                iamStatus(true)
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function ContinueChangePos() {
@@ -1420,8 +1417,6 @@
             success: (response) => {
                 AllProfiles = response
 
-                console.log(response)
-
                 canUpdateStatus = true
                 setMap(state_view)
                 iamStatus(true)
@@ -1449,9 +1444,7 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-                AllProfiles = response
-
-                console.log(response)
+                Allgroups = response
 
                 canUpdateStatus = true
                 setMap(state_view)
@@ -1461,27 +1454,6 @@
                 console.log(err)
             }
         })
-
-        let params = JSON.stringify({
-            x: x,
-            y: y,
-            range: rangeView / 100,
-        })
-
-        let Http = new XMLHttpRequest()
-        Http.open("POST", url + 'group/allGroups', true)
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params)
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let groups = JSON.parse(Http.responseText)
-                Allgroups = groups['groups']
-
-                canUpdateStatus = true
-                setMap(state_view)
-                iamStatus(true)
-            }
-        }
     }
     
 
@@ -1492,21 +1464,26 @@
             y: y,
             range: rangeView / 100,
         })
-
-        let Http = new XMLHttpRequest()
-        Http.open("POST", url + 'question/allQuestions', true)
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params)
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let questions = JSON.parse(Http.responseText)
-                AllQuestions = questions['questions']
+        $.ajax({
+            url: url + 'group/allGroups',
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                AllQuestions = response
 
                 canUpdateStatus = true
                 setMap(state_view)
                 iamStatus(true)
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
     
     function getData(state_view){

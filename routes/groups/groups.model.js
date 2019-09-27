@@ -5,10 +5,19 @@ mongoose.set('useCreateIndex', true);
 var SchemaTypes = mongoose.Schema.Types;
 const GroupModel = new mongoose.Schema({
     name: { type: String, require: true, minlength: 4, default: "" },
-
     pos: { x: { type: SchemaTypes.Double, require: true, default: 0 }, y: { type: SchemaTypes.Double, require: true, default: 0 } },
     peopleOnline: { type: [String], default: [] },
     subscribers: { type: [String], default: [] },
+
+    messages: { 
+        type: [{
+            // _id: false,
+            sender: { type: String, require: true, minlength: 2, default: "" },
+            time: { type: Number, default: 0 },
+            message: { type: String, require: true, minlength: 1, default: "" },
+        }],
+        default: [] 
+    }
 })
 
 // Group.index({
@@ -25,6 +34,27 @@ exports.findById = (id) => {
     return Group.findById(id)
         .then((result) => {
             return result.toJSON();
+        });
+};
+
+exports.subscribers = (id) => {
+    return Group.findById(id, { subscribers: 1, _id: 0 })
+        .then((result) => {
+            return result.toJSON();
+        });
+};
+
+exports.peopleOnline = (id) => {
+    return Group.findById(id, { peopleOnline: 1 , _id: 0})
+        .then((result) => {
+            return result.toJSON();
+        });
+};
+
+exports.nOnline = (id) => {
+    Group.aggregate([{ $match: { _id: id } }, { $project: { nOnline: { $size: '$peopleOnline' }, nOnline: 1 } }])
+        .then(data => {
+            res.status(200).send(data);
         });
 };
 
@@ -46,14 +76,23 @@ exports.list = () => {
     });
 };
 
-// exports.patchGroup = (id, name, type) => {
-//     return new Promise((resolve, reject) => {
-//         Profile.findByIdAndUpdate(id, { $addToSet: { [type]: name } }, function (err, user) {
-//             if (err) reject(err);
-//             resolve(user);
-//         });
-//     })
-// };
+exports.patchGroupAddToSet = (groupId, userId, type) => {
+    return new Promise((resolve, reject) => {
+        Group.findByIdAndUpdate(groupId, { $addToSet: { [type]: userId } }, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    })
+};
+
+exports.patchGroupPullToSet = (groupId, userId, type) => {
+    return new Promise((resolve, reject) => {
+        Group.findByIdAndUpdate(groupId, { $pull: { [type]: userId } }, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    })
+};
 
 exports.removeById = (groupId) => {
     return new Promise((resolve, reject) => {
@@ -66,6 +105,22 @@ exports.removeById = (groupId) => {
         });
     });
 };
+
+exports.profilePos = (groupId) => {
+    return new Promise((resolve, reject) => {
+        
+    });
+};
+
+exports.isSub = (groupId, userId) => {
+    return new Promise((resolve, reject) => {
+        Group.findById(groupId, { subscribers: { $in: [userId] } }, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    });
+};
+
 
 exports.findByPos = (search_x, search_y, range_search, res) => {
     let data = {

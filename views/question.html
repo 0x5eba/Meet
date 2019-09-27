@@ -269,18 +269,14 @@
     }
 
     function saveQuestion() {
-        let params = JSON.stringify({
-            savedQuestion: question["title"]
-        })
         $.ajax({
-            url: url + 'profile/bookmark/' + profileData['id'],
+            url: url + 'profile/bookmarkQuestion/' + profileData['id'] + "&" + question["_id"],
             headers: {
                 'Authorization': authToken['Authorization'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
-            method: 'GET',
+            method: 'PATCH',
             dataType: 'json',
-            data: params,
             success: (response) => {
                 console.log("saved")
                 console.log(response)

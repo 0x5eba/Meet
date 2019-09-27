@@ -228,9 +228,8 @@
 
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
-    var groupName = currentUrl.searchParams.get("groupname")
+    var groupId = currentUrl.searchParams.get("groupid")
 
-    var nick = ""
     var limit = 0;
     var prevLengthMessages = 0;
     var lastTime = 0;
@@ -238,50 +237,28 @@
 
     var answersChat;
 
-    var profileData;
+    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
-        profileData = JSON.parse(sessionStorage.getItem("profile"))
-        if (profileData === null) {
-            window.location.href = "http://localhost:3001/"
-        } else if (profileData['nickname'] === null || profileData['password'] === null) {
-            window.location.href = "http://localhost:3001/"
-        }
-        let params = JSON.stringify({
-            nickname: profileData['nickname'],
-            password: profileData['password'],
-        })
-
-        nick = profileData['nickname']
-
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/login', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    if(response['data'] === null){
-                        window.location.href = "http://localhost:3001/"
-                    }
-                } else {
-                    window.location.href = "http://localhost:3001/"
-                }
+        if(authToken === null){
+            let auth = JSON.parse(localStorage.getItem("auth"))
+            if(auth === null){
+                window.location.href = "http://localhost:3001/login"
             }
+            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
+            authToken = JSON.parse(sessionStorage.getItem("authToken"))
         }
     }
     session()
 
-    if (groupName === null) {
-
-    } else {
+    if (groupId !== null) {
         checkIfSubscribed()
         
-        document.getElementById("nameGroup").innerHTML = groupName
+        document.getElementById("nameGroup").innerHTML = groupId
         document.getElementById("showGroup").style.display = "block"
 
         iamOnline()
-        loadMoreMessages(groupName)
+        loadMoreMessages(groupId)
 
         window.setInterval(function () {
             if(offline === false){
@@ -322,29 +299,25 @@
     }
 
     function checkIfSubscribed() {
-        let params = JSON.stringify({
-            name: groupName,
-            nick: nick,
-        })
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/subscribe', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    if(response['data'] !== null && response['data'] === "isSub"){
-                        showWrite()
-                    } else {
-                        document.getElementById("btnSubscribe").style.display = "block"
-                    }
+        $.ajax({
+            url: url + 'group/subscribe/' + groupId + "&" + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'GET',
+            dataType: 'json',
+            success: (response) => {
+                if(response.status === 201) {
+                    showWrite()
                 } else {
-                    console.log(response)
+                    document.getElementById("btnSubscribe").style.display = "block"
                 }
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function showWrite() {
@@ -356,7 +329,7 @@
 
                 let params = JSON.stringify({
                     name: groupName,
-                    sender: nick,
+                    sender: profileData['nickname'],
                     time: Date.now(),
                     message: write.value,
                 })
@@ -384,44 +357,40 @@
 
     function subscribe() {
         let params = JSON.stringify({
-            name: groupName,
-            nick: nick,
-        })
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/updateSub', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    showWrite()
-                } else {
-                    console.log(response)
-                }
-            }
-        }
-    }
-
-    function showSubscribers() {
-        sessionStorage.setItem("showSubscribers", JSON.stringify({ groupName: groupName }))
-        window.location.href = "http://localhost:3001/"
-    }
-
-    function saveGroup(){
-        let params = JSON.stringify({
-            savedGroup: groupName
+            type: "subscribers",
         })
         $.ajax({
-            url: url + 'profile/bookmark/' + profileData['id'],
+            url: url + 'group/' + groupId + "&" + profileData['id'],
             headers: {
                 'Authorization': authToken['Authorization'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
-            method: 'GET',
+            method: 'PATCH',
             dataType: 'json',
             data: params,
+            success: (response) => {
+                showWrite()
+            },
+            error: (err) => {
+                console.log(err)
+            }
+        })
+    }
+
+    function showSubscribers() {
+        sessionStorage.setItem("showSubscribers", JSON.stringify({ groupId: groupId }))
+        window.location.href = "http://localhost:3001/"
+    }
+
+    function saveGroup(){
+        $.ajax({
+            url: url + 'profile/bookmarkGroup/' + profileData['id'] + "&" + groupId,
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'PATCH',
+            dataType: 'json',
             success: (response) => {
                 console.log("saved")
                 console.log(response)
@@ -447,56 +416,47 @@
     });
     function iamOnline() {
         let params = JSON.stringify({
-            search: {
-                name: groupName,
+            type: "peopleOnline",
+            operation: "addToSet",
+        })
+        $.ajax({
+            url: url + 'group/' + groupId + "&" + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
             },
-            update: {
-                $addToSet: { peopleOnline: nick }
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                
             },
-            extra: {
-                "multi": "true"
+            error: (err) => {
+                console.log(err)
             }
         })
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/updateOnline', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-
-                } else {
-                    console.log(response)
-                }
-            }
-        }
     }
     function iamOffline() {
         let params = JSON.stringify({
-            search: {
-                name: groupName,
-            },
-            update: {
-                $pull: { peopleOnline: nick }
-            },
+            type: "peopleOnline",
+            operation: "pullToSet",
         })
+        $.ajax({
+            url: url + 'group/' + groupId + "&" + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
 
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/updateOnline', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-
-                } else {
-                    console.log(response)
-                }
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function loadMoreMessages(nameGroup = groupName, update = false) {
@@ -617,61 +577,56 @@
         }
     }
     function updatePeopleOnline() {
-        let params = JSON.stringify({
-            name: groupName,
-        })
+        $.ajax({
+            url: url + 'group/peopleOnline/' + groupId,
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'GET',
+            dataType: 'json',
+            success: (response) => {
+                console.log("updatePeopleOnline", response)
 
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/peopleOnline', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
+                let boxPos = document.getElementById("res-search");
+                boxPos.innerHTML = ""
 
-                if (response["confirmation"] === "success") {
-                    let boxPos = document.getElementById("res-search");
-                    boxPos.innerHTML = ""
-                    
-                    if(response["groups"].length > 0 && response["groups"][0]['peopleOnline'].length > 0){
-                        response["groups"][0]['peopleOnline'].forEach(function (nickname) {
-                            let a = document.createElement("a");
-                            let textnode = document.createTextNode(nickname)
-                            a.setAttribute('href', "http://localhost:3001/profile?nickname=" + nickname)
-                            a.setAttribute('id', "profiles")
-                            a.appendChild(textnode)
-                            boxPos.appendChild(a)
-                        })
-                    }
-                    
-                } else {
-                    console.log(response)
+                if (response.length > 0 && response[0]['peopleOnline'].length > 0) {
+                    response[0]['peopleOnline'].forEach(function (nickname) {
+                        let a = document.createElement("a");
+                        let textnode = document.createTextNode(nickname)
+                        a.setAttribute('href', "http://localhost:3001/profile?nickname=" + nickname)
+                        a.setAttribute('id', "profiles")
+                        a.appendChild(textnode)
+                        boxPos.appendChild(a)
+                    })
                 }
 
                 openNav();
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
     function updateNOnline(){
-        let params = JSON.stringify({
-            name: groupName,
-        })
+        $.ajax({
+            url: url + 'group/nOnline/' + groupId,
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'GET',
+            dataType: 'json',
+            success: (response) => {
+                console.log("updateNOnline", response)
 
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'group/nOnline', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-
-                if (response["confirmation"] === "success") {
-                    document.getElementById("user-count").innerHTML = response["nOnline"][0]["nOnline"]
-                } else {
-                    console.log(response)
-                }
+                document.getElementById("user-count").innerHTML = response[0]["nOnline"]
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function openNav() {

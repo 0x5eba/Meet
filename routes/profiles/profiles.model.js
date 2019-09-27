@@ -5,7 +5,6 @@ var SchemaTypes = mongoose.Schema.Types;
 
 const ProfileModel = new mongoose.Schema({
     nickname: { type: String, trim: true, require: true, minlength: 4 },
-
     password: { type: String, require: true },
     name: { type: String, trim: true, default: '' },
     surname: { type: String, trim: true, default: '' },
@@ -79,9 +78,9 @@ exports.patchUser = (id, userData) => {
     })
 };
 
-exports.patchUserBookmark = (id, name, type) => {
+exports.patchUserBookmark = (userId, name, type) => {
     return new Promise((resolve, reject) => {
-        Profile.findByIdAndUpdate(id, { $addToSet: { [type]: name }}, function (err, user) {
+        Profile.findByIdAndUpdate(userId, { $addToSet: { [type]: name }}, function (err, user) {
             if (err) reject(err);
             resolve(user);
         });
@@ -133,6 +132,36 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
             }, 
         }, 
         { "$match": { "circle": { $lte: range_search }, 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } } }
+    ])
+        .then(profiles => {
+            data.features = profiles
+            res.status(200).send(data);
+        });
+};
+
+
+exports.subsOnMap = (listIds, res) => {
+    let data = {
+        "type": "FeatureCollection",
+        "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+        "features": []
+    }
+
+    Profile.aggregate([
+        {
+            $project: {
+                "type": "Feature",
+                "properties": {
+                    'nickname': "$nickname",
+                    'name': "$name",
+                    'surname': "$surname",
+                    'id': "$_id",
+                    "mag": { $toInt: "1" },
+                },
+                "geometry": { "type": "Point", "coordinates": ["$pos.x", "$pos.y"] }
+            },
+        },
+        { "$match": { 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 }, 'id': { $in: listIds } } }
     ])
         .then(profiles => {
             data.features = profiles

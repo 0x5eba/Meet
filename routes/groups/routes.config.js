@@ -7,8 +7,12 @@ const ADMIN = config.permissionLevels.ADMIN;
 const FREE = config.permissionLevels.NORMAL_USER;
 
 exports.routesConfig = function (app) {
-    app.post('/api/groups/create', [
+    app.post('/api/group/create/:userId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         GroupController.uniqueName,
+        GroupController.getProfilePos,
         GroupController.insert
     ]);
     app.get('/api/groups', [
@@ -22,7 +26,7 @@ exports.routesConfig = function (app) {
         // PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         GroupController.getById
     ]);
-    app.patch('/api/group/:groupId', [
+    app.patch('/api/group/:groupId&:userId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
@@ -38,5 +42,28 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         GroupController.allGroups
+    ]);
+    app.get('/api/group/peopleOnline/:groupId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.getByIdPeopleOnline
+    ]);
+    app.get('/api/group/nOnline/:groupId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.getByIdnOnline
+    ]);
+    app.get('/api/group/isSub/:groupId&:userId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        GroupController.getIsSub
+    ]);
+    app.post('/api/group/showSubs/:groupId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        GroupController.getAllSubs,
+        GroupController.getShowSubs
     ]);
 };

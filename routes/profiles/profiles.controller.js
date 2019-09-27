@@ -68,22 +68,18 @@ exports.patchById = (req, res) => {
         });
 };
 
-exports.patchByIdBookmark = (req, res) => {
-    let group = req.body.group
-    if (group !== null && typeof group === 'string'){
-        ProfileController.patchUserBookmark(req.params.userId, group, "savedGroup")
-            .then((result) => {
-                res.status(204).send({});
-            });
-    } else {
-        let question = req.body.question
-        if (question !== null && typeof question === 'string') {
-            ProfileController.patchUserBookmark(req.params.userId, question, "savedQuestion")
-                .then((result) => {
-                    res.status(204).send({});
-                });
-        }
-    }
+exports.patchByIdBookmarkGroup = (req, res) => {
+    ProfileController.patchUserBookmark(req.params.userId, req.params.groupId, "savedGroup")
+        .then((result) => {
+            res.status(204).send({});
+        });
+};
+
+exports.patchByIdBookmarkQuestion = (req, res) => {
+    ProfileController.patchUserBookmark(req.params.userId, req.params.questionId, "savedQuestion")
+        .then((result) => {
+            res.status(204).send({});
+        });
 };
 
 exports.removeById = (req, res) => {
