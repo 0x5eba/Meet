@@ -16,15 +16,9 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
         ProfileController.list
     ]);
-    app.get('/api/profile/nickname', [
-        ValidationMiddleware.validJWTNeeded,
-        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
-        ProfileController.getByNickname
-    ]);
     app.get('/api/profile/:userId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
-        // PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         ProfileController.getById
     ]);
     app.patch('/api/profile/:userId', [

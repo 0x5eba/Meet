@@ -99,6 +99,10 @@ exports.removeById = (userId) => {
     });
 };
 
+exports.profilePos = (id) => {
+    return Profile.findById(id, { pos: 1 })
+};
+
 exports.findByPos = (search_x, search_y, range_search, res) => {
     let data = {
         "type": "FeatureCollection",
@@ -146,6 +150,8 @@ exports.subsOnMap = (listIds, res) => {
         "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
         "features": []
     }
+
+    listIds = listIds['subscribers']
 
     Profile.aggregate([
         {

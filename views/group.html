@@ -230,7 +230,7 @@
     var currentUrl = new URL(window.location.href);
     var groupId = currentUrl.searchParams.get("groupid")
 
-    var limit = 0;
+    var limit = 70;
     var prevLengthMessages = 0;
     var lastTime = 0;
     var offline = false
@@ -258,7 +258,7 @@
         document.getElementById("showGroup").style.display = "block"
 
         iamOnline()
-        loadMoreMessages(groupId)
+        loadMoreMessages()
 
         window.setInterval(function () {
             if(offline === false){
@@ -300,15 +300,14 @@
 
     function checkIfSubscribed() {
         $.ajax({
-            url: url + 'group/subscribe/' + groupId + "&" + profileData['id'],
+            url: url + 'group/isSub/' + groupId + "&" + profileData['id'],
             headers: {
                 'Authorization': authToken['Authorization'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
             method: 'GET',
-            dataType: 'json',
             success: (response) => {
-                if(response.status === 201) {
+                if(response) {
                     showWrite()
                 } else {
                     document.getElementById("btnSubscribe").style.display = "block"
@@ -327,28 +326,28 @@
         write.addEventListener("keyup", function (event) {
             if (event.keyCode === 13) {
 
-                let params = JSON.stringify({
-                    name: groupName,
-                    sender: profileData['nickname'],
-                    time: Date.now(),
-                    message: write.value,
-                })
+                let val = write.value
 
-                const Http = new XMLHttpRequest();
-                Http.open("POST", url + 'chat/write', true);
-                Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-                Http.send(params);
-                Http.onreadystatechange = (e) => {
-                    if (Http.readyState === 4 && Http.status === 200) {
-                        let response = JSON.parse(Http.responseText)
-                        if (response["confirmation"] === "success") {
-                            // Risolto il problema di dover inserire manualmente il messaggio nell'interfaccia
-                            checkNewMessage()
-                        } else {
-                            console.log(response)
-                        }
+                let params = JSON.stringify({
+                    data: val,
+                })
+                $.ajax({
+                    url: url + 'group/chat/write/' + groupId + "&" + profileData['id'],
+                    headers: {
+                        'Authorization': authToken['Authorization'],
+                        'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    method: 'PATCH',
+                    dataType: 'json',
+                    data: params,
+                    success: (response) => {
+                        // Risolto il problema di dover inserire manualmente il messaggio nell'interfaccia
+                        checkNewMessage()
+                    },
+                    error: (err) => {
+                        console.log(err)
                     }
-                }
+                })
 
                 write.value = ""
             }
@@ -393,7 +392,6 @@
             dataType: 'json',
             success: (response) => {
                 console.log("saved")
-                console.log(response)
             },
             error: (err) => {
                 console.log(err)
@@ -459,60 +457,57 @@
         })
     }
 
-    function loadMoreMessages(nameGroup = groupName, update = false) {
-        if (update === true) {
-            limit -= 9
-            prevLengthMessages = 0
-        }
-        limit += 10
+    function loadMoreMessages() {
+        limit += 30
 
         let params = JSON.stringify({
-            name: nameGroup,
-            limit: limit,
+            limit: limit
         })
+        $.ajax({
+            url: url + 'group/chat/messages/' + groupId,
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                response = response['messages']
 
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'chat/messages', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-
-                if (response["confirmation"] === "success") {
-                    if (response["messages"].length > 0) {
-                        lastTime = response["messages"][0]["time"]
-                        answersChat = response["messages"]
-                    }
-
-                    var chat = document.getElementById("chat")
-                    chat.innerHTML = ""
-
-                    if (prevLengthMessages < response["messages"].length) {
-                        let a = document.createElement("a");
-                        let href = "javascript: void (0)"
-                        a.setAttribute('href', href);
-                        let loadMoreText = document.createTextNode("Load more messages");
-                        a.setAttribute('onclick', "loadMoreMessages();")
-                        a.appendChild(loadMoreText)
-                        chat.appendChild(a)
-
-                        prevLengthMessages = response["messages"].length
-                    }
-
-                    writeMessages(answersChat, chat)
-                } else {
-                    console.log(response)
+                if (response.length > 0) {
+                    lastTime = response[response.length - 1]["time"]
+                    answersChat = response
                 }
+
+                var chat = document.getElementById("chat")
+                chat.innerHTML = ""
+                
+                if (prevLengthMessages < response.length) {
+                    let a = document.createElement("a");
+                    let href = "javascript: void (0)"
+                    a.setAttribute('href', href);
+                    let loadMoreText = document.createTextNode("Load more messages");
+                    a.setAttribute('onclick', "loadMoreMessages();")
+                    a.appendChild(loadMoreText)
+                    chat.appendChild(a)
+
+                    prevLengthMessages = response.length
+                }
+
+                writeMessages(answersChat, chat)
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function writeMessages(chat, div){
         if(chat === undefined || chat === null){
             return
         }
-        for (let i = chat.length - 1; i >= 0; i--) {
+        for (let i = 0; i < chat.length; ++i) {
             let element = chat[i]
             let p = document.createElement("p")
             let strong = document.createElement("strong")
@@ -553,28 +548,29 @@
 
     function checkNewMessage() {
         let params = JSON.stringify({
-            name: groupName,
             lastTime: lastTime,
         })
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'chat/update', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-
-                if (response["confirmation"] === "success") {
-                    if (response["messages"].length > 0) {
-                        lastTime = response["messages"][0]["time"]
-                        loadMoreMessages(groupName, true)
+        $.ajax({
+            url: url + 'group/chat/checkLastMessage/' + groupId,
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                if (response) {
+                    if(lastTime < response["lastMessageTimestamp"]) {
+                        lastTime = response["lastMessageTimestamp"]
+                        loadMoreMessages()
                     }
-                } else {
-                    console.log(response)
                 }
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
     function updatePeopleOnline() {
         $.ajax({
@@ -586,13 +582,11 @@
             method: 'GET',
             dataType: 'json',
             success: (response) => {
-                console.log("updatePeopleOnline", response)
-
                 let boxPos = document.getElementById("res-search");
                 boxPos.innerHTML = ""
 
-                if (response.length > 0 && response[0]['peopleOnline'].length > 0) {
-                    response[0]['peopleOnline'].forEach(function (nickname) {
+                if (response['peopleOnline'].length > 0) {
+                    response['peopleOnline'].forEach(function (nickname) {
                         let a = document.createElement("a");
                         let textnode = document.createTextNode(nickname)
                         a.setAttribute('href', "http://localhost:3001/profile?nickname=" + nickname)
@@ -619,9 +613,7 @@
             method: 'GET',
             dataType: 'json',
             success: (response) => {
-                console.log("updateNOnline", response)
-
-                document.getElementById("user-count").innerHTML = response[0]["nOnline"]
+                document.getElementById("user-count").innerHTML = response["nOnline"]
             },
             error: (err) => {
                 console.log(err)

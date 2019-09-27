@@ -40,21 +40,6 @@ exports.getById = (req, res) => {
         });
 };
 
-exports.getByNickname = (req, res) => {
-    ProfileController.findByNickname(req.body.nickname)
-        .then((user) => {
-            if (user) {
-                res.status(200).send(user);
-            } else {
-                delete user['password']
-                return next();
-            }
-        })
-        .catch(err => {
-            res.status(403).send()
-        })
-};
-
 exports.patchById = (req, res) => {
     if (req.body.password) {
         let salt = crypto.randomBytes(16).toString('base64');
@@ -99,6 +84,13 @@ exports.getSaved = (req, res) => {
             res.status(200).send(user);
         });
 };
+
+exports.profilePos = (userId, next) => {
+    ProfileController.findByIdGetPos(userId)
+        .then((result) => {
+            res.status(204).send(result);
+        });
+}
 
 exports.allProfiles = (req, res) => {
     let query = req.body

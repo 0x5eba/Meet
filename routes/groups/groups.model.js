@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 require('mongoose-double')(mongoose);
 mongoose.set('useCreateIndex', true);
 
+ObjectId = require('mongodb').ObjectID;
+
 var SchemaTypes = mongoose.Schema.Types;
 const GroupModel = new mongoose.Schema({
     name: { type: String, require: true, minlength: 4, default: "" },
@@ -9,6 +11,7 @@ const GroupModel = new mongoose.Schema({
     peopleOnline: { type: [String], default: [] },
     subscribers: { type: [String], default: [] },
 
+    lastMessageTimestamp: { type: Number, default: 0 },
     messages: { 
         type: [{
             // _id: false,
@@ -46,16 +49,10 @@ exports.subscribers = (id) => {
 
 exports.peopleOnline = (id) => {
     return Group.findById(id, { peopleOnline: 1 , _id: 0})
-        .then((result) => {
-            return result.toJSON();
-        });
 };
 
 exports.nOnline = (id) => {
-    Group.aggregate([{ $match: { _id: id } }, { $project: { nOnline: { $size: '$peopleOnline' }, nOnline: 1 } }])
-        .then(data => {
-            res.status(200).send(data);
-        });
+    return Group.aggregate([{ $project: { nOnline: 1, nOnline: { $size: '$peopleOnline' } } }, { $match: { _id: ObjectId(id) } }])
 };
 
 exports.createGroup = (data) => {
@@ -106,15 +103,9 @@ exports.removeById = (groupId) => {
     });
 };
 
-exports.profilePos = (groupId) => {
-    return new Promise((resolve, reject) => {
-        
-    });
-};
-
 exports.isSub = (groupId, userId) => {
     return new Promise((resolve, reject) => {
-        Group.findById(groupId, { subscribers: { $in: [userId] } }, function (err, group) {
+        Group.findOne({ _id: groupId, subscribers: { $in: [userId] } }, function (err, group) {
             if (err) reject(err);
             resolve(group);
         });
@@ -150,4 +141,38 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
             data.features = profiles
             res.status(200).send(data);
         });
+};
+
+exports.messagesSorted = (groupId) => {
+    return new Promise((resolve, reject) => {
+        Group.findById(groupId, { "messages.sender": 1, "messages.time": 1, "messages.message": 1, _id: 0 })
+            .sort({ "messages.time": 'desc' }).exec(function (err, messages) {
+                if (err) reject(err);
+                resolve(messages);
+            });
+    });
+};
+
+exports.getLastMessageTimestamp = (groupId, lastTime) => {
+    return new Promise((resolve, reject) => {
+        Group.findById(groupId, { "lastMessageTimestamp": 1, _id: 0 }, function (err, lastMessageTimestamp){
+            if (err) reject(err);
+            resolve(lastMessageTimestamp);
+        })
+    });
+};
+
+exports.updateMessages = (groupId, userId, data, timestamp) => {
+    message = {
+        sender: userId,
+        time: timestamp,
+        message: data,
+    }
+    
+    return new Promise((resolve, reject) => {
+        Group.findByIdAndUpdate(groupId, { $push: { messages: message }, lastMessageTimestamp: timestamp }, function (err, message) {
+            if (err) reject(err);
+            resolve(message);
+        })
+    });
 };

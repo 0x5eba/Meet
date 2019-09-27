@@ -62,8 +62,28 @@ exports.routesConfig = function (app) {
     app.post('/api/group/showSubs/:groupId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
-        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         GroupController.getAllSubs,
         GroupController.getShowSubs
+    ]);
+
+    /*************************
+    *     GROUP MESSAGES     *
+    **************************/
+
+    app.post('/api/group/chat/messages/:groupId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.getMessagesWithLimit,
+    ]);
+    app.post('/api/group/chat/checkLastMessage/:groupId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.checkLastMessage,
+    ]);
+    app.patch('/api/group/chat/write/:groupId&:userId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        GroupController.writeMessage,
     ]);
 };

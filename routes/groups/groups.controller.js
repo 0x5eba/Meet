@@ -51,6 +51,9 @@ exports.getByIdPeopleOnline = (req, res) => {
 
 exports.getByIdnOnline = (req, res) => {
     GroupController.nOnline(req.params.groupId)
+        .then((result) => {
+            res.status(200).send(result[0]);
+        });
 };
 
 exports.patchById = (req, res) => {
@@ -84,31 +87,31 @@ exports.removeById = (req, res) => {
         });
 };
 
-exports.getProfilePos = (req, res) => {
-    getProfilePosFromProfile(req.params.userId)
-        .then((pos) => {
-            if (!pos) {
-                res.status(403).send({ errors: ['User not found'] });
-            } else {
-                req.body.pos = pos;
-                return next();
-            }
-        })
-        .catch(err => {
-            res.status(403).send()
-        })
+exports.getProfilePos = (req, res, next) => {
+    return new Promise((resolve, reject) => {
+        getProfilePosFromProfile(req.params.userId)
+            .then((pos) => {
+                if (!pos || pos['pos'] === undefined) {
+                    res.status(403).send({ errors: ['User not found'] });
+                } else {
+                    req.body.pos = pos['pos'];
+                    return next();
+                }
+            })
+            .catch(err => {
+                res.status(403).send({err: err})
+            })
+    });
 };
 
 exports.getIsSub = (req, res) => {
     GroupController.isSub(req.params.groupId, req.params.userId)
         .then((result) => {
-            if(result){
-                console.log("getIsSub", result)
-                res.status(201).send();
-            } else {
-                res.status(204).send();
-            }
-        });
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send(err)
+        })
 };
 
 exports.allGroups = (req, res) => {
@@ -120,21 +123,52 @@ exports.allGroups = (req, res) => {
     GroupController.findByPos(search_x, search_y, range_search, res)
 };
 
-exports.getAllSubs = (req, res) => {
+exports.getAllSubs = (req, res, next) => {
     GroupController.subscribers(req.params.groupId)
         .then((subs) => {
             if (!subs) {
-                res.status(403).send({ errors: ['Group not found'] });
+                res.status(403).send({ errors: 'Group not found' });
             } else {
                 req.body.subs = subs;
                 return next();
             }
         })
         .catch(err => {
-            res.status(403).send()
+            res.status(403).send({ err: err })
         })
 };
 
 exports.getShowSubs = (req, res) => {
     showSubsOnMapFromProfile(req.body.subs, res)
+};
+
+exports.getMessagesWithLimit = (req, res) => {
+    GroupController.messagesSorted(req.params.groupId)
+        .then((result) => {
+            messages = result['messages'].slice(-req.body.limit)
+            res.status(201).send({messages: messages});
+        })
+        .catch(err => {
+            res.status(403).send()
+        })
+};
+
+exports.checkLastMessage = (req, res) => {
+    GroupController.getLastMessageTimestamp(req.params.groupId, req.body.lastTime)
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send()
+        })
+};
+
+exports.writeMessage = (req, res) => {
+    GroupController.updateMessages(req.params.groupId, req.params.userId, req.body.data, Date.now())
+        .then((result) => {
+            res.status(201).send({res: result});
+        })
+        .catch(err => {
+            res.status(403).send({err: err})
+        })
 };

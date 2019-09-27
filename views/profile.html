@@ -24,6 +24,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -185,11 +187,11 @@
     session()
 
     $(document).ready(function () {
-        var nickname = currentUrl.searchParams.get("nickname");
-        if(nickname != null){
-            getProfile(nickname)
+        var profileId = currentUrl.searchParams.get("nickname");
+        if(profileId != null){
+            getProfile(profileId)
         } else {
-            console.log("No nickname");
+            console.log("No profileId");
         }
     })
 
@@ -206,19 +208,15 @@
         return time;
     }
 
-    function getProfile(nickname) {
-        let params = JSON.stringify({
-            nickname: nickname,
-        })
+    function getProfile(profileId) {
         $.ajax({
-            url: url + 'profile/nickname',
+            url: url + 'profile/' + profileId,
             headers: {
                 'Authorization': authToken['Authorization'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
             method: 'GET',
-            dataType: 'json',
-            data: params,
+            // dataType: 'json',
             success: (profile) => {
 
                 document.getElementById("nickname").innerHTML = profile["nickname"]
