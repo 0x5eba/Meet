@@ -26,7 +26,7 @@ exports.validJWTNeeded = (req, res, next) => {
         try {
             let authorization = req.headers['authorization'].split(' ');
             if (authorization[0] !== 'Bearer') {
-                return res.status(401).send();
+                return res.status(401).send({});
             } else {
                 jwt.verify(authorization[1], secret, function (err, decoded) {
                     if (err) return res.status(400).send({ error: 'Invalid token' });
@@ -40,6 +40,6 @@ exports.validJWTNeeded = (req, res, next) => {
             return res.status(403).send({err: err});
         }
     } else {
-        return res.status(401).send();
+        return res.status(401).send({});
     }
 };

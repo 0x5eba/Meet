@@ -100,7 +100,15 @@ exports.removeById = (userId) => {
 };
 
 exports.profilePos = (id) => {
-    return Profile.findById(id, { pos: 1 })
+    return new Promise((resolve, reject) => {
+        Profile.findById(id, { pos: 1, fakePos: 1 }, (err, profile) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(profile);
+            }
+        });
+    });
 };
 
 exports.findByPos = (search_x, search_y, range_search, res) => {

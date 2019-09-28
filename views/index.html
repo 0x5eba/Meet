@@ -391,10 +391,7 @@
             authToken = JSON.parse(sessionStorage.getItem("authToken"))
         }
 
-        rangeView = JSON.parse(sessionStorage.getItem("rangeView")).range
-        if(rangeView === null){
-            sessionStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
-        }
+        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
         handlePermission()
     }
@@ -412,8 +409,8 @@
         document.getElementById("search-icon").style.display = "none"
         document.getElementById("no-gps").style.display = "none"
         document.getElementById("createGroup").style.display = "none"
-        if(rangeView !== JSON.parse(sessionStorage.getItem("rangeView")).range){
-            sessionStorage.setItem("rangeView", JSON.stringify({ range: rangeView }))
+        if(rangeView !== JSON.parse(localStorage.getItem("rangeView")).range){
+            localStorage.setItem("rangeView", JSON.stringify({ range: rangeView }))
             window.location.href = "http://localhost:3001/"
         }
     }
@@ -580,7 +577,7 @@
             /*
             let Http = new XMLHttpRequest();
             Http.open("GET", 'http://ip-api.com/json', true);
-            Http.send();
+            Http.send({});
             Http.onreadystatechange = (e) => {
                 if (Http.readyState === 4 && Http.status === 200) {
                     infoIP = JSON.parse(Http.responseText)
@@ -594,7 +591,7 @@
                     }
 
                     profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
-                    sessionStorage.setItem("profile", JSON.stringify(profileData))
+                    localStorage.setItem("profile", JSON.stringify(profileData))
                     getData(state_view)
                 }
             }*/
@@ -608,7 +605,7 @@
             }
 
             profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
-            sessionStorage.setItem("profile", JSON.stringify(profileData))
+            localStorage.setItem("profile", JSON.stringify(profileData))
             getData(state_view)
 
         } else {
@@ -617,7 +614,7 @@
             //     groups: 1,
             //     profiles: 0,
             // }
-            // sessionStorage.setItem("view", JSON.stringify(view));
+            // localStorage.setItem("view", JSON.stringify(view));
             // CBviews = view
 
             document.getElementById("map_controller").style.display = "none"
@@ -632,7 +629,7 @@
 
     function withoutPosition(){
         profileData['coords'] = [0, 0]
-        sessionStorage.setItem("profile", JSON.stringify(profileData))
+        localStorage.setItem("profile", JSON.stringify(profileData))
 
         closeMenu()
 
@@ -688,7 +685,7 @@
         }
         
         profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
-        sessionStorage.setItem("profile", JSON.stringify(profileData))
+        localStorage.setItem("profile", JSON.stringify(profileData))
         getData(state_view)
     }
 
@@ -1121,7 +1118,7 @@
                 $("#mapStyles").change(function () {
                     var layerId = $(this).children("option:selected").val();
                     map.setStyle('mapbox://styles/mapbox/' + layerId);
-                    sessionStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/' + layerId }));
+                    localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/' + layerId }));
                     closeMenu()
                     reloadPage()
                 });
@@ -1134,7 +1131,7 @@
                         profiles: 0,
                     }
                     view[value] = 1
-                    sessionStorage.setItem("view", JSON.stringify(view));
+                    localStorage.setItem("view", JSON.stringify(view));
                     closeMenu()
                     reloadPage()
                 });
@@ -1210,7 +1207,7 @@
 
         mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
 
-        let mapStyle = JSON.parse(sessionStorage.getItem("mapStyle"))
+        let mapStyle = JSON.parse(localStorage.getItem("mapStyle"))
         let optionsStreet = document.getElementById('mapStyles').getElementsByTagName('option')
         let street = mapStyle['mapStyle'].split("/")
         street = street[street.length - 1]
@@ -1274,7 +1271,7 @@
             data: params,
             success: (response) => {
                 profileData['fakePos'] = [x, y]
-                sessionStorage.setItem("profile", JSON.stringify(profileData))
+                localStorage.setItem("profile", JSON.stringify(profileData))
                 reloadPage()
             },
             error: (err) => {
@@ -1393,7 +1390,7 @@
 
     function backOriginalPos() {
         delete profileData['fakePos']
-        sessionStorage.setItem("profile", JSON.stringify(profileData))
+        localStorage.setItem("profile", JSON.stringify(profileData))
         window.location.reload()
     }
 
@@ -1464,7 +1461,7 @@
             range: rangeView / 100,
         })
         $.ajax({
-            url: url + 'group/allGroups',
+            url: url + 'question/allQuestions',
             headers: {
                 'Authorization': authToken['Authorization'],
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -1486,7 +1483,7 @@
     }
     
     function getData(state_view){
-        CBviews = JSON.parse(sessionStorage.getItem("view"))
+        CBviews = JSON.parse(localStorage.getItem("view"))
         
         if(JSON.parse(sessionStorage.getItem("changePos")) !== null){
             setMapChangePos()
@@ -1500,7 +1497,7 @@
                 profiles: 1,
             }
             CBviews = view
-            sessionStorage.setItem("view", JSON.stringify(view));
+            localStorage.setItem("view", JSON.stringify(view));
             showSubscribers(state_view)
             return
         }
@@ -1511,7 +1508,7 @@
                 groups: 0,
                 profiles: 1,
             }
-            sessionStorage.setItem("view", JSON.stringify(view));
+            localStorage.setItem("view", JSON.stringify(view));
             CBviews = view
         }
 

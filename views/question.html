@@ -98,56 +98,36 @@
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
 
-    var nick = ""
-    var title = currentUrl.searchParams.get("title");
+    var questionId = currentUrl.searchParams.get("title");
     var question = {};
 
     var coordToUse = "coords"
 
-    var profileData;
-    function session() {
-        profileData = JSON.parse(sessionStorage.getItem("profile"))
-        if (profileData === null) {
-            window.location.href = "http://localhost:3001/"
-        } else if (profileData['nickname'] === null || profileData['password'] === null) {
-            window.location.href = "http://localhost:3001/"
-        }
-        let params = JSON.stringify({
-            nickname: profileData['nickname'],
-            password: profileData['password'],
-        })
-
-        nick = profileData['nickname']
-
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'profile/login', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    if (response['data'] === null) {
-                        window.location.href = "http://localhost:3001/"
-                    }
-                } else {
-                    window.location.href = "http://localhost:3001/"
-                }
+    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var profileData = JSON.parse(localStorage.getItem("profile"))
+    function session(){
+        if(authToken === null){
+            let auth = JSON.parse(localStorage.getItem("auth"))
+            if(auth === null){
+                window.location.href = "http://localhost:3001/login"
             }
-        }  
+            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
+            authToken = JSON.parse(sessionStorage.getItem("authToken"))
+        }
 
-        if (title === null && profileData['fakePos'] === undefined) {
-            if(profileData['coords'] === undefined || (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0)){
+        if (questionId === null && profileData['fakePos'] === undefined) {
+            if (profileData['coords'] === undefined || (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0)) {
                 window.location.href = "http://localhost:3001/"
             } else { // vuol dire che non ha fakePos, ma ha coords
                 coordToUse = 'coords'
             }
         }
-        if(title === null && profileData['fakePos'] !== undefined){
+        if (questionId === null && profileData['fakePos'] !== undefined) {
             coordToUse = 'fakePos'
         }
     }
     session()
+
 
     var optionsEditor = {
         focus: true,
@@ -156,7 +136,7 @@
         height: 300,
         // callbacks: {
         //     onKeydown: function (e) {
-        //         if(e['currentTarget']['innerText'].length > (title === null ? 1000 : 300)){
+        //         if(e['currentTarget']['innerText'].length > (questionId === null ? 1000 : 300)){
         //             if (!(e.which == '8')) // del
         //                 e.preventDefault();
         //         }
@@ -216,21 +196,22 @@
     }
 
     function getEmoji(){
-        let Http = new XMLHttpRequest();
-        Http.open("GET", 'https://api.github.com/emojis', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send();
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
+        $.ajax({
+            url: 'https://api.github.com/emojis',
+            method: 'GET',
+            dataType: 'json',
+            success: (response) => {
                 window.emojis = Object.keys(response);
                 window.emojiUrls = response;
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
     getEmoji()
     
-    if (title === null) {
+    if (questionId === null) {
         document.getElementById("buttonSaveQuestion").style.display = "none"
         $('#summernote').summernote(optionsEditor);
 
@@ -240,32 +221,6 @@
         document.getElementById("showQuestion").style.display = "block"
 
         getQuestionAndAnswers()
-    }
-
-    function increaseView(q) {
-        let params = JSON.stringify({
-            search: {
-                _id: q["_id"],
-            },
-            update: {
-                $inc: { views: 1 }
-            }
-        })
-
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'question/updateView', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-
-                } else {
-                    console.log(response)
-                }
-            }
-        }
     }
 
     function saveQuestion() {
@@ -289,91 +244,69 @@
 
     function askQuestion() {
         let title = document.getElementById("title").value
-        if (title.length < 5) {
-            alert("Question too short, at least 5 characters")
-            return
-        }
         title = title.trim()
 
         let htmlDetails = $('#summernote').summernote('code')
-        console.log(htmlDetails)
 
         let d = document.createElement("div")
+        d.innerHTML = htmlDetails
         let clearDetails = d.innerText.trim()
 
-        let x = profileData[coordToUse][0]
-        let y = profileData[coordToUse][1]
-
         let params = JSON.stringify({
-            nickname: nick,
-            pos: { x: x, y: y },
             title: title,
             details: clearDetails,
             html: htmlDetails,
-            time: Date.now(),
         })
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'question/create', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    window.location.href = "http://localhost:3001/question?title=" + title
-                } else {
-                    console.log(response)
-                }
+        $.ajax({
+            url: url + 'question/create/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                window.location.href = "http://localhost:3001/question?title=" + response['id']
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function getQuestionAndAnswers() {
-        let params = JSON.stringify({
-            title: title,
-        })
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'question/getQuestion', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    question = response["question"]
-                    addVoteToQuestion(question)
-                    increaseView(question)
-                    htmlQuestion(question)
-                } else {
-                    console.log(response)
-                }
-            }
-        }
+        $.ajax({
+            url: url + 'question/' + questionId,
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'GET',
+            dataType: 'json',
+            success: (response) => {
+                question = response
 
-        const Http2 = new XMLHttpRequest();
-        Http2.open("POST", url + 'answer/group', true);
-        Http2.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http2.send(params);
-        Http2.onreadystatechange = (e) => {
-            if (Http2.readyState === 4 && Http2.status === 200) {
-                response = JSON.parse(Http2.responseText)
-                if (response["confirmation"] === "success") {
-                    createDivAnswers(response["answers"])
-                } else {
-                    console.log(response)
-                }
+                addVoteToQuestion()
+                htmlQuestion()
+
+                createDivAnswers()
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
-    function htmlQuestion(question) {
+    function htmlQuestion() {
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["html"]
         let creator = document.getElementById("creator")
-        creator.innerHTML = "Created by <b> <a href='http://localhost:3001/profile?nickname=" + question["nickname"] + "'>" + question["nickname"] + "</a></b>"
+        creator.innerHTML = "Created by <b> <a href='http://localhost:3001/profile?nickname=" + question["idCreator"] + "'>" + question["idCreator"] + "</a></b>"
     }
 
-    function createDivAnswers(answers) {
+    function createDivAnswers() {
+        var answers = question['answers']
         let treeLevel = 0
         let rootDiv = document.getElementById("root")
         rootDiv.innerHTML = ""
@@ -472,7 +405,7 @@
         }
     }
 
-    function addVoteToQuestion(question) {
+    function addVoteToQuestion() {
         let divVoteQuestion = document.getElementById("divVoteQuestion")
         divVoteQuestion.innerHTML = ""
 
@@ -480,10 +413,8 @@
         voteUp.setAttribute("class", "row")
         voteUp.style.margin = "0 auto"
         let aUp = document.createElement("a")
-        aUp.setAttribute("element", JSON.stringify(question))
         aUp.addEventListener("click", function (event) {
-            let el = JSON.parse(this.getAttribute("element"))
-            updateVoteQuestion(el, 1)
+            updateVoteQuestion(1)
         })
         aUp.href = "javascript:"
         let imgUp = document.createElement("img")
@@ -502,10 +433,8 @@
         voteDown.setAttribute("class", "row")
         voteDown.style.margin = "0 auto"
         let aDown = document.createElement("a")
-        aDown.setAttribute("element", JSON.stringify(question))
         aDown.addEventListener("click", function (event) {
-            let el = JSON.parse(this.getAttribute("element"))
-            updateVoteQuestion(el, -1)
+            updateVoteQuestion(-1)
         })
         aDown.href = "javascript:"
         let imgDown = document.createElement("img")
@@ -575,46 +504,46 @@
 
     function updateVoteAnswer(el, vote) {
         let params = JSON.stringify({
-            search: el["_id"],
-            update: { $inc: { vote: vote } },
-            nick: nick,
+            vote: vote
         })
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'answer/updateVote', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    getQuestionAndAnswers()
-                } else {
-                    console.log("updateVoteAnswer ", response)
-                }
+        $.ajax({
+            url: url + 'question/answer/' + questionId + "&" + profileData['id'] + "&" + el["_id"],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                getQuestionAndAnswers()
+            },
+            error: (err) => {
+                console.log("err", err)
             }
-        }
+        })
     }
 
-    function updateVoteQuestion(el, vote) {
+    function updateVoteQuestion(vote) {
         let params = JSON.stringify({
-            search: el["_id"],
-            update: { $inc: { vote: vote } },
-            nick: nick,
+            vote: vote
         })
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'question/updateVote', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    getQuestionAndAnswers()
-                } else {
-                    console.log(response)
-                }
+        $.ajax({
+            url: url + 'question/' + questionId + "&" + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                getQuestionAndAnswers()
+            },
+            error: (err) => {
+                console.log("err", err)
             }
-        }
+        })
     }
 
     function createDiv(element) {
@@ -701,29 +630,28 @@
             alert("Write something")
             return
         }
+
         let params = JSON.stringify({
-            title: title,
-            nickname: nick,
             data: data,
-            time: Date.now(),
             level: level,
-            vote: 0,
             parent: idParent,
         })
-        const Http = new XMLHttpRequest();
-        Http.open("POST", url + 'answer/create', true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    input.setAttribute("myId", response["data"]["_id"])
-                    getQuestionAndAnswers()
-                } else {
-                    console.log(response)
-                }
+        $.ajax({
+            url: url + 'question/answer/create/' + questionId + "&" + profileData['id'],
+            headers: {
+                'Authorization': authToken['Authorization'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                input.setAttribute("myId", response["_id"])
+                getQuestionAndAnswers()
+            },
+            error: (err) => {
+                console.log("err", err)
             }
-        }
+        })
     }
 </script>

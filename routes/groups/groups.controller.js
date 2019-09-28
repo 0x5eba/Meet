@@ -24,7 +24,7 @@ exports.uniqueName = (req, res, next) => {
             }
         })
         .catch(err => {
-            res.status(403).send()
+            res.status(403).send({})
         })
 }
 
@@ -88,20 +88,18 @@ exports.removeById = (req, res) => {
 };
 
 exports.getProfilePos = (req, res, next) => {
-    return new Promise((resolve, reject) => {
-        getProfilePosFromProfile(req.params.userId)
-            .then((pos) => {
-                if (!pos || pos['pos'] === undefined) {
-                    res.status(403).send({ errors: ['User not found'] });
-                } else {
-                    req.body.pos = pos['pos'];
-                    return next();
-                }
-            })
-            .catch(err => {
-                res.status(403).send({err: err})
-            })
-    });
+    getProfilePosFromProfile(req.params.userId)
+        .then((pos) => {
+            if (!pos || pos['pos'] === undefined) {
+                res.status(403).send({ errors: ['User not found'] });
+            } else {
+                req.body.pos = pos['pos'];
+                return next();
+            }
+        })
+        .catch(err => {
+            res.status(403).send({err: err})
+        })
 };
 
 exports.getIsSub = (req, res) => {
@@ -149,7 +147,7 @@ exports.getMessagesWithLimit = (req, res) => {
             res.status(201).send({messages: messages});
         })
         .catch(err => {
-            res.status(403).send()
+            res.status(403).send({})
         })
 };
 
@@ -159,12 +157,12 @@ exports.checkLastMessage = (req, res) => {
             res.status(201).send(result);
         })
         .catch(err => {
-            res.status(403).send()
+            res.status(403).send({})
         })
 };
 
 exports.writeMessage = (req, res) => {
-    GroupController.updateMessages(req.params.groupId, req.params.userId, req.body.data, Date.now())
+    GroupController.createMessages(req.params.groupId, req.params.userId, req.body.data, Date.now())
         .then((result) => {
             res.status(201).send({res: result});
         })

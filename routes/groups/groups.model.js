@@ -137,8 +137,8 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
         }, 
         { "$match": { "circle": { $lte: range_search }, 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } } }
     ])
-        .then(profiles => {
-            data.features = profiles
+        .then(groups => {
+            data.features = groups
             res.status(200).send(data);
         });
 };
@@ -162,7 +162,7 @@ exports.getLastMessageTimestamp = (groupId, lastTime) => {
     });
 };
 
-exports.updateMessages = (groupId, userId, data, timestamp) => {
+exports.createMessages = (groupId, userId, data, timestamp) => {
     message = {
         sender: userId,
         time: timestamp,

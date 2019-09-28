@@ -11,6 +11,7 @@ app.use(express.static(__dirname + '/public/'));
 const AuthorizationRouter = require('./routes/authorization/routes.config');
 const UsersRouter = require('./routes/profiles/routes.config');
 const GroupRouter = require('./routes/groups/routes.config');
+const QuestionRouter = require('./routes/questions/routes.config');
 
 app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
@@ -28,6 +29,7 @@ app.use(function (req, res, next) {
 AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
 GroupRouter.routesConfig(app);
+QuestionRouter.routesConfig(app);
 
 const dbRoute = 'mongodb://localhost:27017/meet';
 const mongoose = require('mongoose')

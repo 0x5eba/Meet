@@ -10,7 +10,7 @@ exports.minimumPermissionLevelRequired = (required_permission_level) => {
             return next();
         } else {
             console.log("403", "minimumPermissionLevelRequired")
-            return res.status(403).send();
+            return res.status(403).send({});
         }
     };
 };
@@ -25,7 +25,7 @@ exports.onlySameUserOrAdminCanDoThisAction = (req, res, next) => {
             return next();
         } else {
             console.log("403", "onlySameUserOrAdminCanDoThisAction")
-            return res.status(403).send();
+            return res.status(403).send({});
         }
     }
 };
