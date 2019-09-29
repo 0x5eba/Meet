@@ -65,6 +65,11 @@ exports.routesConfig = function (app) {
         GroupController.getAllSubs,
         GroupController.getShowSubs
     ]);
+    app.post('/api/group/search', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.searchGroups,
+    ]);
 
     /*************************
     *     GROUP MESSAGES     *

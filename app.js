@@ -8,10 +8,10 @@ app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public/'));
 // app.use(bodyParser.urlencoded({ extended: false }));
 
-const AuthorizationRouter = require('./routes/authorization/routes.config');
-const UsersRouter = require('./routes/profiles/routes.config');
-const GroupRouter = require('./routes/groups/routes.config');
-const QuestionRouter = require('./routes/questions/routes.config');
+const AuthorizationRouter = require('./models/authorization/routes.config');
+const UsersRouter = require('./models/profiles/routes.config');
+const GroupRouter = require('./models/groups/routes.config');
+const QuestionRouter = require('./models/questions/routes.config');
 
 app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', 'https://sebastienbiollo.com');
@@ -123,7 +123,7 @@ router.post('/delete_file', function (req, res) {
 
 app.use('/', router)
 
-// const api = require('./routes/api')
+// const api = require('./models/api')
 // app.use('/api', api) // sample API Routes
 
 const fs = require('fs');

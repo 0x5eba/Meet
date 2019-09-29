@@ -2,6 +2,7 @@ const GroupController = require('./groups.model');
 const getProfilePosFromProfile = require('../profiles/profiles.model')['profilePos']
 const showSubsOnMapFromProfile = require('../profiles/profiles.model')['subsOnMap']
 const crypto = require('crypto');
+var escapeRegExp = require('lodash.escaperegexp');
 
 exports.insert = (req, res) => {
     req.body = {
@@ -170,3 +171,14 @@ exports.writeMessage = (req, res) => {
             res.status(403).send({err: err})
         })
 };
+
+exports.searchGroups = (req, res) => {
+    search = escapeRegExp(req.body.search)
+    GroupController.searchGroups(search)
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: err })
+        })
+}

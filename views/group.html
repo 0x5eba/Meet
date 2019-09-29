@@ -237,19 +237,44 @@
 
     var answersChat;
 
-    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
         if(authToken === null){
-            let auth = JSON.parse(localStorage.getItem("auth"))
-            if(auth === null){
-                window.location.href = "http://localhost:3001/login"
-            }
-            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
-            authToken = JSON.parse(sessionStorage.getItem("authToken"))
+            window.location.href = "http://localhost:3001/login"
         }
+        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
+
+        refreshToken()
     }
     session()
+
+    function refreshToken(first=false) {
+        $.ajax({
+            url: url + 'auth/refresh',
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                } else {
+                    window.location.href = "http://localhost:3001/login"
+                }
+            },
+            error: (err) => {
+                window.location.href = "http://localhost:3001/login"
+            }
+        })
+    }
+    window.setInterval(function () {
+        refreshToken()
+    }, 1700000);
 
     if (groupId !== null) {
         checkIfSubscribed()
@@ -302,10 +327,12 @@
         $.ajax({
             url: url + 'group/isSub/' + groupId + "&" + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'GET',
+            dataType: 'json',
             success: (response) => {
                 if(response) {
                     showWrite()
@@ -334,9 +361,10 @@
                 $.ajax({
                     url: url + 'group/chat/write/' + groupId + "&" + profileData['id'],
                     headers: {
-                        'Authorization': authToken['Authorization'],
+                        'Authorization': authToken['accessToken'],
                         'Content-Type': 'application/json; charset=UTF-8',
                     },
+                    credentials: 'include',
                     method: 'PATCH',
                     dataType: 'json',
                     data: params,
@@ -361,9 +389,10 @@
         $.ajax({
             url: url + 'group/' + groupId + "&" + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,
@@ -385,9 +414,10 @@
         $.ajax({
             url: url + 'profile/bookmarkGroup/' + profileData['id'] + "&" + groupId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             success: (response) => {
@@ -420,9 +450,10 @@
         $.ajax({
             url: url + 'group/' + groupId + "&" + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,
@@ -442,9 +473,10 @@
         $.ajax({
             url: url + 'group/' + groupId + "&" + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,
@@ -466,9 +498,10 @@
         $.ajax({
             url: url + 'group/chat/messages/' + groupId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             data: params,
@@ -553,9 +586,10 @@
         $.ajax({
             url: url + 'group/chat/checkLastMessage/' + groupId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             data: params,
@@ -576,9 +610,10 @@
         $.ajax({
             url: url + 'group/peopleOnline/' + groupId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'GET',
             dataType: 'json',
             success: (response) => {
@@ -607,9 +642,10 @@
         $.ajax({
             url: url + 'group/nOnline/' + groupId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'GET',
             dataType: 'json',
             success: (response) => {

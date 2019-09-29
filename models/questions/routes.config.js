@@ -51,6 +51,11 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         QuestionController.allQuestions
     ]);
+    app.post('/api/question/search', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        QuestionController.searchQuestions,
+    ]);
    
 
     /*************************

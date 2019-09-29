@@ -103,30 +103,55 @@
 
     var coordToUse = "coords"
 
-    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
         if(authToken === null){
-            let auth = JSON.parse(localStorage.getItem("auth"))
-            if(auth === null){
-                window.location.href = "http://localhost:3001/login"
-            }
-            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
-            authToken = JSON.parse(sessionStorage.getItem("authToken"))
+            window.location.href = "http://localhost:3001/login"
         }
+        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
-        if (questionId === null && profileData['fakePos'] === undefined) {
-            if (profileData['coords'] === undefined || (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0)) {
-                window.location.href = "http://localhost:3001/"
-            } else { // vuol dire che non ha fakePos, ma ha coords
-                coordToUse = 'coords'
-            }
-        }
-        if (questionId === null && profileData['fakePos'] !== undefined) {
-            coordToUse = 'fakePos'
-        }
+        refreshToken()
     }
     session()
+
+    function refreshToken(first=false) {
+        $.ajax({
+            url: url + 'auth/refresh',
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+
+                    if (questionId === null && profileData['fakePos'] === undefined) {
+                        if (profileData['coords'] === undefined || (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0)) {
+                            window.location.href = "http://localhost:3001/"
+                        } else { // vuol dire che non ha fakePos, ma ha coords
+                            coordToUse = 'coords'
+                        }
+                    }
+                    if (questionId === null && profileData['fakePos'] !== undefined) {
+                        coordToUse = 'fakePos'
+                    }
+                } else {
+                    window.location.href = "http://localhost:3001/login"
+                }
+            },
+            error: (err) => {
+                window.location.href = "http://localhost:3001/login"
+            }
+        })
+    }
+    window.setInterval(function () {
+        refreshToken()
+    }, 1700000);
 
 
     var optionsEditor = {
@@ -227,9 +252,10 @@
         $.ajax({
             url: url + 'profile/bookmarkQuestion/' + profileData['id'] + "&" + question["_id"],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             success: (response) => {
@@ -260,9 +286,10 @@
         $.ajax({
             url: url + 'question/create/' + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             data: params,
@@ -279,9 +306,10 @@
         $.ajax({
             url: url + 'question/' + questionId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'GET',
             dataType: 'json',
             success: (response) => {
@@ -509,9 +537,10 @@
         $.ajax({
             url: url + 'question/answer/' + questionId + "&" + profileData['id'] + "&" + el["_id"],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,
@@ -531,9 +560,10 @@
         $.ajax({
             url: url + 'question/' + questionId + "&" + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,
@@ -639,9 +669,10 @@
         $.ajax({
             url: url + 'question/answer/create/' + questionId + "&" + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,

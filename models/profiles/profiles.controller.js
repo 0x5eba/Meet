@@ -1,5 +1,6 @@
 const ProfileController = require('./profiles.model');
 const crypto = require('crypto');
+var escapeRegExp = require('lodash.escaperegexp');
 
 exports.insert = (req, res) => {
     let salt = crypto.randomBytes(16).toString('base64');
@@ -100,3 +101,14 @@ exports.allProfiles = (req, res) => {
 
     ProfileController.findByPos(search_x, search_y, range_search, res)
 };
+
+exports.searchProfiles = (req, res) => {
+    search = escapeRegExp(req.body.search)
+    ProfileController.searchProfiles(search)
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: err })
+        })
+}

@@ -55,7 +55,6 @@ function newAccessToken(req) {
 
     if (cookieRefreshToken) {
         // qui devi controllare se refresh token e' valido, se lo e' crea un nuovo accesstoken e mettilo in req, poi fai next()
-
         try {
             jwt.verify(cookieRefreshToken, jwtSecret2, function (err, decoded) {
                 if (err) return false

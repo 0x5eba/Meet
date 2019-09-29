@@ -182,3 +182,13 @@ exports.subsOnMap = (listIds, res) => {
             res.status(200).send(data);
         });
 };
+
+exports.searchProfiles = (search) => {
+    return Profile.find({
+        "$or": [
+            { nickname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+            { name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+            { surname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }
+        ]
+    }, {nickname: 1, name: 1, surname: 1}).limit(20)
+}

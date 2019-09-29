@@ -176,3 +176,7 @@ exports.createMessages = (groupId, userId, data, timestamp) => {
         })
     });
 };
+
+exports.searchGroups = (search) => {
+    return Group.find({ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }, { name: 1 }).limit(20)
+}

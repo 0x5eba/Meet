@@ -2,6 +2,7 @@ const QuestionController = require('./questions.model');
 const getProfilePosFromProfile = require('../profiles/profiles.model')['profilePos']
 const showSubsOnMapFromProfile = require('../profiles/profiles.model')['subsOnMap']
 const crypto = require('crypto');
+var escapeRegExp = require('lodash.escaperegexp');
 
 exports.insert = (req, res) => {
     req.body = {
@@ -175,3 +176,14 @@ exports.patchByIdVoteAnswer = (req, res) => {
         res.status(403).send({ err: "Wrong vote" })
     }
 };
+
+exports.searchQuestions = (req, res) => {
+    search = escapeRegExp(req.body.search)
+    QuestionController.searchQuestions(search)
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: err })
+        })
+}

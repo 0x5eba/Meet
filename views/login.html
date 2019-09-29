@@ -168,47 +168,6 @@
                     localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
                     localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: nickname }));
 
-                    // $.ajax({
-                    //     url: url + 'profile/allProfiles',
-                    //     headers: {
-                    //         'Authorization': "Bearer " + res['accessToken'],
-                    //         'Content-Type': 'application/json; charset=UTF-8',
-                    //     },
-                    //     credentials: 'include',
-                    //     method: 'POST',
-                    //     dataType: 'json',
-                    //     data: params,
-                    //     success: (res) => {
-
-                    //         if(res["accessToken"] !== undefined){
-                    //             localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
-
-                    //             $.ajax({
-                    //                 url: url + 'profile/allProfiles',
-                    //                 headers: {
-                    //                     'Authorization': "Bearer " + res['accessToken'],
-                    //                     'Content-Type': 'application/json; charset=UTF-8',
-                    //                 },
-                    //                 credentials: 'include',
-                    //                 method: 'POST',
-                    //                 dataType: 'json',
-                    //                 data: params,
-                    //                 success: (res2) => {
-                    //                     console.log("ok2", res2)
-                    //                 },
-                    //                 error: (err) => {
-                    //                     console.log(err)
-                    //                 }
-                    //             })
-                    //         } else {
-                    //             console.log("ok", res)
-                    //         }
-                    //     },
-                    //     error: (err) => {
-                    //         console.log(err)
-                    //     }
-                    // })
-
                     let view = {
                         questions: 0,
                         groups: 0,

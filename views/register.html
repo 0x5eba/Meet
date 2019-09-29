@@ -161,10 +161,10 @@
     function login(params) {
         delete params['name']
         delete params['surname']
+
         $.ajax({
             url: url + 'auth',
             headers: {
-                // 'Authorization': 'Basic xxxxxxxxxxxxx',
                 'Content-Type': 'application/json; charset=UTF-8',
             },
             method: 'POST',

@@ -170,30 +170,55 @@
 <script>
     const url = 'http://localhost:3001/api/';
     var currentUrl = new URL(window.location.href);
-    
-    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+
+    var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
-        
     function session(){
-        if (authToken === null) {
-            let auth = JSON.parse(localStorage.getItem("auth"))
-            if (authToken === null) {
-                window.location.href = "http://localhost:3001/login"
-            }
-            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
-            authToken = JSON.parse(sessionStorage.getItem("authToken"))
+        if(authToken === null){
+            window.location.href = "http://localhost:3001/login"
         }
+        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
+
+        refreshToken(true)
     }
     session()
 
-    $(document).ready(function () {
-        var profileId = currentUrl.searchParams.get("nickname");
-        if(profileId != null){
-            getProfile(profileId)
-        } else {
-            console.log("No profileId");
-        }
-    })
+    function refreshToken(first=false) {
+        $.ajax({
+            url: url + 'auth/refresh',
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                } else {
+                    window.location.href = "http://localhost:3001/login"
+                }
+
+                if(first){
+                    var profileId = currentUrl.searchParams.get("nickname");
+                    if (profileId != null) {
+                        getProfile(profileId)
+                    } else {
+                        console.log("No profileId");
+                    }
+                }
+            },
+            error: (err) => {
+                window.location.href = "http://localhost:3001/login"
+            }
+        })
+    }
+    window.setInterval(function () {
+        refreshToken()
+    }, 1700000);
+
 
     function timeConverter(UNIX_timestamp) {
         var a = new Date(UNIX_timestamp);
@@ -212,11 +237,12 @@
         $.ajax({
             url: url + 'profile/' + profileId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'GET',
-            // dataType: 'json',
+            dataType: 'json',
             success: (profile) => {
 
                 document.getElementById("nickname").innerHTML = profile["nickname"]

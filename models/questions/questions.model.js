@@ -172,3 +172,13 @@ exports.createAnswer = (questionId, userId, body, timestamp) => {
         })
     });
 };
+
+exports.searchQuestions = (search) => {
+    return Question.find({
+        "$or": [
+            { title: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+            { details: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+            { details: { "$regex": new RegExp("^[#]" + search.toLowerCase(), "i") } }
+        ]
+    }, { title: 1, details: 1 }).limit(20)
+}

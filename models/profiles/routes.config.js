@@ -56,4 +56,9 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         ProfileController.allProfiles
     ]);
+    app.post('/api/profile/search', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        ProfileController.searchProfiles,
+    ]);
 };

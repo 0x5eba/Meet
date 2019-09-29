@@ -385,20 +385,30 @@
         if(authToken === null){
             window.location.href = "http://localhost:3001/login"
         }
+        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
+        refreshToken(true)
+    }
+    session()
+
+    function refreshToken(first=false) {
         $.ajax({
             url: url + 'auth/refresh',
             headers: {
-                'Authorization': "Bearer " + authToken['accessToken'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
             credentials: 'include',
             method: 'POST',
             dataType: 'json',
             success: (res) => {
-                if(res["accessToken"] !== undefined){
-                    sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
-                    authToken = "Bearer " + res['accessToken']
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+
+                    if(first){
+                        handlePermission()
+                    }
                 } else {
                     window.location.href = "http://localhost:3001/login"
                 }
@@ -407,18 +417,10 @@
                 window.location.href = "http://localhost:3001/login"
             }
         })
-
-        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
-
-        handlePermission()
     }
-    session()
-
-    // function refreshToken() {
-    //     sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
-    //     authToken = JSON.parse(sessionStorage.getItem("authToken"))
-    // }
-
+    window.setInterval(function () {
+        refreshToken()
+    }, 1700000);
 
     var modal = document.getElementById("myModal");
     var resSearch = document.getElementById("res-search");
@@ -475,63 +477,64 @@
         let params = JSON.stringify({
             search: search,
         })
+        $.ajax({
+            url: url + type + '/search',
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (response) => {
+                if(response.length > 0){
+                    let p = document.createElement("p")
+                    let textnode = document.createTextNode(type.charAt(0).toUpperCase() + type.slice(1) + "s");
+                    p.setAttribute('id', 'titles')
+                    p.appendChild(textnode)
+                    resSearch.appendChild(p)
 
-        let Http = new XMLHttpRequest();
-        Http.open("POST", url + 'search/' + type, true);
-        Http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-        Http.send(params);
-        Http.onreadystatechange = (e) => {
-            if (Http.readyState === 4 && Http.status === 200) {
-                let response = JSON.parse(Http.responseText)
-                if (response["confirmation"] === "success") {
-                    if(response[type].length > 0){
+                    response.forEach(function (element) {
+                        let a = document.createElement("a")
+                        if (type === "group") {
+                            let href = "http://localhost:3001/group?groupid=" + element['_id']
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', type)
+                            textnode = document.createTextNode(element['name'])
+                        }
+                        if (type === "question") {
+                            let href = "http://localhost:3001/question?title=" + element['_id']
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', type)
+                            textnode = document.createTextNode(element['title'])
+                        }
+                        if (type === "profile") {
+                            let href = "http://localhost:3001/profile?nickname=" + element['_id']
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', type)
+                            textnode = document.createTextNode(element['nickname'])
+                        }
 
-                        let p = document.createElement("p")
-                        let textnode = document.createTextNode(type.charAt(0).toUpperCase() + type.slice(1) + "s");
-                        p.setAttribute('id', 'titles')
-                        p.appendChild(textnode)
-                        resSearch.appendChild(p)
-
-                        response[type].forEach(function (element) {
-                            let a = document.createElement("a")
-                            if (type === "group"){
-                                let href = "http://localhost:3001/group?groupid=" + element['name']
-                                a.setAttribute('href', href)
-                                a.setAttribute('id', type)
-                                textnode = document.createTextNode(element['name'])
-                            }
-                            if (type === "question") {
-                                let href = "http://localhost:3001/question?title=" + element['title']
-                                a.setAttribute('href', href)
-                                a.setAttribute('id', type)
-                                textnode = document.createTextNode(element['title'])
-                            }
-                            if (type === "profile") {
-                                let href = "http://localhost:3001/profile?nickname=" + element['nickname']
-                                a.setAttribute('href', href)
-                                a.setAttribute('id', type)
-                                textnode = document.createTextNode(element['nickname'])
-                            }
-                            
-                            a.appendChild(textnode)
-                            resSearch.appendChild(a)
-                        })
-                    }
-                } else {
-                    console.log(response)
+                        a.appendChild(textnode)
+                        resSearch.appendChild(a)
+                    })
                 }
+            },
+            error: (err) => {
+                console.log(err)
             }
-        }
+        })
     }
 
     function getSaved() {
-
         $.ajax({
             url: url + 'profile/getSaved/' + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             success: (response) => {
@@ -1287,9 +1290,10 @@
         $.ajax({
             url: url + 'profile/' + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,
@@ -1334,9 +1338,10 @@
         $.ajax({
             url: url + 'profile/' + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
             data: params,
@@ -1367,9 +1372,10 @@
         $.ajax({
             url: url + 'group/create/' + profileData['id'],
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             data: params,
@@ -1389,9 +1395,10 @@
         $.ajax({
             url: url + 'group/showSubs/' + groupId,
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             success: (response) => {
@@ -1428,9 +1435,10 @@
         $.ajax({
             url: url + 'profile/allProfiles',
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             data: params,
@@ -1457,9 +1465,10 @@
         $.ajax({
             url: url + 'group/allGroups',
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             data: params,
@@ -1487,9 +1496,10 @@
         $.ajax({
             url: url + 'question/allQuestions',
             headers: {
-                'Authorization': authToken['Authorization'],
+                'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
+            credentials: 'include',
             method: 'POST',
             dataType: 'json',
             data: params,
