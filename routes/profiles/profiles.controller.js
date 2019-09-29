@@ -41,11 +41,11 @@ exports.getById = (req, res) => {
 };
 
 exports.patchById = (req, res) => {
-    if (req.body.password) {
-        let salt = crypto.randomBytes(16).toString('base64');
-        let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
-        req.body.password = salt + "$" + hash;
-    }
+    // if (req.body.password) {
+    //     let salt = crypto.randomBytes(16).toString('base64');
+    //     let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
+    //     req.body.password = salt + "$" + hash;
+    // }
 
     ProfileController.patchUser(req.params.userId, req.body)
         .then((result) => {

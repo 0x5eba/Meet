@@ -171,9 +171,8 @@
             dataType: 'json',
             data: params,
             success: (res) => {
-                localStorage.setItem("auth", JSON.stringify(res))
-                localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: params['nickname'] }));
-                sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+                localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+                localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: nickname }));
 
                 let view = {
                     questions: 0,

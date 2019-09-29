@@ -35,7 +35,6 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                     req.body = {
                         userId: user._id,
                         nickname: user.nickname,
-                        name: user.firstName + ' ' + user.lastName,
                     };
                     return next();
                 } else {

@@ -19,48 +19,6 @@ function escapeRegExp(string) {
 }
 
 /*************************
-*         ANSWERS        *
-**************************/
-
-router.post('/answer/updateVote', (req, res) => {
-	const query = req.body
-	const search = query.search
-	const update = query.update
-	const nick = query.nick
-
-	Answer.updateOne({ _id: search }, { $addToSet: { whoVoted: nick } })
-		.then(answer => {
-			if (answer["nModified"] === 1) {
-				Answer.updateOne({ _id: search }, update)
-					.then(answer => {
-						res.json({
-							confirmation: 'success',
-							data: answer,
-						})
-					})
-					.catch(err => {
-						res.json({
-							confirmation: 'fail',
-							message: err.message
-						})
-					})
-			} else {
-				res.json({
-					confirmation: 'fail',
-					message: "You already voted",
-					data: answer,
-				})
-			}
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
-
-/*************************
 *         SEARCH         *
 **************************/
 
@@ -101,7 +59,7 @@ router.post('/search/group', (req, res) => {
 	// 	"score": { "$meta": "textScore" }
 	// })
 
-	Group.find({ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }).limit(10)
+	Group.find({ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }).limit(20)
 		.then(group => {
 			res.json({
 				confirmation: 'success',
@@ -168,45 +126,5 @@ router.post('/search/profile', (req, res) => {
 		})
 })
 
-
-/*************************
-*         CITIES         *
-**************************/
-
-router.post('/cities/allCities', (req, res) => {
-	let data = {
-		"type": "FeatureCollection",
-		"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-		"features": []
-	}
-
-	Cities.find()
-		.then(cities => {
-			for (let i = 0; i < cities.length; ++i) {
-				// console.log(cities[i]['lng'], cities[i]['lat'])
-				let data2 = {
-					"type": "Feature",
-					"properties": {
-						'country': cities[i]['country'],
-						'name': cities[i]['name'],
-						"mag": 2.0
-					},
-					"geometry": { "type": "Point", "coordinates": [cities[i]['lng'], cities[i]['lat']] }
-				}
-				data.features.push(data2)
-			}
-
-			res.json({
-				confirmation: 'success',
-				cities: data,
-			})
-		})
-		.catch(err => {
-			res.json({
-				confirmation: 'fail',
-				message: err.message
-			})
-		})
-})
 
 module.exports = router

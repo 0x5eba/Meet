@@ -379,23 +379,45 @@
     var slider = new Slider('#ex5');
     var rangeView;
 
-    var authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
         if(authToken === null){
-            let auth = JSON.parse(localStorage.getItem("auth"))
-            if(auth === null){
+            window.location.href = "http://localhost:3001/login"
+        }
+
+        $.ajax({
+            url: url + 'auth/refresh',
+            headers: {
+                'Authorization': "Bearer " + authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+                if(res["accessToken"] !== undefined){
+                    sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+                    authToken = "Bearer " + res['accessToken']
+                } else {
+                    window.location.href = "http://localhost:3001/login"
+                }
+            },
+            error: (err) => {
                 window.location.href = "http://localhost:3001/login"
             }
-            sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
-            authToken = JSON.parse(sessionStorage.getItem("authToken"))
-        }
+        })
 
         rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
         handlePermission()
     }
     session()
+
+    // function refreshToken() {
+    //     sessionStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + auth['accessToken'] }))
+    //     authToken = JSON.parse(sessionStorage.getItem("authToken"))
+    // }
 
 
     var modal = document.getElementById("myModal");
@@ -736,6 +758,7 @@
                         "type": "Feature",
                         "properties": {
                             'nickname': profileData['nickname'],
+                            'id': profileData['id'],
                             "mag": 6.0
                         },
                         "geometry": { "type": "Point", "coordinates": profileData['fakePos'] }
@@ -759,6 +782,7 @@
                     "type": "Feature",
                     "properties": {
                         'nickname': profileData['nickname'],
+                        'id': profileData['id'],
                         // 'name': profileData['name'],
                         // 'surname': profileData['surname'],
                         "mag": 2.0
