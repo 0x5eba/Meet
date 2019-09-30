@@ -62,9 +62,11 @@
 
     <div id="myModal" class="modal">
         <div class="modal-content" id="modal-content">
-            <span id="closeModal" class="close">&times;</span>
+            <button type="button" class="close">
+                <span id="closeModal">&times;</span>
+            </button>
 
-            <h1 id="title-model" style="text-align: center;"></h1>
+            <h1 id="title-model" style="text-align: center; margin-top: 20px;"></h1>
 
             <div id='search-icon' style="display: none;">
                 <div class="d-flex justify-content-center" style="margin-top:10px; margin-bottom: 30px">
@@ -123,11 +125,11 @@
         </div>
     </div>
 
-    <div class="alert alert-primary alert-dismissible fade show" role="alert">
-        This is a primary alert check 
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="showError" style="display: none;">
+        <button type="button" class="close">
+            <span id="closeAlert">&times;</span>
         </button>
+        <div id="messageError"></div>
     </div>
 
 </body>
@@ -163,6 +165,16 @@
         border-bottom-color: #bbb;
         border-radius: 3px;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.15); */
+    }
+
+    #showError {
+        position: fixed;
+        left: 50%;
+        bottom: 40px;
+        transform: translate(-50%, -50%);
+        border-radius: 20px;
+        width: 90%;
+        height: auto;
     }
 
     #btn-home {
@@ -326,19 +338,31 @@
         overflow: auto;
     }
 
-    .close {
+    #closeAlert {
+        float: right;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: end;
+    }
+    #closeAlert:hover,
+    #closeAlert:focus {
+        color: #000;
+        text-decoration: none;
+    }
+
+    #closeModal {
         color: #aaaaaa;
         float: right;
         font-size: 28px;
         font-weight: bold;
         text-align: end;
     }
-
-    .close:hover,
-    .close:focus {
+    #closeModal:hover,
+    #closeModal:focus {
         color: #000;
         text-decoration: none;
     }
+    
 
     #titles {
         padding-left: 3%;
@@ -394,15 +418,15 @@
         }
         rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
-        refreshToken(handlePermission())
+        newAccessToken(() => handlePermission())
     }
     session()
 
-    function refreshToken(_callback=null) {
+    function newAccessToken(_callback=null) {
         $.ajax({
             url: url + 'auth/refresh',
             headers: {
-                'Authorization': authToken['accessToken'],
+                // 'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
             credentials: 'include',
@@ -426,7 +450,7 @@
         })
     }
     window.setInterval(function () {
-        refreshToken()
+        newAccessToken()
     }, 1700000);
 
     var modal = document.getElementById("myModal");
@@ -445,9 +469,17 @@
             window.location.href = "http://localhost:3001/"
         }
     }
-    
     document.getElementById("closeModal").onclick = function () {
         closeMenu()
+    }
+
+    document.getElementById("closeAlert").onclick = function () {
+        document.getElementById("showError").style.display = "none"
+        document.getElementById("messageError").innerHTML = ""
+    }
+    function showAlertError(err) {
+        document.getElementById("showError").style.display = "block";
+        document.getElementById("messageError").innerText = err
     }
 
     function delay(callback, ms) {
@@ -538,13 +570,13 @@
             },
             error: (err) => {
                 if(err['err'] === "Invalid access token"){
-                    refreshToken(() => searchInDB(search, type))
+                    newAccessToken(() => searchInDB(search, type))
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
                     window.location.href = "http://localhost:3001/login"
                 } else {
-                    $(".alert").alert()
+                    showAlertError(err)
                     console.log(err)
                 }
             }
@@ -705,14 +737,14 @@
                     if(profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
                         showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
                     } else { // vuol dire che all'inizio ha bloccato, poi ha riacconsentito, e quindi e' ancora in [0, 0]
-                        navigator.geolocation.getCurrentPosition(showPosition, showError);
+                        navigator.geolocation.getCurrentPosition(showPosition, errorGetPosition);
                     }
                 }
             } else {
                 if (result.state === 'granted') {
-                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                    navigator.geolocation.getCurrentPosition(showPosition, errorGetPosition);
                 } else if (result.state === 'prompt') {
-                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                    navigator.geolocation.getCurrentPosition(showPosition, errorGetPosition);
                 } else if (result.state === 'denied') {
                     noGPS()
                 }
@@ -738,7 +770,7 @@
         getData(state_view)
     }
 
-    function showError(error) {
+    function errorGetPosition(error) {
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 // alert("User denied the request for Geolocation.")

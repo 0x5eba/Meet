@@ -1,6 +1,6 @@
 module.exports = {
-    "jwtSecret": "myS33!!creeTt7",
-    "jwtSecret2": "7P4Ss0rd!F4rL337",
+    "jwtSecret": "ko270mcn43AmADuJfel0!ES6uY-ApfsDp9qF5eWlHKhILFbF4F",
+    "jwtSecret2": "dxkil8Rk-wQCrizbzhqIUz64-Z_b3nnebzzMWiSEJ78l711KZX",
     "jwtExpireAccessToken": 1800, // 30 min
     "jwtExpireRefreshToken": 345600, // 4 days
     "permissionLevels": {
