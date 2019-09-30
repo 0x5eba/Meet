@@ -18,46 +18,42 @@ const ProfileModel = new mongoose.Schema({
     savedQuestion: { type: [String], default: [] },
 })
 
-// ProfileModel.index({
-//     nickname: 'text',
-//     name: 'text',
-//     surname: 'text',
-// }, {
-//     weights: {
-//         nickname: 10,
-//         name: 6,
-//         surname: 6,
-//     },
-// })
-
 const Profile = mongoose.model('Profile', ProfileModel);
 
 exports.findByNickname = (nickname) => {
-    return Profile.findOne({ nickname: nickname }, { fakePos: 0, savedGroup: 0, savedQuestion: 0 });
+    return new Promise((resolve, reject) => {
+        Profile.findOne({ nickname: nickname }, { fakePos: 0, savedGroup: 0, savedQuestion: 0 }, function (err, user) {
+            if (err) reject(err);
+            resolve(user);
+        });
+    })
 };
 
 exports.findById = (id) => {
-    return Profile.findById(id, { password: 0, permissionLevel: 0 })
-        .then((result) => {
-            return result.toJSON();
+    return new Promise((resolve, reject) => {
+        Profile.findById(id, { password: 0, permissionLevel: 0 }, function (err, user) {
+            if (err) reject(err);
+            resolve(user);
         });
+    })
 };
 
 exports.createUser = (userData) => {
-    const user = new Profile(userData);
-    return user.save();
+    return new Promise((resolve, reject) => {
+        const user = new Profile(userData);
+        user.save(function (err, newuser) {
+            if (err) return reject(err);
+            resolve(newuser);
+        });
+    })
 };
 
 exports.list = () => {
     return new Promise((resolve, reject) => {
-        Profile.find({}, { password: 0, permissionLevel: 0 })
-            .exec(function (err, users) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(users);
-                }
-            })
+        Profile.find({}, { password: 0, permissionLevel: 0 }, function (err, users) {
+            if (err) reject(err);
+            resolve(users);
+        })
     });
 };
 
@@ -89,12 +85,9 @@ exports.patchUserBookmark = (userId, name, type) => {
 
 exports.removeById = (userId) => {
     return new Promise((resolve, reject) => {
-        Profile.remove({_id: userId}, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(err);
-            }
+        Profile.remove({_id: userId}, (err, profile) => {
+            if (err) reject(err);
+            resolve(profile);
         });
     });
 };
@@ -102,11 +95,8 @@ exports.removeById = (userId) => {
 exports.profilePos = (id) => {
     return new Promise((resolve, reject) => {
         Profile.findById(id, { pos: 1, fakePos: 1 }, (err, profile) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(profile);
-            }
+            if (err) reject(err);
+            resolve(profile);
         });
     });
 };
@@ -148,7 +138,10 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
         .then(profiles => {
             data.features = profiles
             res.status(200).send(data);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error getting profiles near you" })
+        })
 };
 
 
@@ -180,7 +173,10 @@ exports.subsOnMap = (listIds, res) => {
         .then(profiles => {
             data.features = profiles
             res.status(200).send(data);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error getting subscriber" })
+        })
 };
 
 exports.searchProfiles = (search) => {
@@ -190,5 +186,8 @@ exports.searchProfiles = (search) => {
             { name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
             { surname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }
         ]
-    }, {nickname: 1, name: 1, surname: 1}).limit(20)
+    }, {nickname: 1, name: 1, surname: 1}).limit(20).exec(function (err, profiles) {
+        if (err) reject(err);
+        resolve(profiles);
+    });
 }

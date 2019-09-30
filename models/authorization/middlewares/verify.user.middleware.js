@@ -13,12 +13,12 @@ exports.hasAuthValidFields = (req, res, next) => {
         }
 
         if (errors.length) {
-            return res.status(400).send({errors: errors.join(',')});
+            return res.status(400).send({err: errors.join(',')});
         } else {
             return next();
         }
     } else {
-        return res.status(400).send({ errors: 'Missing nickname and password fields'});
+        return res.status(400).send({ err: 'Missing nickname and password fields'});
     }
 };
 
@@ -38,7 +38,7 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                     };
                     return next();
                 } else {
-                    return res.status(400).send({errors: ['Invalid e-mail or password']});
+                    return res.status(400).send({err: 'Invalid e-mail or password'});
                 }
             }
         });

@@ -28,6 +28,6 @@ exports.login = (req, res) => {
         }).send({ id: req.body.userId, accessToken: accessToken });
 
     } catch (err) {
-        res.status(500).send({errors: err});
+        res.status(500).send({err: "Login falied"});
     }
 };

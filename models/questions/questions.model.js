@@ -33,45 +33,58 @@ const QuestionModel = new mongoose.Schema({
 const Question = mongoose.model('Question', QuestionModel)
 
 exports.findByTitle = (title) => {
-    return Question.findOne({ title: title });
+    return new Promise((resolve, reject) => {
+        Question.findOne({ title: title }, function (err, question) {
+            if (err) reject(err);
+            resolve(question);
+        });
+    })
 };
 
 exports.findById = (id) => {
-    return Question.findById(id).sort({ "answers.level": 'asc', "answers.vote": 'desc', "answers.time": 'asc' })
+    return new Promise((resolve, reject) => {
+        Question.findById(id).sort({ "answers.level": 'asc', "answers.vote": 'desc', "answers.time": 'asc' }, function (err, question) {
+            if (err) reject(err);
+            resolve(question);
+        });
+    })
 };
 
 exports.createQuestion = (data) => {
-    const quest = new Question(data);
-    return quest.save();
+    return new Promise((resolve, reject) => {
+        const quest = new Question(data);
+        return quest.save(function (err, question) {
+            if (err) reject(err);
+            resolve(question);
+        });
+    })
 };
 
 exports.list = () => {
     return new Promise((resolve, reject) => {
-        Question.find()
-            .exec(function (err, users) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(users);
-                }
-            })
+        Question.find({}, function (err, question) {
+            if (err) reject(err);
+            resolve(question);
+        })
     });
 };
 
 exports.removeById = (questionId) => {
     return new Promise((resolve, reject) => {
-        Question.remove({ _id: questionId}, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(err);
-            }
+        Question.remove({ _id: questionId}, (err, question) => {
+            if (err) reject(err);
+            resolve(question);
         });
     });
 };
 
 exports.isCreator = (questionId) => {
-    return Question.findById(questionId, { idCreator: 1 })
+    return new Promise((resolve, reject) => {
+        Question.findById(questionId, { idCreator: 1 }, (err, question) => {
+            if (err) reject(err);
+            resolve(question);
+        });
+    });
 };
 
 exports.patchQuestionByCreator = (id, details, html) => {
@@ -153,7 +166,10 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
         .then(questions => {
             data.features = questions
             res.status(200).send(data);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error getting questions near you" })
+        })
 };
 
 exports.createAnswer = (questionId, userId, body, timestamp) => {
@@ -180,5 +196,8 @@ exports.searchQuestions = (search) => {
             { details: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
             { details: { "$regex": new RegExp("^[#]" + search.toLowerCase(), "i") } }
         ]
-    }, { title: 1, details: 1 }).limit(20)
+    }, { title: 1, details: 1 }).limit(20).exec(function (err, qustions) {
+        if (err) reject(err);
+        resolve(qustions);
+    });
 }

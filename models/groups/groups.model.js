@@ -23,54 +23,70 @@ const GroupModel = new mongoose.Schema({
     }
 })
 
-// Group.index({
-//     name: 'text',
-// })
-
 const Group = mongoose.model('Group', GroupModel)
 
 exports.findByName = (name) => {
-    return Group.findOne({ name: name });
+    return new Promise((resolve, reject) => {
+        Group.findOne({ name: name }, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    })
 };
 
 exports.findById = (id) => {
-    return Group.findById(id)
-        .then((result) => {
-            return result.toJSON();
+    return new Promise((resolve, reject) => {
+        Group.findById(id, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
         });
+    })
 };
 
 exports.subscribers = (id) => {
-    return Group.findById(id, { subscribers: 1, _id: 0 })
-        .then((result) => {
-            return result.toJSON();
+    return new Promise((resolve, reject) => {
+        Group.findById(id, { subscribers: 1, _id: 0 }, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
         });
+    })
 };
 
 exports.peopleOnline = (id) => {
-    return Group.findById(id, { peopleOnline: 1 , _id: 0})
+    return new Promise((resolve, reject) => {
+        Group.findById(id, { peopleOnline: 1 , _id: 0}, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    })
 };
 
 exports.nOnline = (id) => {
-    return Group.aggregate([{ $project: { nOnline: 1, nOnline: { $size: '$peopleOnline' } } }, { $match: { _id: ObjectId(id) } }])
+    return new Promise((resolve, reject) => {
+        Group.aggregate([{ $project: { nOnline: 1, nOnline: { $size: '$peopleOnline' } } }, { $match: { _id: ObjectId(id) } }], function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    })
 };
 
 exports.createGroup = (data) => {
-    const group = new Group(data);
-    return group.save();
+    return new Promise((resolve, reject) => {
+        const group = new Group(data);
+        group.save(function (err, group) {
+            if (err) return reject(err);
+            resolve(group);
+        });
+    })
 };
 
 exports.list = () => {
     return new Promise((resolve, reject) => {
-        Group.find()
-            .exec(function (err, users) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(users);
-                }
-            })
-    });
+        Group.find({}, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    })
 };
 
 exports.patchGroupAddToSet = (groupId, userId, type) => {
@@ -93,12 +109,9 @@ exports.patchGroupPullToSet = (groupId, userId, type) => {
 
 exports.removeById = (groupId) => {
     return new Promise((resolve, reject) => {
-        Group.remove({ _id: groupId}, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(err);
-            }
+        Group.remove({ _id: groupId}, (err, group) => {
+            if (err) reject(err);
+            resolve(group);
         });
     });
 };
@@ -140,7 +153,10 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
         .then(groups => {
             data.features = groups
             res.status(200).send(data);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error getting groups near you" })
+        })
 };
 
 exports.messagesSorted = (groupId) => {
@@ -178,5 +194,10 @@ exports.createMessages = (groupId, userId, data, timestamp) => {
 };
 
 exports.searchGroups = (search) => {
-    return Group.find({ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }, { name: 1 }).limit(20)
+    return new Promise((resolve, reject) => {
+        Group.find({ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }, { name: 1 }).limit(20).exec(function (err, groups) {
+            if (err) reject(err);
+            resolve(groups);
+        });
+    })
 }

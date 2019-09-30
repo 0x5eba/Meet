@@ -12,20 +12,23 @@ exports.insert = (req, res) => {
     GroupController.createGroup(req.body)
         .then((result) => {
             res.status(201).send({id: result._id});
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Invalid arguments for new profile" })
+        })
 };
 
 exports.uniqueName = (req, res, next) => {
     GroupController.findByName(req.body.name)
         .then((group) => {
             if (group) {
-                res.status(403).send({ errors: ['Name already token'] });
+                res.status(403).send({ err: 'Name already token' });
             } else {
                 return next();
             }
         })
         .catch(err => {
-            res.status(403).send({})
+            res.status(403).send({ err: "Invalid nickname" })
         })
 }
 
@@ -34,27 +37,39 @@ exports.list = (req, res) => {
         .then((result) => {
             res.status(200).send(result);
         })
+        .catch(err => {
+            res.status(403).send({ err: "Invalid list profiles" })
+        })
 };
 
 exports.getById = (req, res) => {
     GroupController.findById(req.params.groupId)
         .then((result) => {
             res.status(200).send(result);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Invalid get profile" })
+        })
 };
 
 exports.getByIdPeopleOnline = (req, res) => {
     GroupController.peopleOnline(req.params.groupId)
         .then((result) => {
             res.status(200).send(result);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Invalid get poeple online" })
+        })
 };
 
 exports.getByIdnOnline = (req, res) => {
     GroupController.nOnline(req.params.groupId)
         .then((result) => {
             res.status(200).send(result[0]);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Invalid get number online" })
+        })
 };
 
 exports.patchById = (req, res) => {
@@ -64,20 +79,29 @@ exports.patchById = (req, res) => {
             GroupController.patchGroupAddToSet(req.params.groupId, req.params.userId, "peopleOnline")
                 .then((result) => {
                     res.status(204).send({});
-                });
+                })
+                .catch(err => {
+                    res.status(403).send({ err: "Invalid add to people online" })
+                })
         } 
         else if (req.body.operation === "pullToSet") {
             GroupController.patchGroupPullToSet(req.params.groupId, req.params.userId, "peopleOnline")
                 .then((result) => {
                     res.status(204).send({});
-                });
+                })
+                .catch(err => {
+                    res.status(403).send({ err: "Invalid remove to people online" })
+                })
         }
     } 
     else if (type === "subscribers") {
         GroupController.patchGroupAddToSet(req.params.groupId, req.params.userId, "subscribers")
             .then((result) => {
                 res.status(204).send({});
-            });
+            })
+            .catch(err => {
+                res.status(403).send({ err: "Invalid add to subscribe" })
+            })
     }
 };
 
@@ -85,21 +109,24 @@ exports.removeById = (req, res) => {
     GroupController.removeById(req.params.groupId)
         .then((result)=>{
             res.status(204).send({});
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Invalid remove group" })
+        })
 };
 
 exports.getProfilePos = (req, res, next) => {
     getProfilePosFromProfile(req.params.userId)
         .then((pos) => {
             if (!pos || pos['pos'] === undefined) {
-                res.status(403).send({ errors: ['User not found'] });
+                res.status(403).send({ err: 'User not found' });
             } else {
                 req.body.pos = pos['pos'];
                 return next();
             }
         })
         .catch(err => {
-            res.status(403).send({err: err})
+            res.status(403).send({err: "User not found"})
         })
 };
 
@@ -109,7 +136,7 @@ exports.getIsSub = (req, res) => {
             res.status(201).send(result);
         })
         .catch(err => {
-            res.status(403).send(err)
+            res.status(403).send({err: "Error get is subscribe"})
         })
 };
 
@@ -126,14 +153,14 @@ exports.getAllSubs = (req, res, next) => {
     GroupController.subscribers(req.params.groupId)
         .then((subs) => {
             if (!subs) {
-                res.status(403).send({ errors: 'Group not found' });
+                res.status(403).send({ err: 'Group not found' });
             } else {
                 req.body.subs = subs;
                 return next();
             }
         })
         .catch(err => {
-            res.status(403).send({ err: err })
+            res.status(403).send({ err: "Error get subscribers" })
         })
 };
 
@@ -148,7 +175,7 @@ exports.getMessagesWithLimit = (req, res) => {
             res.status(201).send({messages: messages});
         })
         .catch(err => {
-            res.status(403).send({})
+            res.status(403).send({err: "Error get messages"})
         })
 };
 
@@ -158,7 +185,7 @@ exports.checkLastMessage = (req, res) => {
             res.status(201).send(result);
         })
         .catch(err => {
-            res.status(403).send({})
+            res.status(403).send({err: "Error get last message"})
         })
 };
 
@@ -168,7 +195,7 @@ exports.writeMessage = (req, res) => {
             res.status(201).send({res: result});
         })
         .catch(err => {
-            res.status(403).send({err: err})
+            res.status(403).send({err: "Error send message"})
         })
 };
 
@@ -179,6 +206,6 @@ exports.searchGroups = (req, res) => {
             res.status(201).send(result);
         })
         .catch(err => {
-            res.status(403).send({ err: err })
+            res.status(403).send({ err: "Error on searching groups" })
         })
 }

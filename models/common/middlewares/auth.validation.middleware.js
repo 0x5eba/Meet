@@ -11,7 +11,7 @@ exports.verifyRefresh = (req, res) => {
     if (newAccessToken(req)){
         return res.status(201).send(req.accessToken)
     } else {
-        return res.status(400).send({ error: 'Invalid refresh token'});
+        return res.status(400).send({ err: 'Invalid refresh token'});
     }
 };
 
@@ -23,7 +23,7 @@ exports.validJWTNeeded = (req, res, next) => {
                 return res.status(401).send({});
             } else {
                 jwt.verify(authorization[1], jwtSecret, function (err, decoded) {
-                    if (err) if (!newAccessToken(req)) return res.status(400).send({ error: 'Invalid refresh token' });
+                    if (err) if (!newAccessToken(req)) return res.status(400).send({ err: 'Invalid refresh token' });
                     req.jwt = decoded
                     return next();
                 })
@@ -31,14 +31,14 @@ exports.validJWTNeeded = (req, res, next) => {
 
         } catch (err) {
             console.log("validJWTNeeded", err)
-            return res.status(403).send({err: err});
+            return res.status(403).send({err: "Invalid token"});
         }
 
     } else {
         if(newAccessToken(req)) {
             return res.status(201).send(req.accessToken)
         } else {
-            return res.status(400).send({ error: 'Invalid refresh token' });
+            return res.status(400).send({ err: 'Invalid refresh token' });
         }
     }
 };

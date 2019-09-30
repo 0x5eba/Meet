@@ -10,20 +10,23 @@ exports.insert = (req, res) => {
     ProfileController.createUser(req.body)
         .then((result) => {
             res.status(201).send({id: result._id});
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error creating user" })
+        })
 };
 
 exports.uniqueNickname = (req, res, next) => {
     ProfileController.findByNickname(req.body.nickname)
         .then((user) => {
             if (user) {
-                res.status(403).send({ errors: ['Nickname already token'] });
+                res.status(403).send({ err: 'Nickname already token' });
             } else {
                 return next();
             }
         })
         .catch(err => {
-            res.status(403).send({})
+            res.status(403).send({ err: "Wrong nickname" })
         })
 }
 
@@ -32,13 +35,19 @@ exports.list = (req, res) => {
         .then((result) => {
             res.status(200).send(result);
         })
+        .catch(err => {
+            res.status(403).send({ err: "Wrong get list profiles" })
+        })
 };
 
 exports.getById = (req, res) => {
     ProfileController.findById(req.params.userId)
         .then((result) => {
             res.status(200).send(result);
-        });
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Wrong get profile" })
+        })
 };
 
 exports.patchById = (req, res) => {
@@ -50,29 +59,41 @@ exports.patchById = (req, res) => {
 
     ProfileController.patchUser(req.params.userId, req.body)
         .then((result) => {
-            res.status(204).send({});
-        });
+            res.status(204).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Wrong profile data" })
+        })
 };
 
 exports.patchByIdBookmarkGroup = (req, res) => {
     ProfileController.patchUserBookmark(req.params.userId, req.params.groupId, "savedGroup")
         .then((result) => {
-            res.status(204).send({});
-        });
+            res.status(204).send(result);
+        })
+        .catch(err => {
+  -          res.status(403).send({ err: "Error save group in bookmark" })
+        })
 };
 
 exports.patchByIdBookmarkQuestion = (req, res) => {
     ProfileController.patchUserBookmark(req.params.userId, req.params.questionId, "savedQuestion")
         .then((result) => {
-            res.status(204).send({});
-        });
+            res.status(204).send(result);
+        })
+        .catch(err => {
+-           res.status(403).send({ err: "Error save question in bookmark" })
+        })
 };
 
 exports.removeById = (req, res) => {
     ProfileController.removeById(req.params.userId)
         .then((result)=>{
-            res.status(204).send({});
-        });
+            res.status(204).send(result);
+        })
+        .catch(err => {
+-           res.status(403).send({ err: "Error removing profile" })
+        })
 };
 
 exports.getSaved = (req, res) => {
@@ -83,14 +104,20 @@ exports.getSaved = (req, res) => {
                 savedQuestion: result['savedQuestion']
             }
             res.status(200).send(user);
-        });
+        })
+        .catch(err => {
+-           res.status(403).send({ err: "Error getting bookmarks" })
+        })
 };
 
 exports.profilePos = (userId, next) => {
     ProfileController.findByIdGetPos(userId)
         .then((result) => {
             res.status(204).send(result);
-        });
+        })
+        .catch(err => {
+-           res.status(403).send({ err: "Error get position profile" })
+        })
 }
 
 exports.allProfiles = (req, res) => {
@@ -109,6 +136,6 @@ exports.searchProfiles = (req, res) => {
             res.status(201).send(result);
         })
         .catch(err => {
-            res.status(403).send({ err: err })
+            res.status(403).send({ err: "Error searching profiles" })
         })
 }
