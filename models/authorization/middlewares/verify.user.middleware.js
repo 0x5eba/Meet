@@ -26,7 +26,7 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
     UserModel.findByNickname(req.body.nickname)
         .then((user)=>{
             if (!user){
-                res.status(404).send({});
+                res.status(404).send({err: 'User not found'});
             } else {
                 let passwordFields = user.password.split('$');
                 let salt = passwordFields[0];

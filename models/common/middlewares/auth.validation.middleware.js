@@ -31,7 +31,7 @@ exports.validJWTNeeded = (req, res, next) => {
 
         } catch (err) {
             console.log("validJWTNeeded", err)
-            return res.status(403).send({err: "Invalid token"});
+            return res.status(403).send({err: "Invalid access token"});
         }
 
     } else {

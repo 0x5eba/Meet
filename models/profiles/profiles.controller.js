@@ -20,7 +20,7 @@ exports.uniqueNickname = (req, res, next) => {
     ProfileController.findByNickname(req.body.nickname)
         .then((user) => {
             if (user) {
-                res.status(403).send({ err: 'Nickname already token' });
+                res.status(403).send({ err: 'Nickname already taken' });
             } else {
                 return next();
             }

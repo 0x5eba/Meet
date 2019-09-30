@@ -123,6 +123,13 @@
         </div>
     </div>
 
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        This is a primary alert check 
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
 </body>
 
 </html>
@@ -387,11 +394,11 @@
         }
         rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
-        refreshToken(true)
+        refreshToken(handlePermission())
     }
     session()
 
-    function refreshToken(first=false) {
+    function refreshToken(_callback=null) {
         $.ajax({
             url: url + 'auth/refresh',
             headers: {
@@ -406,8 +413,8 @@
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
 
-                    if(first){
-                        handlePermission()
+                    if(_callback){
+                        _callback()
                     }
                 } else {
                     window.location.href = "http://localhost:3001/login"
@@ -488,41 +495,58 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-                if(response.length > 0){
-                    let p = document.createElement("p")
-                    let textnode = document.createTextNode(type.charAt(0).toUpperCase() + type.slice(1) + "s");
-                    p.setAttribute('id', 'titles')
-                    p.appendChild(textnode)
-                    resSearch.appendChild(p)
 
-                    response.forEach(function (element) {
-                        let a = document.createElement("a")
-                        if (type === "group") {
-                            let href = "http://localhost:3001/group?groupid=" + element['_id']
-                            a.setAttribute('href', href)
-                            a.setAttribute('id', type)
-                            textnode = document.createTextNode(element['name'])
-                        }
-                        if (type === "question") {
-                            let href = "http://localhost:3001/question?title=" + element['_id']
-                            a.setAttribute('href', href)
-                            a.setAttribute('id', type)
-                            textnode = document.createTextNode(element['title'])
-                        }
-                        if (type === "profile") {
-                            let href = "http://localhost:3001/profile?nickname=" + element['_id']
-                            a.setAttribute('href', href)
-                            a.setAttribute('id', type)
-                            textnode = document.createTextNode(element['nickname'])
-                        }
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    searchInDB(search, type)
 
-                        a.appendChild(textnode)
-                        resSearch.appendChild(a)
-                    })
+                } else {
+                    if(response.length > 0){
+                        let p = document.createElement("p")
+                        let textnode = document.createTextNode(type.charAt(0).toUpperCase() + type.slice(1) + "s");
+                        p.setAttribute('id', 'titles')
+                        p.appendChild(textnode)
+                        resSearch.appendChild(p)
+
+                        response.forEach(function (element) {
+                            let a = document.createElement("a")
+                            if (type === "group") {
+                                let href = "http://localhost:3001/group?groupid=" + element['_id']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['name'])
+                            }
+                            if (type === "question") {
+                                let href = "http://localhost:3001/question?title=" + element['_id']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['title'])
+                            }
+                            if (type === "profile") {
+                                let href = "http://localhost:3001/profile?nickname=" + element['_id']
+                                a.setAttribute('href', href)
+                                a.setAttribute('id', type)
+                                textnode = document.createTextNode(element['nickname'])
+                            }
+
+                            a.appendChild(textnode)
+                            resSearch.appendChild(a)
+                        })
+                    }
                 }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    refreshToken(() => searchInDB(search, type))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    $(".alert").alert()
+                    console.log(err)
+                }
             }
         })
     }

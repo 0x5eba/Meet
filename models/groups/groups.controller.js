@@ -22,7 +22,7 @@ exports.uniqueName = (req, res, next) => {
     GroupController.findByName(req.body.name)
         .then((group) => {
             if (group) {
-                res.status(403).send({ err: 'Name already token' });
+                res.status(403).send({ err: 'Name already taken' });
             } else {
                 return next();
             }

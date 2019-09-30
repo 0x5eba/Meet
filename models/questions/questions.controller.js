@@ -26,7 +26,7 @@ exports.uniqueTitle = (req, res, next) => {
     QuestionController.findByTitle(req.body.title)
         .then((question) => {
             if (question) {
-                res.status(403).send({ err: 'Title already token' });
+                res.status(403).send({ err: 'Title already taken' });
             } else {
                 return next();
             }

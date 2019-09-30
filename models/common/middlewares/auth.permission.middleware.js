@@ -1,5 +1,4 @@
-const jwt = require('jsonwebtoken'),
-    secret = require('../config/env.config')['jwt_secret'];
+const jwt = require('jsonwebtoken')
 const adminPermission = require('../config/env.config')['permissionLevels']['ADMIN']
 
 
