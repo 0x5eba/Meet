@@ -111,7 +111,7 @@ exports.checkIfVotedQuestion = (req, res, next) => {
 exports.removeById = (req, res) => {
     QuestionController.removeById(req.params.questionId)
         .then((result)=>{
-            res.status(204).send(result);
+            res.status(201).send(result);
         })
         .catch(err => {
             res.status(403).send({ err: 'Error removing question' })

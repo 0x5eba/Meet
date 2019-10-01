@@ -78,7 +78,7 @@ exports.patchById = (req, res) => {
         if (req.body.operation === "addToSet") {
             GroupController.patchGroupAddToSet(req.params.groupId, req.params.userId, "peopleOnline")
                 .then((result) => {
-                    res.status(204).send({});
+                    res.status(201).send({});
                 })
                 .catch(err => {
                     res.status(403).send({ err: "Invalid add to people online" })
@@ -87,7 +87,7 @@ exports.patchById = (req, res) => {
         else if (req.body.operation === "pullToSet") {
             GroupController.patchGroupPullToSet(req.params.groupId, req.params.userId, "peopleOnline")
                 .then((result) => {
-                    res.status(204).send({});
+                    res.status(201).send({});
                 })
                 .catch(err => {
                     res.status(403).send({ err: "Invalid remove to people online" })
@@ -97,7 +97,7 @@ exports.patchById = (req, res) => {
     else if (type === "subscribers") {
         GroupController.patchGroupAddToSet(req.params.groupId, req.params.userId, "subscribers")
             .then((result) => {
-                res.status(204).send({});
+                res.status(201).send({});
             })
             .catch(err => {
                 res.status(403).send({ err: "Invalid add to subscribe" })
@@ -108,7 +108,7 @@ exports.patchById = (req, res) => {
 exports.removeById = (req, res) => {
     GroupController.removeById(req.params.groupId)
         .then((result)=>{
-            res.status(204).send({});
+            res.status(201).send({});
         })
         .catch(err => {
             res.status(403).send({ err: "Invalid remove group" })
@@ -133,7 +133,11 @@ exports.getProfilePos = (req, res, next) => {
 exports.getIsSub = (req, res) => {
     GroupController.isSub(req.params.groupId, req.params.userId)
         .then((result) => {
-            res.status(201).send(result);
+            if(result === null){
+                res.status(201).send({});
+            } else {
+                res.status(201).send({'id': result});
+            }
         })
         .catch(err => {
             res.status(403).send({err: "Error get is subscribe"})

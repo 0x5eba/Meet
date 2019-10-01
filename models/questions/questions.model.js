@@ -43,7 +43,7 @@ exports.findByTitle = (title) => {
 
 exports.findById = (id) => {
     return new Promise((resolve, reject) => {
-        Question.findById(id).sort({ "answers.level": 'asc', "answers.vote": 'desc', "answers.time": 'asc' }, function (err, question) {
+        Question.findById(id).sort({ "answers.level": 'asc', "answers.vote": 'desc', "answers.time": 'asc' }).exec(function (err, question) {
             if (err) reject(err);
             resolve(question);
         });

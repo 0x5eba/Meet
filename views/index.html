@@ -528,21 +528,21 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     searchInDB(search, type)
 
                 } else {
-                    if(response.length > 0){
+                    if(res.length > 0){
                         let p = document.createElement("p")
                         let textnode = document.createTextNode(type.charAt(0).toUpperCase() + type.slice(1) + "s");
                         p.setAttribute('id', 'titles')
                         p.appendChild(textnode)
                         resSearch.appendChild(p)
 
-                        response.forEach(function (element) {
+                        res.forEach(function (element) {
                             let a = document.createElement("a")
                             if (type === "group") {
                                 let href = "http://localhost:3001/group?groupid=" + element['_id']
@@ -593,7 +593,7 @@
             credentials: 'include',
             method: 'POST',
             dataType: 'json',
-            success: (response) => {
+            success: (res) => {
 
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
@@ -601,7 +601,7 @@
                     getSaved()
 
                 } else {
-                    if (response !== null && (("savedGroup" in response && response["savedGroup"].length > 0) || ("savedQuestion" in response && response["savedQuestion"].length > 0))) {
+                    if (res !== null && (("savedGroup" in res && res["savedGroup"].length > 0) || ("savedQuestion" in res && res["savedQuestion"].length > 0))) {
                         let h2 = document.createElement("h2")
                         h2.innerHTML = "Bookmarks"
                         h2.setAttribute('id', 'titles')
@@ -610,8 +610,8 @@
                         resSearch.appendChild(h2)
                     }
 
-                    if (response !== null && "savedGroup" in response) {
-                        if (response["savedGroup"].length > 0) {
+                    if (res !== null && "savedGroup" in res) {
+                        if (res["savedGroup"].length > 0) {
                             let p = document.createElement("p");
                             let textnode = document.createTextNode("Groups");
                             p.setAttribute('id', 'titles')
@@ -619,7 +619,7 @@
                             resSearch.appendChild(p)
                         }
 
-                        response["savedGroup"].forEach(function (element) {
+                        res["savedGroup"].forEach(function (element) {
                             let a = document.createElement("a");
                             let href = "http://localhost:3001/group?groupid=" + element
                             a.setAttribute('href', href)
@@ -630,8 +630,8 @@
                         });
                     }
 
-                    if (response !== null && "savedQuestion" in response) {
-                        if (response["savedQuestion"].length > 0) {
+                    if (res !== null && "savedQuestion" in res) {
+                        if (res["savedQuestion"].length > 0) {
                             let p = document.createElement("p");
                             let textnode = document.createTextNode("Questions");
                             p.setAttribute('id', 'titles')
@@ -639,7 +639,7 @@
                             resSearch.appendChild(p)
                         }
 
-                        response["savedQuestion"].forEach(function (element) {
+                        res["savedQuestion"].forEach(function (element) {
                             let a = document.createElement("a");
                             let href = "http://localhost:3001/question?title=" + element
                             a.setAttribute('href', href)
@@ -675,7 +675,7 @@
             Http.send({});
             Http.onreadystatechange = (e) => {
                 if (Http.readyState === 4 && Http.status === 200) {
-                    infoIP = JSON.parse(Http.responseText)
+                    infoIP = JSON.parse(Http.resText)
 
                     const state_view = {
                         latitude: infoIP['lat'],
@@ -1367,7 +1367,7 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
@@ -1429,7 +1429,8 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
+                console.log(res)
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
@@ -1479,13 +1480,13 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     createGroupRequest(groupName)
                 } else {
-                    window.location.href = "http://localhost:3001/group?groupid=" + response['id']
+                    window.location.href = "http://localhost:3001/group?groupid=" + res['id']
                 }
             },
             error: (err) => {
@@ -1512,13 +1513,13 @@
             credentials: 'include',
             method: 'POST',
             dataType: 'json',
-            success: (response) => {
+            success: (res) => {
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     showSubscribers(state_view, groupId)
                 } else {
-                    AllProfiles = response
+                    AllProfiles = res
 
                     canUpdateStatus = true
                     setMap(state_view)
@@ -1567,13 +1568,13 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     initProfiles(state_view, x, y)
                 } else {
-                    AllProfiles = response
+                    AllProfiles = res
 
                     canUpdateStatus = true
                     setMap(state_view)
@@ -1611,13 +1612,13 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     initGroups(state_view, x, y)
                 } else {
-                    Allgroups = response
+                    Allgroups = res
 
                     canUpdateStatus = true
                     setMap(state_view)
@@ -1656,13 +1657,13 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     initQuestions(state_view, x, y)
                 } else {
-                    AllQuestions = response
+                    AllQuestions = res
 
                     canUpdateStatus = true
                     setMap(state_view)

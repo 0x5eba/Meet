@@ -334,7 +334,7 @@
             method: 'GET',
             dataType: 'json',
             success: (response) => {
-                if(response) {
+                if(response['id'] !== undefined) {
                     showWrite()
                 } else {
                     document.getElementById("btnSubscribe").style.display = "block"

@@ -59,7 +59,7 @@ exports.patchById = (req, res) => {
 
     ProfileController.patchUser(req.params.userId, req.body)
         .then((result) => {
-            res.status(204).send(result);
+            res.status(201).send(result);
         })
         .catch(err => {
             res.status(403).send({ err: "Wrong profile data" })
@@ -69,30 +69,30 @@ exports.patchById = (req, res) => {
 exports.patchByIdBookmarkGroup = (req, res) => {
     ProfileController.patchUserBookmark(req.params.userId, req.params.groupId, "savedGroup")
         .then((result) => {
-            res.status(204).send(result);
+            res.status(201).send(result);
         })
         .catch(err => {
-  -          res.status(403).send({ err: "Error save group in bookmark" })
+            res.status(403).send({ err: "Error save group in bookmark" })
         })
 };
 
 exports.patchByIdBookmarkQuestion = (req, res) => {
     ProfileController.patchUserBookmark(req.params.userId, req.params.questionId, "savedQuestion")
         .then((result) => {
-            res.status(204).send(result);
+            res.status(201).send(result);
         })
         .catch(err => {
--           res.status(403).send({ err: "Error save question in bookmark" })
+            res.status(403).send({ err: "Error save question in bookmark" })
         })
 };
 
 exports.removeById = (req, res) => {
     ProfileController.removeById(req.params.userId)
         .then((result)=>{
-            res.status(204).send(result);
+            res.status(201).send(result);
         })
         .catch(err => {
--           res.status(403).send({ err: "Error removing profile" })
+            res.status(403).send({ err: "Error removing profile" })
         })
 };
 
@@ -106,17 +106,17 @@ exports.getSaved = (req, res) => {
             res.status(200).send(user);
         })
         .catch(err => {
--           res.status(403).send({ err: "Error getting bookmarks" })
+            res.status(403).send({ err: "Error getting bookmarks" })
         })
 };
 
 exports.profilePos = (userId, next) => {
     ProfileController.findByIdGetPos(userId)
         .then((result) => {
-            res.status(204).send(result);
+            res.status(201).send(result);
         })
         .catch(err => {
--           res.status(403).send({ err: "Error get position profile" })
+            res.status(403).send({ err: "Error get position profile" })
         })
 }
 

@@ -77,7 +77,7 @@ exports.patchUser = (id, userData) => {
             }
             user.save(function (err, updatedUser) {
                 if (err) return reject(err);
-                resolve(updatedUser);
+                return resolve(updatedUser);
             });
         });
     })
