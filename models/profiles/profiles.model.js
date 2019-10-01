@@ -20,9 +20,18 @@ const ProfileModel = new mongoose.Schema({
 
 const Profile = mongoose.model('Profile', ProfileModel);
 
+exports.userInfoForAuthenitcate = (nickname) => {
+    return new Promise((resolve, reject) => {
+        Profile.findOne({ nickname: nickname }, { password: 1, nickname: 1, _id: 1 }, function (err, user) {
+            if (err) reject(err);
+            resolve(user);
+        });
+    })
+};
+
 exports.findByNickname = (nickname) => {
     return new Promise((resolve, reject) => {
-        Profile.findOne({ nickname: nickname }, { fakePos: 0, savedGroup: 0, savedQuestion: 0 }, function (err, user) {
+        Profile.findOne({ nickname: nickname }, { password: 0, fakePos: 0, savedGroup: 0, savedQuestion: 0 }, function (err, user) {
             if (err) reject(err);
             resolve(user);
         });

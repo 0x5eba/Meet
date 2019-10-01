@@ -423,6 +423,8 @@
     session()
 
     function newAccessToken(_callback=null) {
+        localStorage.removeItem("authToken")
+        authToken = null
         $.ajax({
             url: url + 'auth/refresh',
             headers: {
@@ -527,7 +529,6 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
@@ -577,7 +578,6 @@
                     window.location.href = "http://localhost:3001/login"
                 } else {
                     showAlertError(err)
-                    console.log(err)
                 }
             }
         })
@@ -595,58 +595,72 @@
             dataType: 'json',
             success: (response) => {
 
-                if (response !== null && (("savedGroup" in response && response["savedGroup"].length > 0) || ("savedQuestion" in response && response["savedQuestion"].length > 0))) {
-                    let h2 = document.createElement("h2")
-                    h2.innerHTML = "Bookmarks"
-                    h2.setAttribute('id', 'titles')
-                    h2.style.marginBottom = "30px"
-                    h2.style.textDecoration = "underline"
-                    resSearch.appendChild(h2)
-                }
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    getSaved()
 
-                if (response !== null && "savedGroup" in response) {
-                    if (response["savedGroup"].length > 0) {
-                        let p = document.createElement("p");
-                        let textnode = document.createTextNode("Groups");
-                        p.setAttribute('id', 'titles')
-                        p.appendChild(textnode);
-                        resSearch.appendChild(p)
+                } else {
+                    if (response !== null && (("savedGroup" in response && response["savedGroup"].length > 0) || ("savedQuestion" in response && response["savedQuestion"].length > 0))) {
+                        let h2 = document.createElement("h2")
+                        h2.innerHTML = "Bookmarks"
+                        h2.setAttribute('id', 'titles')
+                        h2.style.marginBottom = "30px"
+                        h2.style.textDecoration = "underline"
+                        resSearch.appendChild(h2)
                     }
 
-                    response["savedGroup"].forEach(function (element) {
-                        let a = document.createElement("a");
-                        let href = "http://localhost:3001/group?groupid=" + element
-                        a.setAttribute('href', href)
-                        a.setAttribute('id', "group")
-                        let textnode = document.createTextNode(element)
-                        a.appendChild(textnode);
-                        resSearch.appendChild(a)
-                    });
-                }
+                    if (response !== null && "savedGroup" in response) {
+                        if (response["savedGroup"].length > 0) {
+                            let p = document.createElement("p");
+                            let textnode = document.createTextNode("Groups");
+                            p.setAttribute('id', 'titles')
+                            p.appendChild(textnode);
+                            resSearch.appendChild(p)
+                        }
 
-                if (response !== null && "savedQuestion" in response) {
-                    if (response["savedQuestion"].length > 0) {
-                        let p = document.createElement("p");
-                        let textnode = document.createTextNode("Questions");
-                        p.setAttribute('id', 'titles')
-                        p.appendChild(textnode);
-                        resSearch.appendChild(p)
+                        response["savedGroup"].forEach(function (element) {
+                            let a = document.createElement("a");
+                            let href = "http://localhost:3001/group?groupid=" + element
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', "group")
+                            let textnode = document.createTextNode(element)
+                            a.appendChild(textnode);
+                            resSearch.appendChild(a)
+                        });
                     }
 
-                    response["savedQuestion"].forEach(function (element) {
-                        let a = document.createElement("a");
-                        let href = "http://localhost:3001/question?title=" + element
-                        a.setAttribute('href', href)
-                        a.setAttribute('id', "question")
-                        let textnode = document.createTextNode(element)
-                        a.appendChild(textnode);
-                        resSearch.appendChild(a)
-                    });
-                }
+                    if (response !== null && "savedQuestion" in response) {
+                        if (response["savedQuestion"].length > 0) {
+                            let p = document.createElement("p");
+                            let textnode = document.createTextNode("Questions");
+                            p.setAttribute('id', 'titles')
+                            p.appendChild(textnode);
+                            resSearch.appendChild(p)
+                        }
 
+                        response["savedQuestion"].forEach(function (element) {
+                            let a = document.createElement("a");
+                            let href = "http://localhost:3001/question?title=" + element
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', "question")
+                            let textnode = document.createTextNode(element)
+                            a.appendChild(textnode);
+                            resSearch.appendChild(a)
+                        });
+                    }
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => getSaved())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -1354,12 +1368,26 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-                profileData['fakePos'] = [x, y]
-                localStorage.setItem("profile", JSON.stringify(profileData))
-                reloadPage()
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    setFakePos(x, y)
+                } else {
+                    profileData['fakePos'] = [x, y]
+                    localStorage.setItem("profile", JSON.stringify(profileData))
+                    reloadPage()
+                }               
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => setFakePos(x, y))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -1402,10 +1430,24 @@
             dataType: 'json',
             data: params,
             success: (response) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    iamStatus(status)
+                } else {
 
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => iamStatus(status))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -1421,7 +1463,9 @@
             return
         }
         groupName = groupName.trim()
-
+        createGroupRequest(groupName)
+    }
+    function createGroupRequest(groupName) {
         let params = JSON.stringify({
             name: groupName
         })
@@ -1436,18 +1480,29 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-                window.location.href = "http://localhost:3001/group?groupid=" + response['id']
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    createGroupRequest(groupName)
+                } else {
+                    window.location.href = "http://localhost:3001/group?groupid=" + response['id']
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => createGroupRequest(groupName))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
 
-    function showSubscribers(state_view) {
-        let groupId = JSON.parse(sessionStorage.getItem("showSubscribers"))['groupId']
-        sessionStorage.removeItem("showSubscribers");
-
+    function showSubscribers(state_view, groupId) {
         $.ajax({
             url: url + 'group/showSubs/' + groupId,
             headers: {
@@ -1458,14 +1513,28 @@
             method: 'POST',
             dataType: 'json',
             success: (response) => {
-                AllProfiles = response
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    showSubscribers(state_view, groupId)
+                } else {
+                    AllProfiles = response
 
-                canUpdateStatus = true
-                setMap(state_view)
-                iamStatus(true)
+                    canUpdateStatus = true
+                    setMap(state_view)
+                    iamStatus(true)
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => showSubscribers(state_view, groupId))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -1499,14 +1568,28 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-                AllProfiles = response
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    initProfiles(state_view, x, y)
+                } else {
+                    AllProfiles = response
 
-                canUpdateStatus = true
-                setMap(state_view)
-                iamStatus(true)
+                    canUpdateStatus = true
+                    setMap(state_view)
+                    iamStatus(true)
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => initProfiles(state_view, x, y))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -1529,14 +1612,28 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-                Allgroups = response
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    initGroups(state_view, x, y)
+                } else {
+                    Allgroups = response
 
-                canUpdateStatus = true
-                setMap(state_view)
-                iamStatus(true)
+                    canUpdateStatus = true
+                    setMap(state_view)
+                    iamStatus(true)
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => initGroups(state_view, x, y))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -1560,14 +1657,28 @@
             dataType: 'json',
             data: params,
             success: (response) => {
-                AllQuestions = response
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    initQuestions(state_view, x, y)
+                } else {
+                    AllQuestions = response
 
-                canUpdateStatus = true
-                setMap(state_view)
-                iamStatus(true)
+                    canUpdateStatus = true
+                    setMap(state_view)
+                    iamStatus(true)
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => initQuestions(state_view, x, y))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -1588,7 +1699,9 @@
             }
             CBviews = view
             localStorage.setItem("view", JSON.stringify(view));
-            showSubscribers(state_view)
+            let groupId = JSON.parse(sessionStorage.getItem("showSubscribers"))['groupId']
+            sessionStorage.removeItem("showSubscribers")
+            showSubscribers(state_view, groupId)
             return
         }
 
