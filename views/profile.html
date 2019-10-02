@@ -219,6 +219,14 @@
         refreshToken()
     }, 1700000);
 
+    // document.getElementById("closeAlert").onclick = function () {
+    //     document.getElementById("showError").style.display = "none"
+    //     document.getElementById("messageError").innerHTML = ""
+    // }
+    // function showAlertError(err) {
+    //     document.getElementById("showError").style.display = "block";
+    //     document.getElementById("messageError").innerText = err
+    // }
 
     function timeConverter(UNIX_timestamp) {
         var a = new Date(UNIX_timestamp);
@@ -264,15 +272,16 @@
                 }
             },
             error: (err) => {
-                if(err['err'] === "Invalid access token"){
-                    newAccessToken(() => getProfile(profileId))
-                } else if(err['err'] === "Invalid refresh token"){
-                    authToken = null
-                    localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
-                } else {
-                    showAlertError(err)
-                }
+                console.log(err)
+                // if(err['err'] === "Invalid access token"){
+                //     newAccessToken(() => getProfile(profileId))
+                // } else if(err['err'] === "Invalid refresh token"){
+                //     authToken = null
+                //     localStorage.removeItem("authToken")
+                //     window.location.href = "http://localhost:3001/login"
+                // } else {
+                //     showAlertError(err)
+                // }
             }
         })
     }

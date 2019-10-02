@@ -72,6 +72,13 @@
         </main>
     </div>
 
+    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="showError" style="display: none;">
+        <button type="button" class="close">
+            <span id="closeAlert">&times;</span>
+        </button>
+        <div id="messageError"></div>
+    </div>
+
 </body>
 
 </html>
@@ -221,6 +228,28 @@
         display: block;
         transition: 0.3s;
     }
+
+    #showError {
+        position: fixed;
+        left: 50%;
+        bottom: 40px;
+        transform: translate(-50%, -50%);
+        border-radius: 20px;
+        width: 90%;
+        height: auto;
+    }
+    
+    #closeAlert {
+        float: right;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: end;
+    }
+    #closeAlert:hover,
+    #closeAlert:focus {
+        color: #000;
+        text-decoration: none;
+    }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
@@ -275,6 +304,15 @@
     window.setInterval(function () {
         refreshToken()
     }, 1700000);
+
+    document.getElementById("closeAlert").onclick = function () {
+        document.getElementById("showError").style.display = "none"
+        document.getElementById("messageError").innerHTML = ""
+    }
+    function showAlertError(err) {
+        document.getElementById("showError").style.display = "block";
+        document.getElementById("messageError").innerText = err
+    }
 
     if (groupId !== null) {
         checkIfSubscribed()
