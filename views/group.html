@@ -333,15 +333,29 @@
             credentials: 'include',
             method: 'GET',
             dataType: 'json',
-            success: (response) => {
-                if(response['id'] !== undefined) {
-                    showWrite()
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    checkIfSubscribed()
                 } else {
-                    document.getElementById("btnSubscribe").style.display = "block"
+                    if(res['id'] !== undefined) {
+                        showWrite()
+                    } else {
+                        document.getElementById("btnSubscribe").style.display = "block"
+                    }
                 }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => checkIfSubscribed())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -352,34 +366,48 @@
         write.style.display = "block"
         write.addEventListener("keyup", function (event) {
             if (event.keyCode === 13) {
-
                 let val = write.value
-
-                let params = JSON.stringify({
-                    data: val,
-                })
-                $.ajax({
-                    url: url + 'group/chat/write/' + groupId + "&" + profileData['id'],
-                    headers: {
-                        'Authorization': authToken['accessToken'],
-                        'Content-Type': 'application/json; charset=UTF-8',
-                    },
-                    credentials: 'include',
-                    method: 'PATCH',
-                    dataType: 'json',
-                    data: params,
-                    success: (response) => {
-                        // Risolto il problema di dover inserire manualmente il messaggio nell'interfaccia
-                        checkNewMessage()
-                    },
-                    error: (err) => {
-                        console.log(err)
-                    }
-                })
-
+                sendMessage(val)
                 write.value = ""
             }
         });
+    }
+    function sendMessage(val){
+        let params = JSON.stringify({
+            data: val,
+        })
+        $.ajax({
+            url: url + 'group/chat/write/' + groupId + "&" + profileData['id'],
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    sendMessage(val)
+                } else {
+                    // Risolto il problema di dover inserire manualmente il messaggio nell'interfaccia
+                    checkNewMessage()
+                }
+            },
+            error: (err) => {
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => sendMessage(val))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
+            }
+        })
     }
 
     function subscribe() {
@@ -396,11 +424,25 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                showWrite()
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    subscribe()
+                } else {
+                    showWrite()
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => subscribe())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -420,11 +462,25 @@
             credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
-            success: (response) => {
-                console.log("saved")
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    saveGroup()
+                } else {
+                    console.log("saved")
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => saveGroup())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -457,11 +513,25 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    iamOnline()
+                } else {
+
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => iamOnline())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -480,11 +550,25 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    iamOffline()
+                } else {
 
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => iamOffline())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -505,33 +589,47 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                response = response['messages']
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    loadMoreMessages()
+                } else {
+                    res = res['messages']
 
-                if (response.length > 0) {
-                    lastTime = response[response.length - 1]["time"]
-                    answersChat = response
+                    if (res.length > 0) {
+                        lastTime = res[res.length - 1]["time"]
+                        answersChat = res
+                    }
+
+                    var chat = document.getElementById("chat")
+                    chat.innerHTML = ""
+                    
+                    if (prevLengthMessages < res.length) {
+                        let a = document.createElement("a");
+                        let href = "javascript: void (0)"
+                        a.setAttribute('href', href);
+                        let loadMoreText = document.createTextNode("Load more messages");
+                        a.setAttribute('onclick', "loadMoreMessages();")
+                        a.appendChild(loadMoreText)
+                        chat.appendChild(a)
+
+                        prevLengthMessages = res.length
+                    }
+
+                    writeMessages(answersChat, chat)
                 }
-
-                var chat = document.getElementById("chat")
-                chat.innerHTML = ""
-                
-                if (prevLengthMessages < response.length) {
-                    let a = document.createElement("a");
-                    let href = "javascript: void (0)"
-                    a.setAttribute('href', href);
-                    let loadMoreText = document.createTextNode("Load more messages");
-                    a.setAttribute('onclick', "loadMoreMessages();")
-                    a.appendChild(loadMoreText)
-                    chat.appendChild(a)
-
-                    prevLengthMessages = response.length
-                }
-
-                writeMessages(answersChat, chat)
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => loadMoreMessages())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -593,16 +691,30 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                if (response) {
-                    if(lastTime < response["lastMessageTimestamp"]) {
-                        lastTime = response["lastMessageTimestamp"]
-                        loadMoreMessages()
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    checkNewMessage()
+                } else {
+                    if (res) {
+                        if(lastTime < res["lastMessageTimestamp"]) {
+                            lastTime = res["lastMessageTimestamp"]
+                            loadMoreMessages()
+                        }
                     }
                 }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => checkNewMessage())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -616,25 +728,39 @@
             credentials: 'include',
             method: 'GET',
             dataType: 'json',
-            success: (response) => {
-                let boxPos = document.getElementById("res-search");
-                boxPos.innerHTML = ""
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    updatePeopleOnline()
+                } else {
+                    let boxPos = document.getElementById("res-search");
+                    boxPos.innerHTML = ""
 
-                if (response['peopleOnline'].length > 0) {
-                    response['peopleOnline'].forEach(function (nickname) {
-                        let a = document.createElement("a");
-                        let textnode = document.createTextNode(nickname)
-                        a.setAttribute('href', "http://localhost:3001/profile?nickname=" + nickname)
-                        a.setAttribute('id', "profiles")
-                        a.appendChild(textnode)
-                        boxPos.appendChild(a)
-                    })
+                    if (res['peopleOnline'].length > 0) {
+                        res['peopleOnline'].forEach(function (nickname) {
+                            let a = document.createElement("a");
+                            let textnode = document.createTextNode(nickname)
+                            a.setAttribute('href', "http://localhost:3001/profile?nickname=" + nickname)
+                            a.setAttribute('id', "profiles")
+                            a.appendChild(textnode)
+                            boxPos.appendChild(a)
+                        })
+                    }
+
+                    openNav();
                 }
-
-                openNav();
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => updatePeopleOnline())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -648,11 +774,25 @@
             credentials: 'include',
             method: 'GET',
             dataType: 'json',
-            success: (response) => {
-                document.getElementById("user-count").innerHTML = response["nOnline"]
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    updateNOnline()
+                } else {
+                    document.getElementById("user-count").innerHTML = res["nOnline"]
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => updateNOnline())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }

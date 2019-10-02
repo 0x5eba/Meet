@@ -225,9 +225,9 @@
             url: 'https://api.github.com/emojis',
             method: 'GET',
             dataType: 'json',
-            success: (response) => {
-                window.emojis = Object.keys(response);
-                window.emojiUrls = response;
+            success: (res) => {
+                window.emojis = Object.keys(res);
+                window.emojiUrls = res;
             },
             error: (err) => {
                 console.log(err)
@@ -258,12 +258,25 @@
             credentials: 'include',
             method: 'PATCH',
             dataType: 'json',
-            success: (response) => {
-                console.log("saved")
-                console.log(response)
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    saveQuestion()
+                } else {
+                    console.log("saved")
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => saveQuestion())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -283,6 +296,9 @@
             details: clearDetails,
             html: htmlDetails,
         })
+        requestAskQuestion(params)
+    }
+    function requestAskQuestion(params) {
         $.ajax({
             url: url + 'question/create/' + profileData['id'],
             headers: {
@@ -293,11 +309,25 @@
             method: 'POST',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                window.location.href = "http://localhost:3001/question?title=" + response['id']
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    requestAskQuestion(params)
+                } else {
+                    window.location.href = "http://localhost:3001/question?title=" + res['id']
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => requestAskQuestion(params))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -312,16 +342,30 @@
             credentials: 'include',
             method: 'GET',
             dataType: 'json',
-            success: (response) => {
-                question = response
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    getQuestionAndAnswers()
+                } else {
+                    question = res
 
-                addVoteToQuestion()
-                htmlQuestion()
+                    addVoteToQuestion()
+                    htmlQuestion()
 
-                createDivAnswers()
+                    createDivAnswers()
+                }
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => getQuestionAndAnswers())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -544,11 +588,25 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                getQuestionAndAnswers()
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    updateVoteAnswer(el, vote)
+                } else {
+                    getQuestionAndAnswers()
+                }
             },
             error: (err) => {
-                console.log("err", err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => updateVoteAnswer(el, vote))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -567,11 +625,25 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                getQuestionAndAnswers()
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    updateVoteQuestion(vote)
+                } else {
+                    getQuestionAndAnswers()
+                }
             },
             error: (err) => {
-                console.log("err", err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => updateVoteQuestion(vote))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
@@ -676,12 +748,26 @@
             method: 'PATCH',
             dataType: 'json',
             data: params,
-            success: (response) => {
-                input.setAttribute("myId", response["_id"])
-                getQuestionAndAnswers()
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    createAnswer(level, idParent, data, input)
+                } else {
+                    input.setAttribute("myId", res["_id"])
+                    getQuestionAndAnswers()
+                }
             },
             error: (err) => {
-                console.log("err", err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => createAnswer(level, idParent, data, input))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }

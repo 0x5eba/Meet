@@ -1430,7 +1430,6 @@
             dataType: 'json',
             data: params,
             success: (res) => {
-                console.log(res)
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))

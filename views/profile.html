@@ -244,23 +244,35 @@
             method: 'GET',
             dataType: 'json',
             success: (profile) => {
-
-                document.getElementById("nickname").innerHTML = profile["nickname"]
-                document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
-                document.getElementById("bio").innerHTML = profile["bio"]
-                document.getElementById("position").onclick = function () {
-                    sessionStorage.setItem("showOnMapProfile", JSON.stringify({ x: profile["pos"].x, y: profile["pos"].y }))
-                    window.location.href = "http://localhost:3001/"
-                }
-                if (profile["online"] === true) {
-                    document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
+                if (profile["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + profile['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    getProfile(profileId)
                 } else {
-                    document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + timeConverter(profile["lastSeen"])
+                    document.getElementById("nickname").innerHTML = profile["nickname"]
+                    document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
+                    document.getElementById("bio").innerHTML = profile["bio"]
+                    document.getElementById("position").onclick = function () {
+                        sessionStorage.setItem("showOnMapProfile", JSON.stringify({ x: profile["pos"].x, y: profile["pos"].y }))
+                        window.location.href = "http://localhost:3001/"
+                    }
+                    if (profile["online"] === true) {
+                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + "Is online"
+                    } else {
+                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span>" + timeConverter(profile["lastSeen"])
+                    }
                 }
-
             },
             error: (err) => {
-                console.log(err)
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => getProfile(profileId))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
             }
         })
     }
