@@ -8,6 +8,7 @@ const FREE = config.permissionLevels.NORMAL_USER;
 
 exports.routesConfig = function (app) {
     app.post('/api/profile/create', [
+        ValidationMiddleware.verifyCaptcha,
         ProfileController.uniqueNickname,
         ProfileController.insert
     ]);

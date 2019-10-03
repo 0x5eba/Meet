@@ -4,9 +4,6 @@ const crypto = require('crypto');
 var randtoken = require('rand-token')
 // const uuid = require('node-uuid');
 
-var Recaptcha = require('express-recaptcha').RecaptchaV3;
-var recaptcha = new Recaptcha('6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6', '6Ld5r7sUAAAAACT8sYktCkwGEC-9piie7xEhNaXO', {callback:'cb'});
-
 const jwtSecret = config.jwtSecret
 const jwtSecret2 = config.jwtSecret2
 const jwtExpireAccessToken = config.jwtExpireAccessToken
@@ -27,6 +24,8 @@ exports.login = (req, res) => {
 
         res.status(201).cookie('refreshToken', refreshToken, {
             httpOnly: true,
+            secure: true,
+            SameSite: "None", // Lax
             expires: new Date(Date.now() + (jwtExpireRefreshToken*1000)) // cookie will be removed
         }).send({ id: req.body.userId, accessToken: accessToken });
 
@@ -34,17 +33,3 @@ exports.login = (req, res) => {
         res.status(500).send({err: "Login falied"});
     }
 };
-
-exports.verifyCaptcha = (req, res, next) => {
-    token = req.body.token
-    recaptcha.verify(token, function(error, data){
-        console.log(error, data)
-        // if (!req.recaptcha.error) {
-        // // success code
-        // } else {
-        // // error code
-        // }
-
-        next()
-    });
-}

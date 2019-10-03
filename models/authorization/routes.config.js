@@ -4,6 +4,7 @@ const AuthValidationMiddleware = require('../common/middlewares/auth.validation.
 exports.routesConfig = function (app) {
 
     app.post('/api/auth', [
+        AuthValidationMiddleware.verifyCaptcha,
         VerifyUserMiddleware.hasAuthValidFields,
         VerifyUserMiddleware.isPasswordAndUserMatch,
         AuthorizationController.login
@@ -11,10 +12,6 @@ exports.routesConfig = function (app) {
 
     app.post('/api/auth/refresh', [
         AuthValidationMiddleware.verifyRefresh
-    ]);
-
-    app.post('/api/auth/captcha', [
-        AuthorizationController.verifyCaptcha
     ]);
 };
 

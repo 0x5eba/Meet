@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const config = require('../../common/config/env.config.js')
 var randtoken = require('rand-token')
+const https = require('https');
 
 const jwtSecret = config.jwtSecret
 const jwtSecret2 = config.jwtSecret2
@@ -79,4 +80,29 @@ function newAccessToken(req) {
         // tokene expired, quindi mandagli un messaggio che deve ri loggare
         return false
     }
+}
+
+exports.verifyCaptcha = (req, res, next) => {
+    if (req.body.recaptcha === undefined || req.body.recaptcha === '' || req.body.recaptcha === null) {
+        return res.status(500).send({ success: false, msg: 'Please select captcha first' });
+    }
+    const secretKey = '6Ld5r7sUAAAAACT8sYktCkwGEC-9piie7xEhNaXO';
+    const verificationURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.body.recaptcha}&remoteip=${req.connection.remoteAddress}`;
+
+    https.get(verificationURL, (resG) => {
+        let rawData = '';
+        resG.on('data', (chunk) => { rawData += chunk })
+        resG.on('end', function () {
+            try {
+                var parsedData = JSON.parse(rawData);
+                if (parsedData.success === true && parsedData.score >= 0.6) {
+                    next()
+                } else {
+                    return res.status(500).send({ error: 'Failed captcha verification' });
+                }
+            } catch (e) {
+                return res.status(500).send({ error: 'Failed captcha verification from Google' });
+            }
+        });
+    });
 }

@@ -10,14 +10,25 @@
         gtag('config', 'UA-148651561-1');
     </script>
 
-    <script src="https://www.google.com/recaptcha/api.js?render=_reCAPTCHA_site_key"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6"></script>
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6', { action: 'home' }).then(function (token) {
+                document.getElementById('loginButton').addEventListener('click', function(event) {
+                    login(token)
+                });
+            });
+        });
+    </script>
 
     <title>Login</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" type="text/css" href="localCDN/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="localCDN/fontawesome.css">
+    <!-- <link rel="stylesheet" type="text/css" href="localCDN/fontawesome.css"> -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+        integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <script src="localCDN/jquery.js"></script>
     <script src="localCDN/popper.js"></script>
     <script src="localCDN/bootstrap.js"></script>
@@ -67,44 +78,33 @@
 					</div>
 					
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn" onclick="login();">
+						<button class="login100-form-btn" id="loginButton">
 							Login
 						</button>
 					</div>
 
-					<div class="text-center p-t-136">
-						<a class="txt2" href="register">
+					<div class="text-center p-t-120">
+						<a class="txt4" href="register">
 							Create your Account
 							<i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
 						</a>
-					</div>
-				</div>
-			</div>
-		</div>
+                    </div>
+                </div>
+                <div style="font-size: 10px; padding-top: 30px; color: #B8B8B8;">
+                    This site is protected by reCAPTCHA and the Google
+                    <a href="https://policies.google.com/privacy" style="font-size: 10px;">Privacy Policy</a> and
+                    <a href="https://policies.google.com/terms" style="font-size: 10px;">Terms of Service</a> apply.
+                </div>
+            </div>
+        </div>
 	</div>
 	
-	<!-- <script src="login_register/vendor/jquery/jquery-3.2.1.min.js"></script> -->
-	<script src="login_register/vendor/bootstrap/js/popper.js"></script>
-	<script src="login_register/vendor/bootstrap/js/bootstrap.min.js"></script>
-	<script src="login_register/vendor/select2/select2.min.js"></script>
-    <script src="login_register/vendor/tilt/tilt.jquery.min.js"></script>
-    
-	<script >
-		$('.js-tilt').tilt({
-			scale: 1.1
-		})
-	</script>
 </body>
 </html>
 
+
 <script>
     const url = 'http://localhost:3001/api/';
-
-    grecaptcha.ready(function() {
-        grecaptcha.execute('6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6', {action: 'homepage'}).then(function(token) {
-            console.log(token)
-        });
-    });
 
     // Show the error when the input is not filled or incorrect
     var input = $('.validate-input .input100');
@@ -138,21 +138,21 @@
         $(thisAlert).removeClass('alert-validate');
     }
 
-    var passwordInput = document.getElementById("password");
-    passwordInput.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            login()
-        }
-    })
-    var nicknameInput = document.getElementById("nickname");
-    nicknameInput.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            login()
-        }
-    })
+    // var passwordInput = document.getElementById("password");
+    // passwordInput.addEventListener("keyup", function (event) {
+    //     if (event.keyCode === 13) {
+    //         login()
+    //     }
+    // })
+    // var nicknameInput = document.getElementById("nickname");
+    // nicknameInput.addEventListener("keyup", function (event) {
+    //     if (event.keyCode === 13) {
+    //         login()
+    //     }
+    // })
 
     // login with nickname and password, pressing the button login, only if there is no error
-    function login(){
+    function login(token){
         var check = true;
 
         for (var i = 0; i < input.length; i++) {
@@ -171,6 +171,7 @@
             let params = JSON.stringify({
                 nickname: nickname,
                 password: password,
+                recaptcha: token
             })
 
             $.ajax({

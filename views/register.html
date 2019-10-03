@@ -11,11 +11,24 @@
         gtag('config', 'UA-148651561-1');
     </script>
 
+    <script src="https://www.google.com/recaptcha/api.js?render=6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6"></script>
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6', { action: 'home' }).then(function (token) {
+                document.getElementById('registerButton').addEventListener('click', function (event) {
+                    register(token)
+                });
+            });
+        });
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" type="text/css" href="localCDN/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="localCDN/fontawesome.css">
+    <!-- <link rel="stylesheet" type="text/css" href="localCDN/fontawesome.css"> -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+        integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <script src="localCDN/jquery.js"></script>
     <script src="localCDN/popper.js"></script>
     <script src="localCDN/bootstrap.js"></script>
@@ -80,7 +93,7 @@
                     </div>
                     
                     <div class="container-login100-form-btn">
-                        <button class="login100-form-btn" onclick="register();">
+                        <button class="login100-form-btn" id="registerButton">
                             Register
                         </button>
                     </div>
@@ -89,7 +102,6 @@
                     </div>
 
                 </div>
-                
             </div>
         </div>
     </div>
@@ -139,33 +151,33 @@
         $(thisAlert).removeClass('alert-validate');
     }
 
-    var passwordInput = document.getElementById("password");
-    passwordInput.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            register()
-        }
-    })
-    var nicknameInput = document.getElementById("nickname");
-    nicknameInput.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            register()
-        }
-    })
+    // var passwordInput = document.getElementById("password");
+    // passwordInput.addEventListener("keyup", function (event) {
+    //     if (event.keyCode === 13) {
+    //         register()
+    //     }
+    // })
+    // var nicknameInput = document.getElementById("nickname");
+    // nicknameInput.addEventListener("keyup", function (event) {
+    //     if (event.keyCode === 13) {
+    //         register()
+    //     }
+    // })
 
-    var nameInput = document.getElementById("name");
-    nameInput.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            register()
-        }
-    })
-    var surnameInput = document.getElementById("surname");
-    surnameInput.addEventListener("keyup", function (event) {
-        if (event.keyCode === 13) {
-            register()
-        }
-    })
+    // var nameInput = document.getElementById("name");
+    // nameInput.addEventListener("keyup", function (event) {
+    //     if (event.keyCode === 13) {
+    //         register()
+    //     }
+    // })
+    // var surnameInput = document.getElementById("surname");
+    // surnameInput.addEventListener("keyup", function (event) {
+    //     if (event.keyCode === 13) {
+    //         register()
+    //     }
+    // })
 
-    function login(params) {
+    function login(params, token) {
         delete params['name']
         delete params['surname']
 
@@ -200,7 +212,7 @@
         })
     }
 
-    function register(){
+    function register(token){
         var check = true;
 
         for (var i = 0; i < input.length; i++) {
@@ -221,6 +233,7 @@
                 password: password,
                 name: document.getElementById("name").value,
                 surname: document.getElementById("surname").value,
+                recaptcha: token,
             })
 
             $.ajax({
@@ -233,7 +246,7 @@
                 data: params,
                 success: (res) => {
                     let myId = res['id']
-                    login(params)
+                    login(params, token)
                 },
                 error: (err) => {
                     console.log(err)
