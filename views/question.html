@@ -19,11 +19,14 @@
     <!-- <link rel="stylesheet" type="text/css" href="localCDN/fontawesome.css"> -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="localCDN/summernote.css">
+    <!-- <link rel="stylesheet" type="text/css" href="localCDN/summernote.css"> -->
     <script src="localCDN/jquery.js"></script>
     <script src="localCDN/popper.js"></script>
     <script src="localCDN/bootstrap.js"></script>
-    <script src="localCDN/summernote.js"></script>
+    <!-- <script src="localCDN/summernote.js"></script> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.js"></script>
+
 <!-- 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -98,7 +101,7 @@
             <div id='creator' style="margin-bottom: 20px"></div>
         </div>
 
-        <div id='root' style="margin-left: 30px">
+        <div id='root' style="margin-left: 30px; margin-right: 20px;">
         </div>
     </div>
 
@@ -712,7 +715,7 @@
         textDiv.setAttribute("class", "col-xs-11")
 
         let creator = document.createElement("p")
-        creator.innerHTML = "<b><a href='http://localhost:3001/profile?nickname=" + element["nickname"] + "'>" + element["nickname"] + "</a></b>"
+        creator.innerHTML = "<b><a href='http://localhost:3001/profile?nickname=" + element["idProfile"] + "'>" + element["idProfile"] + "</a></b>"
         let p = document.createElement("p")
         p.innerHTML = element["data"]
         let button = document.createElement("button")
