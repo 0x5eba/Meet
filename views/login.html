@@ -10,6 +10,8 @@
         gtag('config', 'UA-148651561-1');
     </script>
 
+    <script src="https://www.google.com/recaptcha/api.js?render=_reCAPTCHA_site_key"></script>
+
     <title>Login</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -97,9 +99,13 @@
 
 <script>
     const url = 'http://localhost:3001/api/';
-    
 
-    /*****************************************************/
+    grecaptcha.ready(function() {
+        grecaptcha.execute('6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6', {action: 'homepage'}).then(function(token) {
+            console.log(token)
+        });
+    });
+
     // Show the error when the input is not filled or incorrect
     var input = $('.validate-input .input100');
 

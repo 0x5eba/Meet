@@ -12,6 +12,10 @@ exports.routesConfig = function (app) {
     app.post('/api/auth/refresh', [
         AuthValidationMiddleware.verifyRefresh
     ]);
+
+    app.post('/api/auth/captcha', [
+        AuthorizationController.verifyCaptcha
+    ]);
 };
 
 /*
