@@ -184,7 +184,7 @@ exports.getAllSubs = (req, res, next) => {
 };
 
 exports.getShowSubs = (req, res) => {
-    showSubsOnMapFromprofile(req.body.subs, res)
+    showSubsOnMapFromProfile(req.body.subs, res)
 };
 
 exports.getMessagesWithLimit = (req, res) => {
