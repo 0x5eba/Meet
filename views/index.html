@@ -785,6 +785,15 @@
         });
     }
 
+    function refreshPosition(position) {
+        if(position.coords.longitude !== profileData['coords'][0] && position.coords.latitude !== profileData['coords'][1]){
+            showPosition(position)
+        }
+    }
+    window.setInterval(function () {
+        navigator.geolocation.getCurrentPosition(refreshPosition, function() {});
+    }, 300000); // 5 minutes
+
     var canUpdateStatus = false
     function showPosition(position) {
         const state_view = {
@@ -1412,19 +1421,16 @@
     var offline = false
     $(document).mouseleave(function (e) {
         if (offline === false && canUpdateStatus === true) {
-            iamStatus(false)
             offline = true
         }
     });
     $(document).click(function (e) {
         if(offline === true && canUpdateStatus === true){
-            iamStatus(true)
             offline = false
         }
     });
     $(document).mouseenter(function (e) {
         if(offline === true && canUpdateStatus === true){
-            iamStatus(true)
             offline = false
         }
     });
@@ -1433,8 +1439,6 @@
             iamStatus(true)
         }
     }, 45000);
-
-    
     function iamStatus(status) {
         let params = JSON.stringify({
             lastSeen: Date.now(),

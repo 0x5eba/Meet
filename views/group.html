@@ -564,6 +564,65 @@
         })
     }
 
+    var offline = false
+    $(document).mouseleave(function (e) {
+        if (offline === false && canUpdateStatus === true) {
+            offline = true
+        }
+    });
+    $(document).click(function (e) {
+        if(offline === true && canUpdateStatus === true){
+            offline = false
+        }
+    });
+    $(document).mouseenter(function (e) {
+        if(offline === true && canUpdateStatus === true){
+            offline = false
+        }
+    });
+    window.setInterval(function () {
+        if (offline === false && canUpdateStatus === true) {
+            iamStatus(true)
+        }
+    }, 45000);
+    function iamStatus(status) {
+        let params = JSON.stringify({
+            lastSeen: Date.now(),
+            pos: { x: profileData['coords'][0], y: profileData['coords'][1] }
+        })
+        $.ajax({
+            url: url + 'profile/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    iamStatus(status)
+                } else {
+                    offline = !status
+                }
+            },
+            error: (err) => {
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => iamStatus(status))
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
+            }
+        })
+    }
+
     $(document).mouseleave(function (e) {
         if (offline === false) {
             iamOffline()

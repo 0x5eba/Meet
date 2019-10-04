@@ -1,7 +1,7 @@
 const GroupController = require('./groups.model');
-const getgroupPosFromgroup = require('../groups/groups.model')['groupPos']
-const showSubsOnMapFromgroup = require('../groups/groups.model')['subsOnMap']
-const getgroupNicknameFromgroup = require('../groups/groups.model')['getNickname']
+const getProfilePosFromProfile = require('../profiles/profiles.controller')['profilePos']
+const showSubsOnMapFromProfile = require('../profiles/profiles.model')['subsOnMap']
+const getProfileNicknameFromProfile = require('../profiles/profiles.model')['getNickname']
 const crypto = require('crypto');
 var escapeRegExp = require('lodash.escaperegexp');
 
@@ -33,8 +33,8 @@ exports.uniqueName = (req, res, next) => {
         })
 }
 
-exports.getgroupNickname = (req, res, next) => {
-    getgroupNicknameFromgroup(req.params.userId)
+exports.getProfileNickname = (req, res, next) => {
+    getProfileNicknameFromProfile(req.params.userId)
         .then((user) => {
             if (!user) {
                 res.status(403).send({ err: 'User not found' });
@@ -141,8 +141,8 @@ exports.removeById = (req, res) => {
         })
 };
 
-exports.getgroupPos = (req, res, next) => {
-    getgroupPosFromgroup(req.params.userId)
+exports.getProfilePos = (req, res, next) => {
+    getProfilePosFromProfile(req.params.userId)
         .then((pos) => {
             if (!pos || pos['pos'] === undefined) {
                 res.status(403).send({ err: 'User not found' });
@@ -195,7 +195,7 @@ exports.getAllSubs = (req, res, next) => {
 };
 
 exports.getShowSubs = (req, res) => {
-    showSubsOnMapFromgroup(req.body.subs, res)
+    showSubsOnMapFromprofile(req.body.subs, res)
 };
 
 exports.getMessagesWithLimit = (req, res) => {
