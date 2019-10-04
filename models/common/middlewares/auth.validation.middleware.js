@@ -17,11 +17,12 @@ exports.verifyRefresh = (req, res) => {
 };
 
 exports.validJWTNeeded = (req, res, next) => {
+    console.log(req.headers)
     if (req.headers['authorization']) {
         try {
             let authorization = req.headers['authorization'].split(' ');
             if (authorization[0] !== 'Bearer') {
-                return res.status(401).send({});
+                return res.status(401).send({ err: 'Invalid access token' });
             } else {
                 jwt.verify(authorization[1], jwtSecret, function (err, decoded) {
                     if (err) if (!newAccessToken(req)) return res.status(400).send({ err: 'Invalid refresh token' });
@@ -99,10 +100,10 @@ exports.verifyCaptcha = (req, res, next) => {
                     delete req.body['recaptcha']
                     return next()
                 } else {
-                    return res.status(500).send({ error: 'Failed captcha verification' });
+                    return res.status(500).send({ err: 'Failed captcha verification' });
                 }
             } catch (e) {
-                return res.status(500).send({ error: 'Failed captcha verification from Google' });
+                return res.status(500).send({ err: 'Failed captcha verification from Google' });
             }
         });
     });
