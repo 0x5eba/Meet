@@ -1,5 +1,5 @@
 const QuestionController = require('./questions.model');
-const getProfilePosFromProfile = require('../profiles/profiles.model')['profilePos']
+const getProfilePosFromProfile = require('../profiles/profiles.controller')['profilePos']
 const getProfileNicknameFromProfile = require('../profiles/profiles.model')['getNickname']
 const crypto = require('crypto');
 var escapeRegExp = require('lodash.escaperegexp');
@@ -120,22 +120,7 @@ exports.removeById = (req, res) => {
 };
 
 exports.getProfilePos = (req, res, next) => {
-    getProfilePosFromProfile(req.params.userId)
-        .then((pos) => {
-            if (!pos) {
-                res.status(403).send({ err: 'User not found' });
-            } else {
-                if (pos['fakePos']['x'] != 0 && pos['fakePos']['y'] != 0){
-                    req.body.pos = pos['fakePos'];
-                } else {
-                    req.body.pos = pos['pos'];
-                }
-                return next();
-            }
-        })
-        .catch(err => {
-            res.status(403).send({ err: "Error get profile position" })
-        })
+    getProfilePosFromProfile(req.params.userId, req, res, next)
 };
 
 exports.getProfileNickname = (req, res, next) => {

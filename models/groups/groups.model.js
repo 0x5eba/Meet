@@ -171,7 +171,7 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
 
 exports.messagesSorted = (groupId) => {
     return new Promise((resolve, reject) => {
-        Group.findById(groupId, { "messages.sender": 1, "messages.time": 1, "messages.message": 1, _id: 0 })
+        Group.findById(groupId, { "messages": 1 })
             .sort({ "messages.time": 'desc' }).exec(function (err, messages) {
                 if (err) reject(err);
                 resolve(messages);

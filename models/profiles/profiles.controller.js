@@ -115,10 +115,16 @@ exports.getSaved = (req, res) => {
         })
 };
 
-exports.profilePos = (userId, next) => {
+exports.profilePos = (userId, req, res, next) => {
     ProfileController.findByIdGetPos(userId)
         .then((result) => {
-            res.status(201).send(result);
+            console.log(result)
+            if (result['fakePos']['x'] != 0 && result['fakePos']['y'] != 0) {
+                req.body.pos = result['fakePos'];
+            } else {
+                req.body.pos = result['pos'];
+            }
+            return next()
         })
         .catch(err => {
             res.status(403).send({ err: "Error get position profile" })

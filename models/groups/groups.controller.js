@@ -142,18 +142,7 @@ exports.removeById = (req, res) => {
 };
 
 exports.getProfilePos = (req, res, next) => {
-    getProfilePosFromProfile(req.params.userId)
-        .then((pos) => {
-            if (!pos || pos['pos'] === undefined) {
-                res.status(403).send({ err: 'User not found' });
-            } else {
-                req.body.pos = pos['pos'];
-                return next();
-            }
-        })
-        .catch(err => {
-            res.status(403).send({err: "User not found"})
-        })
+    getProfilePosFromProfile(req.params.userId, req, res, next)
 };
 
 exports.getIsSub = (req, res) => {

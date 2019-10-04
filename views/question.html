@@ -202,22 +202,22 @@
 
     var offline = false
     $(document).mouseleave(function (e) {
-        if (offline === false && canUpdateStatus === true) {
+        if (offline === false) {
             offline = true
         }
     });
     $(document).click(function (e) {
-        if(offline === true && canUpdateStatus === true){
+        if(offline === true){
             offline = false
         }
     });
     $(document).mouseenter(function (e) {
-        if(offline === true && canUpdateStatus === true){
+        if(offline === true){
             offline = false
         }
     });
     window.setInterval(function () {
-        if (offline === false && canUpdateStatus === true) {
+        if (offline === false) {
             iamStatus(true)
         }
     }, 45000);
