@@ -1,6 +1,7 @@
 const GroupController = require('./groups.model');
-const getProfilePosFromProfile = require('../profiles/profiles.model')['profilePos']
-const showSubsOnMapFromProfile = require('../profiles/profiles.model')['subsOnMap']
+const getgroupPosFromgroup = require('../groups/groups.model')['groupPos']
+const showSubsOnMapFromgroup = require('../groups/groups.model')['subsOnMap']
+const getgroupNicknameFromgroup = require('../groups/groups.model')['getNickname']
 const crypto = require('crypto');
 var escapeRegExp = require('lodash.escaperegexp');
 
@@ -14,7 +15,7 @@ exports.insert = (req, res) => {
             res.status(201).send({id: result._id});
         })
         .catch(err => {
-            res.status(403).send({ err: "Invalid arguments for new profile" })
+            res.status(403).send({ err: "Invalid arguments for new group" })
         })
 };
 
@@ -32,13 +33,28 @@ exports.uniqueName = (req, res, next) => {
         })
 }
 
+exports.getgroupNickname = (req, res, next) => {
+    getgroupNicknameFromgroup(req.params.userId)
+        .then((user) => {
+            if (!user) {
+                res.status(403).send({ err: 'User not found' });
+            } else {
+                req.body.nickname = user['nickname']
+                return next();
+            }
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error get group nickname" })
+        })
+};
+
 exports.list = (req, res) => {
     GroupController.list()
         .then((result) => {
             res.status(200).send(result);
         })
         .catch(err => {
-            res.status(403).send({ err: "Invalid list profiles" })
+            res.status(403).send({ err: "Invalid list groups" })
         })
 };
 
@@ -48,9 +64,19 @@ exports.getById = (req, res) => {
             res.status(200).send(result);
         })
         .catch(err => {
-            res.status(403).send({ err: "Invalid get profile" })
+            res.status(403).send({ err: "Invalid get group" })
         })
 };
+
+exports.getName = (req, res) => {
+    GroupController.getNameById(req.params.groupId) 
+        .then((result) => {
+            res.status(200).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Invalid get group" })
+        })
+}
 
 exports.getByIdPeopleOnline = (req, res) => {
     GroupController.peopleOnline(req.params.groupId)
@@ -115,8 +141,8 @@ exports.removeById = (req, res) => {
         })
 };
 
-exports.getProfilePos = (req, res, next) => {
-    getProfilePosFromProfile(req.params.userId)
+exports.getgroupPos = (req, res, next) => {
+    getgroupPosFromgroup(req.params.userId)
         .then((pos) => {
             if (!pos || pos['pos'] === undefined) {
                 res.status(403).send({ err: 'User not found' });
@@ -169,7 +195,7 @@ exports.getAllSubs = (req, res, next) => {
 };
 
 exports.getShowSubs = (req, res) => {
-    showSubsOnMapFromProfile(req.body.subs, res)
+    showSubsOnMapFromgroup(req.body.subs, res)
 };
 
 exports.getMessagesWithLimit = (req, res) => {
@@ -194,7 +220,7 @@ exports.checkLastMessage = (req, res) => {
 };
 
 exports.writeMessage = (req, res) => {
-    GroupController.createMessages(req.params.groupId, req.params.userId, req.body.data, Date.now())
+    GroupController.createMessages(req.params.groupId, req.params.userId, req.body.nickname, req.body.data, Date.now())
         .then((result) => {
             res.status(201).send({res: result});
         })

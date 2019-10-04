@@ -16,6 +16,7 @@ const GroupModel = new mongoose.Schema({
         type: [{
             // _id: false,
             sender: { type: String, require: true, minlength: 2, default: "" },
+            nickname: { type: String, require: true },
             time: { type: Number, default: 0 },
             message: { type: String, require: true, minlength: 1, default: "" },
         }],
@@ -37,6 +38,15 @@ exports.findByName = (name) => {
 exports.findById = (id) => {
     return new Promise((resolve, reject) => {
         Group.findById(id, function (err, group) {
+            if (err) reject(err);
+            resolve(group);
+        });
+    })
+};
+
+exports.getNameById = (id) => {
+    return new Promise((resolve, reject) => {
+        Group.findById(id, { name: 1 }, function (err, group) {
             if (err) reject(err);
             resolve(group);
         });
@@ -178,9 +188,10 @@ exports.getLastMessageTimestamp = (groupId, lastTime) => {
     });
 };
 
-exports.createMessages = (groupId, userId, data, timestamp) => {
+exports.createMessages = (groupId, userId, nickname, data, timestamp) => {
     message = {
         sender: userId,
+        nickname: nickname,
         time: timestamp,
         message: data,
     }

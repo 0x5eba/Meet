@@ -428,7 +428,7 @@
         document.getElementById("title_show").innerHTML = question["title"]
         document.getElementById("details_show").innerHTML = question["html"]
         let creator = document.getElementById("creator")
-        creator.innerHTML = "Created by <b> <a href='http://localhost:3001/profile?nickname=" + question["idCreator"] + "'>" + question["idCreator"] + "</a></b>"
+        creator.innerHTML = "Created by <b> <a href='http://localhost:3001/profile?nickname=" + question["idCreator"] + "'>" + question["nickname"] + "</a></b>"
     }
 
     function createDivAnswers() {
@@ -715,7 +715,7 @@
         textDiv.setAttribute("class", "col-xs-11")
 
         let creator = document.createElement("p")
-        creator.innerHTML = "<b><a href='http://localhost:3001/profile?nickname=" + element["idProfile"] + "'>" + element["idProfile"] + "</a></b>"
+        creator.innerHTML = "<b><a href='http://localhost:3001/profile?nickname=" + element["idProfile"] + "'>" + element["nickname"] + "</a></b>"
         let p = document.createElement("p")
         p.innerHTML = element["data"]
         let button = document.createElement("button")

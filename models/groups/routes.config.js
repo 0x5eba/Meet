@@ -20,12 +20,13 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),
         GroupController.list
     ]);
-    app.get('/api/group/:groupId', [
-        ValidationMiddleware.validJWTNeeded,
-        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
-        // PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
-        GroupController.getById
-    ]);
+    // app.get('/api/group/:groupId', [
+    //     ValidationMiddleware.validJWTNeeded,
+    //     PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+    //     // PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+    //     GroupController.getById
+    // ]);
+    
     app.patch('/api/group/:groupId&:userId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
@@ -42,6 +43,11 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         GroupController.allGroups
+    ]);
+    app.get('/api/group/name/:groupId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.getName
     ]);
     app.get('/api/group/peopleOnline/:groupId', [
         ValidationMiddleware.validJWTNeeded,
@@ -89,6 +95,7 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        GroupController.getProfileNickname,
         GroupController.writeMessage,
     ]);
 };

@@ -8,6 +8,7 @@ var SchemaTypes = mongoose.Schema.Types;
 const QuestionModel = new mongoose.Schema({
     title: { type: String, require: true, minlength: 4 },
     idCreator: { type: String, require: true },
+    nickname: { type: String, require: true },
     pos: { x: { type: SchemaTypes.Double, require: true, default: 0 }, y: { type: SchemaTypes.Double, require: true, default: 0 } },
     details: { type: String, default: "" },
     html: { type: String, default: "" },
@@ -19,6 +20,7 @@ const QuestionModel = new mongoose.Schema({
     answers: {
         type: [{
             idProfile: { type: String, require: true, default: "" },
+            nickname: { type: String, require: true },
             time: { type: Number, default: 0 },
             level: { type: Number, default: 0 },
             data: { type: String, require: true, minlength: 1, default: "" },
@@ -175,6 +177,7 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
 exports.createAnswer = (questionId, userId, body, timestamp) => {
     message = {
         idProfile: userId,
+        nickname: body.nickname,
         time: timestamp,
         level: body.level,
         data: body.data, 

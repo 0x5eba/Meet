@@ -1,6 +1,6 @@
 const QuestionController = require('./questions.model');
 const getProfilePosFromProfile = require('../profiles/profiles.model')['profilePos']
-const showSubsOnMapFromProfile = require('../profiles/profiles.model')['subsOnMap']
+const getProfileNicknameFromProfile = require('../profiles/profiles.model')['getNickname']
 const crypto = require('crypto');
 var escapeRegExp = require('lodash.escaperegexp');
 
@@ -10,6 +10,7 @@ exports.insert = (req, res) => {
         pos: req.body.pos,
         time: Date.now(),
         idCreator: req.params.userId,
+        nickname: req.body.nickname,
         details: req.body.details,
         html: req.body.html,
     }
@@ -134,6 +135,21 @@ exports.getProfilePos = (req, res, next) => {
         })
         .catch(err => {
             res.status(403).send({ err: "Error get profile position" })
+        })
+};
+
+exports.getProfileNickname = (req, res, next) => {
+    getProfileNicknameFromProfile(req.params.userId)
+        .then((user) => {
+            if (!user) {
+                res.status(403).send({ err: 'User not found' });
+            } else {
+                req.body.nickname = user['nickname']
+                return next();
+            }
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error get profile nickname" })
         })
 };
 

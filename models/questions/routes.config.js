@@ -13,6 +13,7 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         QuestionController.uniqueTitle,
         QuestionController.getProfilePos,
+        QuestionController.getProfileNickname,
         QuestionController.insert
     ]);
     app.get('/api/questions', [
@@ -66,6 +67,7 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        QuestionController.getProfileNickname,
         QuestionController.createAnswer
     ]);
     app.patch('/api/question/answer/:questionId&:userId&:answerId', [

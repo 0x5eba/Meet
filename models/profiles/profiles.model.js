@@ -47,6 +47,15 @@ exports.findById = (id) => {
     })
 };
 
+exports.getNickname = (id) => {
+    return new Promise((resolve, reject) => {
+        Profile.findById(id, { nickname: 1 }, function (err, user) {
+            if (err) reject(err);
+            resolve(user);
+        });
+    })
+};
+
 exports.createUser = (userData) => {
     return new Promise((resolve, reject) => {
         const user = new Profile(userData);

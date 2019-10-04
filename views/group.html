@@ -325,9 +325,7 @@
 
     if (groupId !== null) {
         checkIfSubscribed()
-        
-        document.getElementById("nameGroup").innerHTML = groupId
-        document.getElementById("showGroup").style.display = "block"
+        getGroupName()
 
         iamOnline()
         loadMoreMessages()
@@ -368,6 +366,40 @@
                 writeMessages(answersChat, chat)
             }
         }, 400))
+    }
+
+    function getGroupName() {
+        $.ajax({
+            url: url + 'group/name/' + groupId,
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'GET',
+            dataType: 'json',
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    getGroupName()
+                } else {
+                    document.getElementById("nameGroup").innerHTML = res['name']
+                    document.getElementById("showGroup").style.display = "block"
+                }
+            },
+            error: (err) => {
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => getGroupName())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    window.location.href = "http://localhost:3001/login"
+                } else {
+                    showAlertError(err)
+                }
+            }
+        })
     }
 
     function checkIfSubscribed() {
@@ -689,9 +721,9 @@
             let element = chat[i]
             let p = document.createElement("p")
             let strong = document.createElement("strong")
-            let sender = document.createTextNode(element["sender"])
+            let nickname = document.createTextNode(element["nickname"])
             let data = document.createTextNode(": " + element["message"])
-            strong.appendChild(sender)
+            strong.appendChild(nickname)
             p.appendChild(strong)
             p.appendChild(data)
             div.appendChild(p)
@@ -716,8 +748,8 @@
             }
             var data = document.createTextNode(": " + element["message"])
             let strong = document.createElement("strong")
-            let sender = document.createTextNode(element["sender"])
-            strong.appendChild(sender)
+            let nickname = document.createTextNode(element["nickname"])
+            strong.appendChild(nickname)
             p.appendChild(strong)
             p.appendChild(data)
             div.appendChild(p)
