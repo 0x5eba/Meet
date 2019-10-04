@@ -90,11 +90,14 @@ exports.verifyCaptcha = (req, res, next) => {
     const verificationURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.body.recaptcha}&remoteip=${req.connection.remoteAddress}`;
 
     https.get(verificationURL, (resG) => {
-        let rawData = '';
+        var rawData = '';
         resG.on('data', (chunk) => { rawData += chunk })
         resG.on('end', function () {
             try {
+                var parsedData = JSON.parse(rawData);
+                console.log(parsedData)
                 if (parsedData.success === true && parsedData.score >= 0.6) {
+                    delete req.body['recaptcha']
                     return next()
                 } else {
                     return res.status(500).send({ error: 'Failed captcha verification' });

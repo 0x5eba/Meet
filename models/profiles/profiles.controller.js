@@ -2,14 +2,19 @@ const ProfileController = require('./profiles.model');
 const crypto = require('crypto');
 var escapeRegExp = require('lodash.escaperegexp');
 
-exports.insert = (req, res) => {
+exports.insert = (req, res, next) => {
     let salt = crypto.randomBytes(16).toString('base64');
     let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
     req.body.password = salt + "$" + hash;
     req.body.permissionLevel = 1;
     ProfileController.createUser(req.body)
         .then((result) => {
-            res.status(201).send({id: result._id});
+            req.body = {
+                password: req.body.password,
+                nickname: req.body.nickname,
+                userId: result._id
+            }
+            return next()
         })
         .catch(err => {
             res.status(403).send({ err: "Error creating user" })

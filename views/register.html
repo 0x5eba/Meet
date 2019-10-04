@@ -168,41 +168,6 @@
     //     }
     // })
 
-    function login(params) {
-        delete params['name']
-        delete params['surname']
-
-        $.ajax({
-            url: url + 'auth',
-            headers: {
-                'Content-Type': 'application/json; charset=UTF-8',
-            },
-            method: 'POST',
-            dataType: 'json',
-            data: params,
-            success: (res) => {
-                localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
-                localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: nickname }));
-
-                let view = {
-                    questions: 0,
-                    groups: 0,
-                    profiles: 1,
-                }
-                localStorage.setItem("view", JSON.stringify(view));
-
-                localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
-
-                localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
-
-                window.location.href = "http://localhost:3001/"
-            },
-            error: (err) => {
-                console.log(err)
-            }
-        })
-    }
-
     function register(token){
         var check = true;
 
@@ -236,8 +201,21 @@
                 dataType: 'json',
                 data: params,
                 success: (res) => {
-                    let myId = res['id']
-                    login(params)
+                    localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+                    localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: nickname }));
+
+                    let view = {
+                        questions: 0,
+                        groups: 0,
+                        profiles: 1,
+                    }
+                    localStorage.setItem("view", JSON.stringify(view));
+
+                    localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+
+                    localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
+
+                    window.location.href = "http://localhost:3001/"
                 },
                 error: (err) => {
                     console.log(err)

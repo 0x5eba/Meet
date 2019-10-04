@@ -1,6 +1,7 @@
 const ProfileController = require('./profiles.controller');
 const PermissionMiddleware = require('../common/middlewares/auth.permission.middleware');
 const ValidationMiddleware = require('../common/middlewares/auth.validation.middleware');
+const AuthControllerMiddleware = require('../authorization/controllers/authorization.controller.js');
 const config = require('../common/config/env.config');
 
 const ADMIN = config.permissionLevels.ADMIN;
@@ -10,7 +11,8 @@ exports.routesConfig = function (app) {
     app.post('/api/profile/create', [
         ValidationMiddleware.verifyCaptcha,
         ProfileController.uniqueNickname,
-        ProfileController.insert
+        ProfileController.insert,
+        AuthControllerMiddleware.login
     ]);
     app.get('/api/profiles', [
         ValidationMiddleware.validJWTNeeded,

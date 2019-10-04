@@ -198,14 +198,16 @@ exports.subsOnMap = (listIds, res) => {
 };
 
 exports.searchProfiles = (search) => {
-    return Profile.find({
-        "$or": [
-            { nickname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
-            { name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
-            { surname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }
-        ]
-    }, {nickname: 1, name: 1, surname: 1}).limit(20).exec(function (err, profiles) {
-        if (err) reject(err);
-        resolve(profiles);
-    });
+    return new Promise((resolve, reject) => {
+        Profile.find({
+            "$or": [
+                { nickname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+                { name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } },
+                { surname: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }
+            ]
+        }, { nickname: 1, name: 1, surname: 1 }).limit(20).exec(function (err, profiles) {
+            if (err) reject(err);
+            resolve(profiles);
+        });
+    })
 }
