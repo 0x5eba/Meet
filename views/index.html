@@ -846,7 +846,7 @@
                 for (let a = 0; a < AllProfiles.features.length; ++a) {
                     if (AllProfiles.features[a].properties['nickname'] === profileData['nickname']) {
                         AllProfiles.features[a].geometry['coordinates'] = [state_view.longitude, state_view.latitude]
-                        AllProfiles.features[a].properties['mag'] = 6
+                        AllProfiles.features[a].properties['mag'] = 6.0
                         foundProfile = true
                         break;
                     }
@@ -857,7 +857,7 @@
                         "properties": {
                             'nickname': profileData['nickname'],
                             'id': profileData['id'],
-                            "mag": 6
+                            "mag": 6.0
                         },
                         "geometry": { "type": "Point", "coordinates": profileData['fakePos'] }
                     }
@@ -883,7 +883,7 @@
                         'id': profileData['id'],
                         // 'name': profileData['name'],
                         // 'surname': profileData['surname'],
-                        "mag": 2
+                        "mag": 2.0
                     },
                     "geometry": { "type": "Point", "coordinates": profileData['coords'] }
                 }
