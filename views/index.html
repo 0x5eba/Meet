@@ -1428,6 +1428,11 @@
             offline = false
         }
     });
+    window.setInterval(function () {
+        if (offline === false && canUpdateStatus === true) {
+            iamStatus(true)
+        }
+    }, 45000);
 
     
     function iamStatus(status) {
@@ -1451,7 +1456,7 @@
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     iamStatus(status)
                 } else {
-
+                    offline = !status
                 }
             },
             error: (err) => {
