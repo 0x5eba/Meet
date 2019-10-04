@@ -936,7 +936,7 @@
 
         const map = new mapboxgl.Map({
             container: 'map',
-            style: mapStyle['mapStyle'],
+            style: mapStyle['mapStyle'] + "?optimize=true",
             // interactive: false, // Note: deck.gl will be in charge of interaction and event handling
             center: [state_view.longitude, state_view.latitude],
             zoom: state_view.zoom,
