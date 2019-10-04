@@ -22,7 +22,7 @@ exports.onlySameUserOrAdminCanDoThisAction = (req, res, next) => {
         if (user_permission_level === adminPermission) {
             return next();
         } else {
-            return res.status(403).send({ err: "You are not the owner" });
+            return res.status(403).send({ err: "You are not authorized" });
         }
     }
 };

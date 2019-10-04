@@ -17,7 +17,6 @@ exports.verifyRefresh = (req, res) => {
 };
 
 exports.validJWTNeeded = (req, res, next) => {
-    console.log(req.headers)
     if (req.headers['authorization']) {
         try {
             let authorization = req.headers['authorization'].split(' ');

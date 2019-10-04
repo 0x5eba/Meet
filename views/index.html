@@ -1606,6 +1606,7 @@
                 }
             },
             error: (err) => {
+                console.log(err)
                 if(err['err'] === "Invalid access token"){
                     newAccessToken(() => initProfiles(state_view, x, y))
                 } else if(err['err'] === "Invalid refresh token"){

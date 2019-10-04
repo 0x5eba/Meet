@@ -153,7 +153,7 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
                 "properties": {
                     'name': "$name",
                     'id': "$_id",
-                    "mag": { $toInt: "2" },
+                    "mag": 2,
                 },
                 "geometry": { "type": "Point", "coordinates": ["$pos.x", "$pos.y"] }
             }, 

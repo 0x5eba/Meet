@@ -146,7 +146,7 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
                     'name': "$name",
                     'surname': "$surname",
                     'id': "$_id",
-                    "mag": { $toInt: "2" },
+                    "mag": 2,
                 },
                 "geometry": { "type": "Point", "coordinates": ["$pos.x", "$pos.y"] }
             }, 
@@ -181,7 +181,7 @@ exports.subsOnMap = (listIds, res) => {
                     'name': "$name",
                     'surname': "$surname",
                     'id': "$_id",
-                    "mag": { $toInt: "1" },
+                    "mag": 1,
                 },
                 "geometry": { "type": "Point", "coordinates": ["$pos.x", "$pos.y"] }
             },
