@@ -94,9 +94,8 @@ exports.verifyCaptcha = (req, res, next) => {
         resG.on('data', (chunk) => { rawData += chunk })
         resG.on('end', function () {
             try {
-                var parsedData = JSON.parse(rawData);
                 if (parsedData.success === true && parsedData.score >= 0.6) {
-                    next()
+                    return next()
                 } else {
                     return res.status(500).send({ error: 'Failed captcha verification' });
                 }

@@ -168,7 +168,7 @@
     //     }
     // })
 
-    function login(params, token) {
+    function login(params) {
         delete params['name']
         delete params['surname']
 
@@ -237,7 +237,7 @@
                 data: params,
                 success: (res) => {
                     let myId = res['id']
-                    login(params, token)
+                    login(params)
                 },
                 error: (err) => {
                     console.log(err)
