@@ -110,7 +110,7 @@ exports.removeById = (userId) => {
     });
 };
 
-exports.profilePos = (id) => {
+exports.findByIdGetPos = (id) => {
     return new Promise((resolve, reject) => {
         Profile.findById(id, { pos: 1, fakePos: 1 }, (err, profile) => {
             if (err) reject(err);
