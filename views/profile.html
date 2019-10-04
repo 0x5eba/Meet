@@ -281,7 +281,7 @@
                     localStorage.removeItem("authToken")
                     window.location.href = "http://localhost:3001/login"
                 } else {
-                    showAlertError(err)
+                    showAlertError(err['err'])
                 }
             }
         })
@@ -291,9 +291,9 @@
     //     document.getElementById("showError").style.display = "none"
     //     document.getElementById("messageError").innerHTML = ""
     // }
-    // function showAlertError(err) {
+    // function showAlertError(error) {
     //     document.getElementById("showError").style.display = "block";
-    //     document.getElementById("messageError").innerText = err
+    //     document.getElementById("messageError").innerText = error
     // }
 
     function timeConverter(UNIX_timestamp) {
@@ -348,7 +348,7 @@
                 //     localStorage.removeItem("authToken")
                 //     window.location.href = "http://localhost:3001/login"
                 // } else {
-                //     showAlertError(err)
+                //     showAlertError(err['err'])
                 // }
             }
         })

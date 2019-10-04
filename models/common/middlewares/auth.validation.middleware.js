@@ -95,7 +95,6 @@ exports.verifyCaptcha = (req, res, next) => {
         resG.on('end', function () {
             try {
                 var parsedData = JSON.parse(rawData);
-                console.log(parsedData)
                 if (parsedData.success === true && parsedData.score >= 0.6) {
                     delete req.body['recaptcha']
                     return next()
