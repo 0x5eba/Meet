@@ -78,6 +78,9 @@ router.get('/group', function (req, res) {
 router.get('/profile', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/profile.html'));
 });
+router.get('/home', function (req, res) {
+	res.sendFile(path.join(__dirname + '/views/home.html'));
+});
 // router.get('/chat', function (req, res) {
 // 	res.sendFile(path.join(__dirname + '/views/chat.html'));
 // });
