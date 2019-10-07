@@ -14,30 +14,33 @@
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
     <link rel="stylesheet" type="text/css" href="localCDN/bootstrap.css">
-    <!-- <link rel="stylesheet" type="text/css" href="localCDN/fontawesome.css"> -->
-    <link rel="stylesheet" type="text/css" href="localCDN/mapboxgl.css">
     <link rel="stylesheet" type="text/css" href="localCDN/slider.css">
     <script src="localCDN/jquery.js"></script>
     <script src="localCDN/popper.js"></script>
     <script src="localCDN/bootstrap.js"></script>
-    <script src="localCDN/deckgl.js"></script>
-    <script src="localCDN/mapboxgl.js"></script>
-    <script src="localCDN/d3.js"></script>
     <script src="localCDN/slider.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 </head>
 
 <body>
+    <div id="register-div">
+        <div id="register-div-content">
+            <button type="button" class="close">
+                <span id="closeModal">&times;</span>
+            </button>
+            ciao
+        </div>
+    </div>
     <div id="modal-content">
-        <div id="top-div">
+        <div id="top-div-right">
             <button id="btn-info">Info</button>
-            <button id="btn-register">Register</button>
+            <button id="btn-register" onclick="register()">Register</button>
         </div>
         <div id="left-div">
             <p id="title">MEET</p>
             <p style="font-size: 17px;">Would you like to meet people around you, even when you are traveling?</p>
-            <button id="btn-start">Get Started</button>
+            <button id="btn-start" onclick="start()">Get Started</button>
         </div>
         <div id="flat-img"></div>
     </div>
@@ -110,7 +113,7 @@
         margin-bottom: 30px;
     }
 
-    #top-div {
+    #top-div-right {
         position: absolute;
         z-index: 2;
         text-align:right; 
@@ -147,4 +150,87 @@
         z-index: 3;
         
     }
+
+
+    #register-div {
+
+        /* display: none; */
+
+
+        z-index: 4;
+        display: inline-block;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    #register-div-content {
+        display: inline-block;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 80%;
+        height: 80%; 
+        max-width: 700px;
+        /* max-height: 90%; */
+        border: 1px solid #888;
+        background-color: #fefefe;
+        padding: 20px;
+        overflow-y: scroll;
+        overflow: auto;
+    }
+
+    #showError {
+        position: fixed;
+        left: 50%;
+        bottom: 40px;
+        transform: translate(-50%, -50%);
+        border-radius: 20px;
+        width: 90%;
+        height: auto;
+    }
+    
+    #closeAlert {
+        float: right;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: end;
+    }
+    #closeAlert:hover,
+    #closeAlert:focus {
+        color: #000;
+        text-decoration: none;
+    }
+
+    #closeModal {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        text-align: end;
+    }
+    #closeModal:hover,
+    #closeModal:focus {
+        color: #000;
+        text-decoration: none;
+    }
 </style>
+
+<script>
+
+    function start() {
+        window.location.href = "http://localhost:3001/"
+    }
+
+    function register() {
+
+    }
+
+</script>
