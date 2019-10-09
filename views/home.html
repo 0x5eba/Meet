@@ -23,104 +23,57 @@
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <!-- <link rel="stylesheet" type="text/css" href="localCDN/css/util.css">
     <link rel="stylesheet" type="text/css" href="localCDN/css/main.css"> -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="184507738418-p7bus4bt6aeb89f5i43doukp4rlobidj.apps.googleusercontent.com">
 </head>
 
 <body>
-    <div class="modal fade bd-example-modal-md"tabindex="-1" style="border-radius: 15x;" role="dialog" id="exampleModalCenter" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md" style="border-radius: 15x;">
-            <div class="modal-content" style="border-radius: 15x;" >
-            <div class="modal-header" style="background: #d6dada; border-radius: 15px 15px 0px 0px;">
-                <button class="btn-signs btn-activate" style="border-right: 1px solid #000; width: 50%">Sign up</button>
-                <button class="btn-signs" style="border-left: 1px solid #000; width: 50%">Sign in</button>
+    <div class="modal fade bd-example-modal-md"tabindex="-1" role="dialog" id="exampleModalCenter" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #edeeee;">
+                    <button id="change-sign-up" onclick="registerCss();" class="btn-signs" style="border-right: 2px solid rgb(122, 122, 122);">Sign up</button>
+                    <button id="change-sign-in" onclick="loginCss();" class="btn-signs">Sign in</button>
+                </div>
+                <div class="modal-body" style="padding: 30px; width: 100%; text-align:center;">
+                    <div data-validate="nickname is required" class="input-icons">
+                        <i class="fa fa-user icon"></i>
+                        <input class="input-nick-pasw" type="text" id='nickname' name="nickname" placeholder="Nickname">
+                    </div>
 
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" style="padding: 30px;">
-                <div data-validate="nickname is required" style="padding-bottom: 20px;">
-                    <input class="input100" type="text" id='nickname' name="nickname" placeholder="Nickname">
-                    <span class="symbol-input100">
-                        <i class="fa fa-envelope" aria-hidden="true"></i>
-                    </span>
+                    <div data-validate="password is required" class="input-icons">
+                        <i class="fa fa-lock icon"></i>
+                        <input class="input-nick-pasw" type="password" id='password' name="pass" placeholder="Password">
+                    </div>
+
+                    <div id="btn-sign-in" class="div-btn-sign">
+                        <button class="btn-sign-up-in" style="background: #576bad;">Sign in</button>
+                        <br>
+                        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+                        <button onclick="registerCss();" class="transparent-btn" style="padding-top: 30px; padding-bottom: 0px;">Don't have an account?</button>
+                    </div>
+        
+                    <div id="btn-sign-up" class="div-btn-sign">
+                        <button class="btn-sign-up-in" style="background: #57ad6c;">Sign up</button>
+                        <br>
+                        <div class="g-signin2"data-onsuccess="onSignIn"></div>
+                        <button onclick="loginCss();" class="transparent-btn" style="padding-top: 30px; padding-bottom: 0px;">Already have an account?</button>
+                    </div>
+                    
                 </div>
-    
-                <div data-validate="Password is required">
-                    <input class="input100" type="password" id='password' name="pass" placeholder="Password">
-                    <span class="symbol-input100"></span>
-                        <i class="fa fa-lock" aria-hidden="true"></i>
-                    </span>
-                </div>
- 
-                <div id="btn-sign-in" class="container-login100-form-btn">
-                    <button class="login100-form-btn">
-                        Sign in
-                    </button>
-                </div>
-    
-                <div id="btn-sign-up" class="container-login100-form-btn">
-                    <button class="login100-form-btn">
-                        Sign up
-                    </button>
-                </div>
-            </div>
-            <!-- <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div> -->
             </div>
         </div>
     </div>
-    <!-- <div id="register-div">
-        <div class="div-content">
-            <button type="button" class="close">
-                <span id="closeModal">&times;</span>
-            </button>
-            
-            <div class="row" style="width: 100%; height: 10%; background: #d6dada">
-                <button class="btn-signs btn-activate" style="border-right: 1px solid #000; width: 50%">Sign up</button>
-                <button class="btn-signs" style="border-left: 1px solid #000; width: 50%">Sign in</button>
-            </div>
-            
-            <h2 id="title-register">Create Account</h2>
-
-            <div data-validate="nickname is required" style="padding-top: 100px; padding-bottom: 30px;">
-                <input class="input100" type="text" id='nickname' name="nickname" placeholder="Nickname">
-                <span class="symbol-input100">
-                    <i class="fa fa-envelope" aria-hidden="true"></i>
-                </span>
-            </div>
-
-            <div data-validate="Password is required">
-                <input class="input100" type="password" id='password' name="pass" placeholder="Password">
-                <span class="symbol-input100">
-                    <i class="fa fa-lock" aria-hidden="true"></i>
-                </span>
-            </div>
-            
-            <div id="btn-sign-in" class="container-login100-form-btn">
-                <button class="login100-form-btn">
-                    Sign in
-                </button>
-            </div>
-
-            <div id="btn-sign-up" class="container-login100-form-btn">
-                <button class="login100-form-btn">
-                    Sign up
-                </button>
-            </div>
-        </div>
-    </div> -->
 
     <div id="modal-content">
         <div id="top-div-right">
-            <button id="btn-info">Info</button>
-            <button id="btn-register" onclick="register()" data-toggle="modal" data-target="#exampleModalCenter">Register</button>
+            <button id="btn-info" class="transparent-btn">Info</button>
+            <button id="btn-register" onclick="registerCss()" data-toggle="modal" data-target="#exampleModalCenter">Register</button>
         </div>
         <div id="left-div">
-            <p id="title">MEET</p>
-            <p style="font-size: 17px;">Would you like to meet people around you, even when you are traveling?</p>
-            <button id="btn-start" onclick="start()">Get Started</button>
+            <p id="title">Meet</p>
+            <p style="font-size: 15px;">Would you like to meet people around you, even when you are traveling?</p>
+            <button id="btn-start" onclick="start()">GET STARTED</button>
         </div>
         <div id="flat-img"></div>
     </div>
@@ -130,97 +83,66 @@
 
 <style type="text/css">
 
-    .container-login100-form-btn {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        padding-top: 20px;
-        border: none;
+    body {
+        background-color: #F1FAEE;
     }
 
-    .login100-form-btn {
-        /* font-family: Montserrat-Bold; */
-        font-size: 15px;
-        line-height: 1.5;
-        color: #fff;
-        text-transform: uppercase;
-        border: none;
-
+    .g-signin2{
         width: 100%;
-        height: 50px;
-        border-radius: 25px;
-        background: #57b846;
-        display: flex;
+        margin-top: 20px;
+    }
+
+    .g-signin2 > div{
+        margin: 0 auto;
+    }
+
+    .input-nick-pasw {
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: none;
+        border-bottom: 1px solid rgb(180, 179, 179);
+        padding: 7px;
+        padding-left: 2px;
+    }
+    .input-icons { 
+        color: rgb(205, 206, 206);
         justify-content: center;
         align-items: center;
+        padding: 10px;
+        padding-right: 20px;
+    }
+    
+
+    .div-btn-sign {
+        text-align:center;
+        justify-content: center;
+        padding-top: 30px;
+        border: none;
+    }
+    .btn-sign-up-in {
+        font-size: 15px;
+        color: #fff;
+        border: none;
+        width: 100%;
+        max-width: 200px;
+        height: 40px;
+        border-radius: 25px;
+        justify-content: center;
+        align-items: center;
+        cursor:pointer;
         padding: 0 25px;
     }
 
-    .login100-form-btn:hover {
-        background: #333333;
-    }
-
-    .input100 {
-        /* font-family: Poppins-Medium; */
-        font-size: 15px;
-        line-height: 1.5;
-        color: #666666;
+    .btn-signs {
+        width: 50%;
+        color: rgb(126, 129, 129);
+        background-color: Transparent;
+        background-repeat: no-repeat;
         border: none;
-
-        display: block;
-        width: 100%;
-        background: #e6e6e6;
-        height: 50px;
-        border-radius: 25px;
-        padding: 0 30px 0 68px;
+        cursor:pointer;
     }
-
-    .focus-input100 {
-        display: block;
-        position: absolute;
-        border-radius: 25px;
-        bottom: 0;
-        left: 0;
-        z-index: -1;
-        width: 100%;
-        height: 100%;
-        box-shadow: 0px 0px 0px 0px;
-        color: rgba(87,184,70, 0.8);
-    }
-
-    .symbol-input100 {
-        font-size: 15px;
-
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: flex;
-        align-items: center;
-        position: absolute;
-        border-radius: 25px;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        padding-left: 35px;
-        pointer-events: none;
-        color: #666666;
-
-        -webkit-transition: all 0.4s;
-        -o-transition: all 0.4s;
-        -moz-transition: all 0.4s;
-        transition: all 0.4s;
-    }
-
-    .input100:focus + .focus-input100 + .symbol-input100 {
-        color: #57b846;
-        padding-left: 28px;
-    }
-
-    body {
-        background-color: #F1FAEE;
+    .btn-activate {
+        color: rgb(49, 49, 49);
     }
 
     #modal-content {
@@ -251,13 +173,8 @@
         z-index: 2;
         left: 8%;
         top: 20%;
-        /* background-color: #E63946; */
-        height: 60%;
         width: 30%;
-        max-width: 300px;
-        /* box-sizing: border-box;
-        transition: all .3s ease;
-        resize:none; */
+        max-width: 400px;
     }
 
     #btn-start {
@@ -270,7 +187,7 @@
         padding-left: 20px;
         padding-right: 20px;
         height: 50px;
-        margin-top: 100px;
+        margin-top: 30px;
         cursor:pointer;
     }
 
@@ -279,7 +196,7 @@
         border: 0;
         font-size: 70px;
         font-weight: 600;
-        margin-bottom: 30px;
+        /* margin-bottom: 30px; */
     }
 
     #top-div-right {
@@ -305,13 +222,16 @@
         cursor:pointer;
     }
 
-    #btn-info {
-        margin-right: 30px;
-        color: rgb(126, 129, 129);
+    .transparent-btn {
         background-color: Transparent;
         background-repeat:no-repeat;
         border: none;
         cursor:pointer;
+        color: rgb(126, 129, 129);
+    }
+
+    #btn-info {
+        margin-right: 30px;
     }
 
     #flat-img {
@@ -334,27 +254,6 @@
         background-color: rgba(0, 0, 0, 0.4);
     }
 
-    .div-content {
-        display: inline-block;
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-        width: 80%;
-        height: 80%; 
-        max-width: 700px;
-        /* max-height: 90%; */
-        border: 1px solid #888;
-        background-color: #fefefe;
-        overflow-y: scroll;
-        overflow: auto;
-        border-radius: 30px;
-        /* padding-left: 5%; 
-        padding-right: 5%;
-        padding: 20px; */
-    }
 
     #showError {
         position: fixed;
@@ -366,47 +265,10 @@
         height: auto;
     }
     
-    /* #closeAlert {
-        float: right;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: end;
-    }
-    #closeAlert:hover,
-    #closeAlert:focus {
-        color: #000;
-        text-decoration: none;
-    }
-
-    #closeModal {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        text-align: end;
-    }
-    #closeModal:hover,
-    #closeModal:focus {
-        color: #000;
-        text-decoration: none;
-    } */
-
     #title-register {
         margin: 20px;
         padding: 20px;
         text-align: center;
-    }
-
-    .btn-signs {
-        /* margin-right: 30px; */
-        color: rgb(126, 129, 129);
-        background-color: Transparent;
-        background-repeat: no-repeat;
-        border: none;
-        cursor:pointer;
-    }
-    .btn-activate {
-        color: rgb(67, 68, 68);
     }
 </style>
 
@@ -416,22 +278,26 @@
         window.location.href = "http://localhost:3001/"
     }
 
-    function register() {
+    function registerCss() {
         document.getElementById("btn-sign-up").style.display = "block"
         document.getElementById("btn-sign-in").style.display = "none"
+        $('#change-sign-up').addClass("btn-activate")
+        $('#change-sign-in').removeClass("btn-activate")
     }
 
-    function login() {
+    function loginCss() {
         document.getElementById("btn-sign-up").style.display = "none"
         document.getElementById("btn-sign-in").style.display = "block"
+        $('#change-sign-up').removeClass("btn-activate")
+        $('#change-sign-in').addClass("btn-activate")
     }
 
-    function closeMenu(){
-        document.getElementById("btn-sign-up").style.display = "none"
-        document.getElementById("btn-sign-in").style.display = "none"
-    }
-    document.getElementById("closeModal").onclick = function () {
-        closeMenu()
+    function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
     }
 
 </script>
