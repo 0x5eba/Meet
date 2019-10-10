@@ -11,6 +11,20 @@
         gtag('config', 'UA-148651561-1');
     </script>
 
+    <script src="https://www.google.com/recaptcha/api.js?render=6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6"></script>
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6Ld5r7sUAAAAAFJMOQE7k3uZsAqH-3DMD3FdNSe6', { action: 'home' }).then(function (token) {
+                document.getElementById('btn-sign-in-id').addEventListener('click', function(event) {
+                    login(token)
+                });
+                document.getElementById('btn-sign-up-id').addEventListener('click', function(event) {
+                    register(token)
+                });
+            });
+        });
+    </script>
+
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
     <link rel="stylesheet" type="text/css" href="localCDN/bootstrap.css">
@@ -23,7 +37,7 @@
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <!-- <link rel="stylesheet" type="text/css" href="localCDN/css/util.css">
     <link rel="stylesheet" type="text/css" href="localCDN/css/main.css"> -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/platform.js"></script>
     <meta name="google-signin-client_id" content="184507738418-p7bus4bt6aeb89f5i43doukp4rlobidj.apps.googleusercontent.com">
 </head>
 
@@ -46,20 +60,22 @@
                         <input class="input-nick-pasw" type="password" id='password' name="pass" placeholder="Password">
                     </div>
 
-                    <div id="btn-sign-in" class="div-btn-sign">
-                        <button class="btn-sign-up-in" style="background: #576bad;">Sign in</button>
+                    <div id="div-btn-sign-in" class="div-btn-sign">
+                        <button id="btn-sign-in-id" class="btn-sign-up-in" style="background: #576bad;">Sign in</button>
                         <br>
                         <div class="g-signin2" data-onsuccess="onSignIn"></div>
                         <button onclick="registerCss();" class="transparent-btn" style="padding-top: 30px; padding-bottom: 0px;">Don't have an account?</button>
                     </div>
         
-                    <div id="btn-sign-up" class="div-btn-sign">
-                        <button class="btn-sign-up-in" style="background: #57ad6c;">Sign up</button>
+                    <div id="div-btn-sign-up" class="div-btn-sign">
+                        <button id="btn-sign-up-id" class="btn-sign-up-in" style="background: #57ad6c;">Sign up</button>
                         <br>
                         <div class="g-signin2"data-onsuccess="onSignIn"></div>
                         <button onclick="loginCss();" class="transparent-btn" style="padding-top: 30px; padding-bottom: 0px;">Already have an account?</button>
                     </div>
-                    
+                </div>
+                <div class="modal-footer" style="background: #E63946; display: block; text-align:center;">
+                    <p style="color: white;">Error</p>
                 </div>
             </div>
         </div>
@@ -76,6 +92,13 @@
             <button id="btn-start" onclick="start()">GET STARTED</button>
         </div>
         <div id="flat-img"></div>
+        <div id="bottom-div">
+            <div style="font-size: 10px; padding-top: 30px; color: #B8B8B8;">
+                This site is protected by reCAPTCHA and the Google
+                <a href="https://policies.google.com/privacy" style="font-size: 10px;">Privacy Policy</a> and
+                <a href="https://policies.google.com/terms" style="font-size: 10px;">Terms of Service</a> apply.
+            </div>
+        </div>
     </div>
 </body>
 
@@ -86,6 +109,12 @@
     body {
         background-color: #F1FAEE;
     }
+
+    /* .modal-footer {
+        width: 100%;
+        max-height: calc(100% - 120px);
+        overflow-y: scroll;
+    } */
 
     .g-signin2{
         width: 100%;
@@ -177,7 +206,23 @@
         max-width: 400px;
     }
 
+    #bottom-div {
+        z-index: 2;
+        position: absolute;
+        left: 8%;
+        bottom: 30px;
+        border: 0;
+        background: transparent;
+        background-color: white;
+    }
+
+    #bottom-div a {
+        color: rgb(150, 150, 150);
+    }
+
     #btn-start {
+        justify-content: center;
+        align-items: center;
         z-index: 3;
         border: 0;
         background-color: #E63946;
@@ -220,6 +265,8 @@
         height: 40px;
         margin-right: 7%;
         cursor:pointer;
+        justify-content: center;
+        align-items: center;
     }
 
     .transparent-btn {
@@ -228,6 +275,8 @@
         border: none;
         cursor:pointer;
         color: rgb(126, 129, 129);
+        justify-content: center;
+        align-items: center;
     }
 
     #btn-info {
@@ -253,51 +302,164 @@
         background-color: rgb(0, 0, 0);
         background-color: rgba(0, 0, 0, 0.4);
     }
-
-
-    #showError {
-        position: fixed;
-        left: 50%;
-        bottom: 40px;
-        transform: translate(-50%, -50%);
-        border-radius: 20px;
-        width: 90%;
-        height: auto;
-    }
     
     #title-register {
         margin: 20px;
         padding: 20px;
         text-align: center;
     }
+
+    .grecaptcha-badge {
+        visibility: collapse !important;
+    }
 </style>
 
 <script>
+
+    const url = 'http://localhost:3001/api/';
+
+    var authToken = JSON.parse(localStorage.getItem("authToken"))
+    var profileData = JSON.parse(localStorage.getItem("profile"))
+    function session(){
+        if(authToken !== null && authToken['accessToken'] !== undefined){
+            start()
+        }
+    }
+    session()
+
+    function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        console.log(profile)
+        // console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        // console.log('Name: ' + profile.getName());
+        // console.log('Image URL: ' + profile.getImageUrl());
+        // console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    }
 
     function start() {
         window.location.href = "http://localhost:3001/"
     }
 
     function registerCss() {
-        document.getElementById("btn-sign-up").style.display = "block"
-        document.getElementById("btn-sign-in").style.display = "none"
+        document.getElementById("div-btn-sign-up").style.display = "block"
+        document.getElementById("div-btn-sign-in").style.display = "none"
         $('#change-sign-up').addClass("btn-activate")
         $('#change-sign-in').removeClass("btn-activate")
     }
 
     function loginCss() {
-        document.getElementById("btn-sign-up").style.display = "none"
-        document.getElementById("btn-sign-in").style.display = "block"
+        document.getElementById("div-btn-sign-up").style.display = "none"
+        document.getElementById("div-btn-sign-in").style.display = "block"
         $('#change-sign-up').removeClass("btn-activate")
         $('#change-sign-in').addClass("btn-activate")
     }
 
-    function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    function login(token){
+        var check = true;
+        if($("#password").val().trim() === ''){
+            check = false;
+        }
+        if($("#nickname").val().trim() === ''){
+            check = false;
+        }
+
+        if(check === true){
+            sessionStorage.clear()
+            localStorage.clear()
+
+            let password = document.getElementById("password").value.trim()
+            let nickname = document.getElementById("nickname").value.trim()
+            let params = JSON.stringify({
+                nickname: nickname,
+                password: password,
+                recaptcha: token
+            })
+
+            $.ajax({
+                url: url + 'auth',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                method: 'POST',
+                dataType: 'json',
+                data: params,
+                success: (res) => {
+                    localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+                    localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: nickname }));
+
+                    let view = {
+                        questions: 0,
+                        groups: 0,
+                        profiles: 1,
+                    }
+                    localStorage.setItem("view", JSON.stringify(view));
+
+                    localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+
+                    localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
+
+                    window.location.href = "http://localhost:3001/"
+                },
+                error: (err) => {
+                    console.log(err)
+                }
+            })
+        }
+    }
+
+    function register(token){
+        var check = true;
+        if($("#password").val().trim() === ''){
+            check = false;
+        }
+        if($("#nickname").val().trim() === ''){
+            check = false;
+        }
+
+        if(check === true){
+            localStorage.clear()
+            sessionStorage.clear()
+            
+            let password = document.getElementById("password").value.trim()
+            let nickname = document.getElementById("nickname").value.trim()
+            let params = JSON.stringify({
+                nickname: nickname,
+                password: password,
+                name: document.getElementById("name").value,
+                surname: document.getElementById("surname").value,
+                recaptcha: token,
+            })
+
+            $.ajax({
+                url: url + 'profile/create',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                method: 'POST',
+                dataType: 'json',
+                data: params,
+                success: (res) => {
+                    localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+                    localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: nickname }));
+
+                    let view = {
+                        questions: 0,
+                        groups: 0,
+                        profiles: 1,
+                    }
+                    localStorage.setItem("view", JSON.stringify(view));
+
+                    localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+
+                    localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
+
+                    window.location.href = "http://localhost:3001/"
+                },
+                error: (err) => {
+                    console.log(err)
+                }
+            })
+        }
     }
 
 </script>
