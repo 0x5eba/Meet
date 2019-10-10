@@ -83,7 +83,7 @@
 
     <div id="modal-content">
         <div id="top-div-right">
-            <button id="btn-info" class="transparent-btn">Info</button>
+            <!-- <button id="btn-info" class="transparent-btn">Info</button> -->
             <button id="btn-register" onclick="registerCss()" data-toggle="modal" data-target="#exampleModalCenter">Register</button>
         </div>
         <div id="left-div">
@@ -91,13 +91,21 @@
             <p style="font-size: 15px;">Would you like to meet people around you, even when you are traveling?</p>
             <button id="btn-start" onclick="start()">GET STARTED</button>
         </div>
-        <div id="flat-img"></div>
+        <div id="flat-img">
+            <img src="logo.jpg" style="width: 80%; height: auto;"/>
+        </div>
         <div id="bottom-div">
-            <div style="font-size: 10px; padding-top: 30px; color: #B8B8B8;">
-                This site is protected by reCAPTCHA and the Google
-                <a href="https://policies.google.com/privacy" style="font-size: 10px;">Privacy Policy</a> and
-                <a href="https://policies.google.com/terms" style="font-size: 10px;">Terms of Service</a> apply.
-            </div>
+            
+        </div>
+    </div>
+
+    <div id="cookieConsent">
+        <div style="font-size: 10px; color: #B8B8B8;">
+            This website is using cookies <a href="#" target="_blank">More info</a>.
+            This site is protected by reCAPTCHA and the Google
+            <a href="https://policies.google.com/privacy" style="font-size: 10px;">Privacy Policy</a> and
+            <a href="https://policies.google.com/terms" style="font-size: 10px;">Terms of Service</a> apply.
+            <a class="cookieConsentOK">That's Fine</a>
         </div>
     </div>
 </body>
@@ -108,6 +116,36 @@
 
     body {
         background-color: #F1FAEE;
+    }
+
+    #cookieConsent {
+        background-color: rgba(20,20,20,0.8);
+        min-height: 26px;
+        font-size: 14px;
+        color: #ccc;
+        line-height: 26px;
+        padding: 8px 0 8px 30px;
+        font-family: "Trebuchet MS",Helvetica,sans-serif;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: none;
+        z-index: 9999;
+    }
+    #cookieConsent a {
+        color: #4B8EE7;
+        text-decoration: none;
+    }
+    #cookieConsent a.cookieConsentOK {
+        background-color: #F1D600;
+        color: #000;
+        display: inline-block;
+        border-radius: 5px;
+        padding: 0 20px;
+        cursor: pointer;
+        float: right;
+        margin: 0 60px 0 10px;
     }
 
     /* .modal-footer {
@@ -185,6 +223,8 @@
         margin: auto;
         width: 80%;
         height: 85%;
+        max-width: 1000px;
+        max-height: 700px;
         /* max-width: 2000px;
         max-height: 90%; */
         /* overflow-y: scroll;
@@ -284,9 +324,12 @@
     }
 
     #flat-img {
+        text-align:center; 
         position: absolute;
         z-index: 3;
-        
+        right: 2%;
+        top: 20%;
+        width: 500px;
     }
 
 
@@ -320,20 +363,28 @@
 
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
+    var showCookie = JSON.parse(localStorage.getItem("showCookie"))
     function session(){
         if(authToken !== null && authToken['accessToken'] !== undefined){
             start()
         }
+        if(showCookie === null){
+            $("#cookieConsent").fadeIn(200);
+
+            $("#closeCookieConsent, .cookieConsentOK").click(function () {
+                $("#cookieConsent").fadeOut(200);
+            });
+        }
+        localStorage.setItem("showCookie", JSON.stringify({ cookie: true }))
     }
     session()
 
     function onSignIn(googleUser) {
         var profile = googleUser.getBasicProfile();
-        console.log(profile)
-        // console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        // console.log('Name: ' + profile.getName());
-        // console.log('Image URL: ' + profile.getImageUrl());
-        // console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
     }
 
     function start() {
