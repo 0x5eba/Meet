@@ -14,6 +14,11 @@ exports.routesConfig = function (app) {
         ProfileController.insert,
         AuthControllerMiddleware.login
     ]);
+    app.post('/api/profile/create/google', [
+        ValidationMiddleware.verifyCaptcha,
+        ProfileController.uniqueNicknameForGoogle,
+        AuthControllerMiddleware.login
+    ]);
     app.get('/api/profiles', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),

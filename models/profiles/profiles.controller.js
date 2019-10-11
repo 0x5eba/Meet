@@ -35,6 +35,38 @@ exports.uniqueNickname = (req, res, next) => {
         })
 }
 
+exports.uniqueNicknameForGoogle = (req, res, next) => {
+    ProfileController.findByNickname(req.body.nickname)
+        .then((user) => {
+            if (user) {
+                // devo fare il login
+                return next();
+            } else {
+                // devo fare il register prima del login
+                
+                let salt = crypto.randomBytes(16).toString('base64');
+                let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
+                req.body.password = salt + "$" + hash;
+                req.body.permissionLevel = 1;
+                ProfileController.createUser(req.body)
+                    .then((result) => {
+                        req.body = {
+                            password: req.body.password,
+                            nickname: req.body.nickname,
+                            userId: result._id
+                        }
+                        return next()
+                    })
+                    .catch(err => {
+                        res.status(403).send({ err: "Error creating user" })
+                    })
+            }
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Wrong nickname" })
+        })
+}
+
 exports.list = (req, res) => {
     ProfileController.list()
         .then((result) => {

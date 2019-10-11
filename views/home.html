@@ -21,6 +21,10 @@
                 document.getElementById('btn-sign-up-id').addEventListener('click', function(event) {
                     register(token)
                 });
+                function onSignIn(googleUser) {
+                    var profile = googleUser.getBasicProfile();
+                    loginWithGoogle(token, profile.getEmail(), profile.getId(), profile.getName())
+                }
             });
         });
     </script>
@@ -74,8 +78,8 @@
                         <button onclick="loginCss();" class="transparent-btn" style="padding-top: 30px; padding-bottom: 0px;">Already have an account?</button>
                     </div>
                 </div>
-                <div class="modal-footer" style="background: #E63946; display: block; text-align:center;">
-                    <p style="color: white;">Error</p>
+                <div class="modal-footer" id="showError" style="background: #E63946; display: none; text-align:center;">
+                    <p id="messageError" style="color: white;"></p>
                 </div>
             </div>
         </div>
@@ -89,22 +93,22 @@
         <div id="left-div">
             <p id="title">Meet</p>
             <p style="font-size: 15px;">Would you like to meet people around you, even when you are traveling?</p>
-            <button id="btn-start" onclick="start()">GET STARTED</button>
+            <button id="btn-start" onclick="startWithoutLogin()">GET STARTED</button>
         </div>
         <div id="flat-img">
             <img src="logo.jpg" style="width: 80%; height: auto;"/>
         </div>
-        <div id="bottom-div">
+        <!-- <div id="bottom-div">
             
-        </div>
+        </div> -->
     </div>
 
     <div id="cookieConsent">
-        <div style="font-size: 10px; color: #B8B8B8;">
+        <div style="font-size: 12px; color: #B8B8B8;">
             This website is using cookies <a href="#" target="_blank">More info</a>.
             This site is protected by reCAPTCHA and the Google
-            <a href="https://policies.google.com/privacy" style="font-size: 10px;">Privacy Policy</a> and
-            <a href="https://policies.google.com/terms" style="font-size: 10px;">Terms of Service</a> apply.
+            <a href="https://policies.google.com/privacy" style="font-size: 12px;">Privacy Policy</a> and
+            <a href="https://policies.google.com/terms" style="font-size: 12px;">Terms of Service</a> apply.
             <a class="cookieConsentOK">That's Fine</a>
         </div>
     </div>
@@ -366,28 +370,26 @@
     var showCookie = JSON.parse(localStorage.getItem("showCookie"))
     function session(){
         if(authToken !== null && authToken['accessToken'] !== undefined){
-            start()
+            window.location.href = "http://localhost:3001/"
         }
         if(showCookie === null){
             $("#cookieConsent").fadeIn(200);
 
             $("#closeCookieConsent, .cookieConsentOK").click(function () {
+                localStorage.setItem("showCookie", JSON.stringify({ cookie: true }))
                 $("#cookieConsent").fadeOut(200);
             });
         }
-        localStorage.setItem("showCookie", JSON.stringify({ cookie: true }))
     }
     session()
 
-    function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+    function showAlertError(error) {
+        document.getElementById("showError").style.display = "block";
+        document.getElementById("messageError").innerText = error
     }
 
-    function start() {
+    function startWithoutLogin() {
+        sessionStorage.setItem("startWithoutLogin", JSON.stringify({ startWithoutLogin: true }))
         window.location.href = "http://localhost:3001/"
     }
 
@@ -403,6 +405,51 @@
         document.getElementById("div-btn-sign-in").style.display = "block"
         $('#change-sign-up').removeClass("btn-activate")
         $('#change-sign-in').addClass("btn-activate")
+    }
+
+    function loginWithGoogle(token, nickname, password, name){
+        
+        // faccio register, e poi devo controllare in register se e' gia' presente nel db
+
+        localStorage.clear()
+        sessionStorage.clear()
+        
+        let params = JSON.stringify({
+            nickname: nickname,
+            password: password,
+            name: name,
+            recaptcha: token
+        })
+
+        $.ajax({
+            url: url + 'profile/create/google',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (res) => {
+                localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+                localStorage.setItem("profile", JSON.stringify({ id: res['id'], nickname: nickname }));
+
+                let view = {
+                    questions: 0,
+                    groups: 0,
+                    profiles: 1,
+                }
+                localStorage.setItem("view", JSON.stringify(view));
+
+                localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+
+                localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
+
+                window.location.href = "http://localhost:3001/"
+            },
+            error: (err) => {
+                showAlertError(err['err'])
+            }
+        })
     }
 
     function login(token){
@@ -452,7 +499,7 @@
                     window.location.href = "http://localhost:3001/"
                 },
                 error: (err) => {
-                    console.log(err)
+                    showAlertError(err['err'])
                 }
             })
         }
@@ -476,8 +523,6 @@
             let params = JSON.stringify({
                 nickname: nickname,
                 password: password,
-                name: document.getElementById("name").value,
-                surname: document.getElementById("surname").value,
                 recaptcha: token,
             })
 
@@ -507,7 +552,7 @@
                     window.location.href = "http://localhost:3001/"
                 },
                 error: (err) => {
-                    console.log(err)
+                    showAlertError(err['err'])
                 }
             })
         }
