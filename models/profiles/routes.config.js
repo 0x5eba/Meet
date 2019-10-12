@@ -16,6 +16,7 @@ exports.routesConfig = function (app) {
     ]);
     app.post('/api/profile/create/google', [
         ValidationMiddleware.verifyCaptcha,
+        ValidationMiddleware.verifyGoogleToken,
         ProfileController.uniqueNicknameForGoogle,
         AuthControllerMiddleware.login
     ]);

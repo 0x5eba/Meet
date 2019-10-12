@@ -40,10 +40,14 @@ exports.uniqueNicknameForGoogle = (req, res, next) => {
         .then((user) => {
             if (user) {
                 // devo fare il login
+                req.body = {
+                    password: req.body.password,
+                    nickname: req.body.nickname,
+                    userId: user._id
+                }
                 return next();
             } else {
                 // devo fare il register prima del login
-                
                 let salt = crypto.randomBytes(16).toString('base64');
                 let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
                 req.body.password = salt + "$" + hash;

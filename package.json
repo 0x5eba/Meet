@@ -32,6 +32,7 @@
     "finalhandler": "1.1.1",
     "fresh": "0.5.2",
     "gm": "^1.23.1",
+    "google-auth-library": "^5.4.1",
     "highlightjs": "^9.12.0",
     "js-sha256": "^0.9.0",
     "jsonwebtoken": "^8.5.1",

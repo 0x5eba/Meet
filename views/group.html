@@ -279,7 +279,7 @@
     var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
         if(authToken === null){
-            window.location.href = "http://localhost:3001/login"
+            window.location.href = "http://localhost:3001/home"
         }
         rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
@@ -302,11 +302,13 @@
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                 } else {
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 }
             },
             error: (err) => {
-                window.location.href = "http://localhost:3001/login"
+                sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                window.location.href = "http://localhost:3001/home"
             }
         })
     }
@@ -394,7 +396,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -431,7 +434,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -481,7 +485,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -518,7 +523,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -556,7 +562,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -615,7 +622,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -666,7 +674,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -703,7 +712,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -764,7 +774,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -849,7 +860,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -895,7 +907,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }
@@ -927,7 +940,8 @@
                 } else if(err['err'] === "Invalid refresh token"){
                     authToken = null
                     localStorage.removeItem("authToken")
-                    window.location.href = "http://localhost:3001/login"
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
                 } else {
                     showAlertError(err['err'])
                 }

@@ -21,9 +21,11 @@
                 document.getElementById('btn-sign-up-id').addEventListener('click', function(event) {
                     register(token)
                 });
-                function onSignIn(googleUser) {
-                    var profile = googleUser.getBasicProfile();
-                    loginWithGoogle(token, profile.getEmail(), profile.getId(), profile.getName())
+                window.onSignIn = function(googleUser) {
+                    let profile = googleUser.getBasicProfile();
+                    let id_token = googleUser.getAuthResponse().id_token;
+                    //  profile.getEmail(), profile.getId(), profile.getName()
+                    loginWithGoogle(token, id_token, profile.getEmail())
                 }
             });
         });
@@ -74,7 +76,7 @@
                     <div id="div-btn-sign-up" class="div-btn-sign">
                         <button id="btn-sign-up-id" class="btn-sign-up-in" style="background: #57ad6c;">Sign up</button>
                         <br>
-                        <div class="g-signin2"data-onsuccess="onSignIn"></div>
+                        <div class="g-signin2" data-onsuccess="onSignIn"></div>
                         <button onclick="loginCss();" class="transparent-btn" style="padding-top: 30px; padding-bottom: 0px;">Already have an account?</button>
                     </div>
                 </div>
@@ -92,14 +94,14 @@
         <div id="div-title-deatils-start">
             <p id="title">Meet</p>
             <p style="font-size: 15px; color: rgb(107, 100, 100);">Would you like to meet people around you, even when you are traveling?</p>
-            <button id="btn-start" onclick="startWithoutLogin()">GET STARTED</button>
+            <!-- <button id="btn-start" onclick="startWithoutLogin()">GET STARTED</button> -->
+            <button id="btn-start" onclick="registerCss()">GET STARTED</button>
         </div>
-        <div id="div-btn-register">
-            <!-- <button id="btn-info" class="transparent-btn">Info</button> -->
+        <!--<div id="div-btn-register">
+             <button id="btn-info" class="transparent-btn">Info</button>
             <button id="btn-register" onclick="registerCss()" data-toggle="modal"
                 data-target="#exampleModalCenter">Sign up</button>
-        </div>
-        
+        </div>-->
         <!-- <div id="bottom-div">
         </div> -->
     </div>
@@ -284,6 +286,8 @@
             z-index: 1;
             margin: auto;
             display: table;
+            overflow: auto;
+            overflow-y: scroll;
             padding-top: 30px;
             background-color: white;
         }
@@ -355,8 +359,8 @@
             max-height: 700px;
             /* max-width: 2000px;
             max-height: 90%; */
-            /* overflow-y: scroll;
-            overflow: auto; */
+            overflow-y: scroll;
+            overflow: auto;
             border-radius: 10px;
             background-color: white;
 
@@ -423,10 +427,11 @@
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
     var showCookie = JSON.parse(localStorage.getItem("showCookie"))
+    var checkLoginAgain = JSON.parse(sessionStorage.getItem("loginAgain"))
     function session(){
-        if(authToken !== null && authToken['accessToken'] !== undefined){
-            window.location.href = "http://localhost:3001/"
-        }
+        // if(authToken !== null && authToken['accessToken'] !== undefined){
+        //     window.location.href = "http://localhost:3001/"
+        // }
         if(showCookie === null){
             $("#cookieConsent").fadeIn(200);
 
@@ -435,9 +440,12 @@
                 $("#cookieConsent").fadeOut(200);
             });
         }
+        if(checkLoginAgain !== null){
+            loginCss()
+        }
     }
     session()
-
+    
     function showAlertError(error) {
         document.getElementById("showError").style.display = "block";
         document.getElementById("messageError").innerText = error
@@ -449,6 +457,7 @@
     }
 
     function registerCss() {
+        $(".modal").modal();
         document.getElementById("div-btn-sign-up").style.display = "block"
         document.getElementById("div-btn-sign-in").style.display = "none"
         $('#change-sign-up').addClass("btn-activate")
@@ -456,23 +465,22 @@
     }
 
     function loginCss() {
+        $(".modal").modal();
         document.getElementById("div-btn-sign-up").style.display = "none"
         document.getElementById("div-btn-sign-in").style.display = "block"
         $('#change-sign-up').removeClass("btn-activate")
         $('#change-sign-in').addClass("btn-activate")
     }
 
-    function loginWithGoogle(token, nickname, password, name){
-        
+    function loginWithGoogle(token, id_token, nickname){
+
         // faccio register, e poi devo controllare in register se e' gia' presente nel db
 
         localStorage.clear()
         sessionStorage.clear()
         
         let params = JSON.stringify({
-            nickname: nickname,
-            password: password,
-            name: name,
+            id_token: id_token,
             recaptcha: token
         })
 

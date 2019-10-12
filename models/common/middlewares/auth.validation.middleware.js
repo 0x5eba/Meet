@@ -8,6 +8,11 @@ const jwtSecret2 = config.jwtSecret2
 const jwtExpireAccessToken = config.jwtExpireAccessToken
 const jwtExpireRefreshToken = config.jwtExpireRefreshToken
 
+const { OAuth2Client } = require('google-auth-library');
+CLIENT_ID = "184507738418-p7bus4bt6aeb89f5i43doukp4rlobidj.apps.googleusercontent.com"
+const client = new OAuth2Client(CLIENT_ID);
+
+
 exports.verifyRefresh = (req, res) => {
     if (newAccessToken(req)){
         return res.status(201).send(req.accessToken)
@@ -24,7 +29,7 @@ exports.validJWTNeeded = (req, res, next) => {
                 return res.status(401).send({ err: 'Invalid access token' });
             } else {
                 jwt.verify(authorization[1], jwtSecret, function (err, decoded) {
-                    if (err) if (!newAccessToken(req)) return res.status(400).send({ err: 'Invalid refresh token' });
+                    if (err) if (!newAccessToken(req)) return res.status(401).send({ err: 'Invalid refresh token' });
                     req.jwt = decoded
                     return next();
                 })
@@ -84,7 +89,7 @@ function newAccessToken(req) {
 
 exports.verifyCaptcha = (req, res, next) => {
     if (req.body.recaptcha === undefined || req.body.recaptcha === '' || req.body.recaptcha === null) {
-        return res.status(500).send({ success: false, msg: 'Please select captcha first' });
+        return res.status(500).send({ err: 'Please select captcha first' });
     }
     const secretKey = '6Ld5r7sUAAAAACT8sYktCkwGEC-9piie7xEhNaXO';
     const verificationURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${req.body.recaptcha}&remoteip=${req.connection.remoteAddress}`;
@@ -106,4 +111,31 @@ exports.verifyCaptcha = (req, res, next) => {
             }
         });
     });
+}
+
+exports.verifyGoogleToken = (req, res, next) => {
+    if (req.body.id_token === undefined || req.body.id_token === '' || req.body.id_token === null) {
+        return res.status(500).send({ err: 'Please select id token first' });
+    }
+    try {
+        verifyAuth2(req.body.id_token, res, req, next)
+    } catch (e) {
+        return res.status(500).send({ err: 'Invalid Google Token' });
+    }
+}
+async function verifyAuth2(token, res, req, next) {
+    let ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: CLIENT_ID,
+    });
+    let payload = ticket.getPayload();
+    req.body = {
+        nickname: payload['email'],
+        password: payload['sub'],
+        name: payload['name'],
+    }
+    if (payload['aud'] !== CLIENT_ID){
+        return res.status(500).send({ err: 'Invalid Google Token' });
+    }
+    return next()
 }
