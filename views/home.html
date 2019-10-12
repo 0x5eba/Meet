@@ -44,7 +44,7 @@
     <!-- <link rel="stylesheet" type="text/css" href="localCDN/css/util.css">
     <link rel="stylesheet" type="text/css" href="localCDN/css/main.css"> -->
     <script src="https://apis.google.com/js/platform.js"></script>
-    <meta name="google-signin-client_id" content="184507738418-p7bus4bt6aeb89f5i43doukp4rlobidj.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com">
 </head>
 
 <body>
@@ -441,6 +441,7 @@
             });
         }
         if(checkLoginAgain !== null){
+            sessionStorage.removeItem("loginAgain")
             loginCss()
         }
     }

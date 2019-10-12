@@ -9,7 +9,7 @@ const jwtExpireAccessToken = config.jwtExpireAccessToken
 const jwtExpireRefreshToken = config.jwtExpireRefreshToken
 
 const { OAuth2Client } = require('google-auth-library');
-CLIENT_ID = "184507738418-p7bus4bt6aeb89f5i43doukp4rlobidj.apps.googleusercontent.com"
+CLIENT_ID = "184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com"
 const client = new OAuth2Client(CLIENT_ID);
 
 
