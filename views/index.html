@@ -422,9 +422,10 @@
     const url = 'http://localhost:3001/api/'
     
     var mapStyle = JSON.parse(localStorage.getItem("mapStyle"))
-    var CBviews;
+    var CBviews = JSON.parse(localStorage.getItem("view"))
     var slider = new Slider('#ex5');
     var rangeView;
+    var canUpdateStatus = false
 
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
@@ -602,114 +603,35 @@
         })
     }
 
-    function getSaved() {
-        $.ajax({
-            url: url + 'profile/getSaved/' + profileData['id'],
-            headers: {
-                'Authorization': authToken['accessToken'],
-                'Content-Type': 'application/json; charset=UTF-8',
-            },
-            credentials: 'include',
-            method: 'POST',
-            dataType: 'json',
-            success: (res) => {
-
-                if (res["accessToken"] !== undefined) {
-                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
-                    authToken = JSON.parse(localStorage.getItem("authToken"))
-                    getSaved()
-
-                } else {
-                    if (res !== null && (("savedGroup" in res && res["savedGroup"].length > 0) || ("savedQuestion" in res && res["savedQuestion"].length > 0))) {
-                        let h2 = document.createElement("h2")
-                        h2.innerHTML = "Bookmarks"
-                        h2.setAttribute('id', 'titles')
-                        h2.style.marginBottom = "30px"
-                        h2.style.textDecoration = "underline"
-                        resSearch.appendChild(h2)
-                    }
-
-                    if (res !== null && "savedGroup" in res) {
-                        if (res["savedGroup"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Groups");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            resSearch.appendChild(p)
-                        }
-
-                        res["savedGroup"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3001/group?groupid=" + element
-                            a.setAttribute('href', href)
-                            a.setAttribute('id', "group")
-                            let textnode = document.createTextNode(element)
-                            a.appendChild(textnode);
-                            resSearch.appendChild(a)
-                        });
-                    }
-
-                    if (res !== null && "savedQuestion" in res) {
-                        if (res["savedQuestion"].length > 0) {
-                            let p = document.createElement("p");
-                            let textnode = document.createTextNode("Questions");
-                            p.setAttribute('id', 'titles')
-                            p.appendChild(textnode);
-                            resSearch.appendChild(p)
-                        }
-
-                        res["savedQuestion"].forEach(function (element) {
-                            let a = document.createElement("a");
-                            let href = "http://localhost:3001/question?title=" + element
-                            a.setAttribute('href', href)
-                            a.setAttribute('id', "question")
-                            let textnode = document.createTextNode(element)
-                            a.appendChild(textnode);
-                            resSearch.appendChild(a)
-                        });
-                    }
-                }
-            },
-            error: (err) => {
-                if(err['err'] === "Invalid access token"){
-                    newAccessToken(() => getSaved())
-                } else if(err['err'] === "Invalid refresh token"){
-                    authToken = null
-                    localStorage.removeItem("authToken")
-                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
-                    window.location.href = "http://localhost:3001/home"
-                } else {
-                    showAlertError(err['err'])
-                }
-            }
-        })
-    }
-
     var infoIP
     function noGPS(){
         if(profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0){
 
-            /*
-            let Http = new XMLHttpRequest();
-            Http.open("GET", 'http://ip-api.com/json', true);
-            Http.send({});
-            Http.onreadystatechange = (e) => {
-                if (Http.readyState === 4 && Http.status === 200) {
-                    infoIP = JSON.parse(Http.resText)
+            // $.ajax({
+            //     url: "http://ip-api.com/json",
+            //     headers: {
+            //         'Content-Type': 'application/json; charset=UTF-8',
+            //     },
+            //     method: 'GET',
+            //     dataType: 'json',
+            //     success: (res) => {
+            //         infoIP = res
 
-                    const state_view = {
-                        latitude: infoIP['lat'],
-                        longitude: infoIP['lon'],
-                        zoom: 7,
-                        bearing: 0,
-                        pitch: 20
-                    }
+            //         const state_view = {
+            //             latitude: infoIP['lat'],
+            //             longitude: infoIP['lon'],
+            //             zoom: 7,
+            //             bearing: 0,
+            //             pitch: 20
+            //         }
 
-                    profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
-                    localStorage.setItem("profile", JSON.stringify(profileData))
-                    getData(state_view)
-                }
-            }*/
+            //         profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
+            //         localStorage.setItem("profile", JSON.stringify(profileData))
+            //         getData(state_view)
+            //     },
+            //     error: (err) => {
+            //     }
+            // })
 
             const state_view = {
                 latitude: 0,
@@ -768,37 +690,27 @@
                 if (result.state === 'denied') {
                     noGPS()
                 } else {
-                    if(profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
-                        showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
-                    } else { // vuol dire che all'inizio ha bloccato, poi ha riacconsentito, e quindi e' ancora in [0, 0]
-                        navigator.geolocation.getCurrentPosition(showPosition, errorGetPosition);
+                    if (CBviews['profiles'] === 1) {
+                        navigator.geolocation.watchPosition(showPosition, errorGetPosition);
                     }
+                    // if(profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
+                    //     showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
+                    // } else { // vuol dire che all'inizio ha bloccato, poi ha riacconsentito, e quindi e' ancora in [0, 0]
+                    //     navigator.geolocation.watchPosition(showPosition, errorGetPosition);
+                    // }
                 }
             } else {
-                if (result.state === 'granted') {
-                    navigator.geolocation.getCurrentPosition(showPosition, errorGetPosition);
-                } else if (result.state === 'prompt') {
-                    navigator.geolocation.getCurrentPosition(showPosition, errorGetPosition);
-                } else if (result.state === 'denied') {
+                if (result.state === 'denied') {
                     noGPS()
+                } else {
+                    if (CBviews['profiles'] === 1) {
+                        navigator.geolocation.watchPosition(showPosition, errorGetPosition);
+                    }
                 }
-                // result.onchange = function () {
-                //     console.log(result.state);
-                // }
             }
         });
     }
 
-    function refreshPosition(position) {
-        if(position.coords.longitude !== profileData['coords'][0] && position.coords.latitude !== profileData['coords'][1]){
-            showPosition(position)
-        }
-    }
-    window.setInterval(function () {
-        navigator.geolocation.getCurrentPosition(refreshPosition, function() {});
-    }, 300000); // 5 minutes
-
-    var canUpdateStatus = false
     function showPosition(position) {
         const state_view = {
             latitude: position.coords.latitude,
@@ -819,18 +731,18 @@
                 // alert("User denied the request for Geolocation.")
                 noGPS()
                 break
-            case error.POSITION_UNAVAILABLE:
-                // alert("Location information is unavailable.")
-                noGPS()
-                break
-            case error.TIMEOUT:
-                // alert("The request to get user location timed out.")
-                noGPS()
-                break
-            case error.UNKNOWN_ERROR:
-                // alert("An unknown error occurred.")
-                noGPS()
-                break
+            // case error.POSITION_UNAVAILABLE:
+            //     // alert("Location information is unavailable.")
+            //     noGPS()
+            //     break
+            // case error.TIMEOUT:
+            //     // alert("The request to get user location timed out.")
+            //     noGPS()
+            //     break
+            // case error.UNKNOWN_ERROR:
+            //     // alert("An unknown error occurred.")
+            //     noGPS()
+            //     break
         }
     }
 
@@ -1122,14 +1034,14 @@
             map.getCanvas().style.cursor = '';
         })
 
-        var html = '<div class="marker-popup">I am a custom pop-up</div>';
-        var customPopUp = new mapboxgl.Popup(
-            {
-                anchor: 'bottom',   // To show popup on top
-                offset: { 'bottom': [0, -10] },  // To prevent popup from over shadowing the marker.
-                closeOnClick: false   // To prevent close on mapClick.
-            }
-        ).setHTML(html);
+        // var html = '<div class="marker-popup">I am a custom pop-up</div>';
+        // var customPopUp = new mapboxgl.Popup(
+        //     {
+        //         anchor: 'bottom',   // To show popup on top
+        //         offset: { 'bottom': [0, -10] },  // To prevent popup from over shadowing the marker.
+        //         closeOnClick: false   // To prevent close on mapClick.
+        //     }
+        // ).setHTML(html);
 
         if(profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
             new mapboxgl.Marker()
@@ -1280,20 +1192,6 @@
             })
             .append("img").attr("src", "icons/iconfinder_settings_2561383.svg").attr("width", "30").attr("height", "30")
 
-
-        // search
-        // let div_search = mainDiv.append('div').attr("class", "searchbar")
-        //     .style("position", "absolute").style("left", "50%").style("margin-top", "-20px").style("margin-left", "-28px")
-        //     .on('click', d => {
-        //         modal.style.display = "block"
-        //         resSearch.style.display = "block"
-        //         resSearch.innerHTML = ""
-        //         document.getElementById("search-icon").style.display = "block"
-        //         document.getElementById("title-model").innerHTML = "Search"
-        //     })
-        // div_search.append("button").attr("class", "search_icon").append("i").attr("class", "fas fa-search fa-lg")
-            
-
         mainDiv.append('button').attr("id", "btn-search")
             .on('click', d => {
                 modal.style.display = "block"
@@ -1306,24 +1204,15 @@
             })
             .append("i").attr("class", "fas fa-search fa-2x").style("color", "black")
 
-        // map.addControl(new mapboxgl.GeolocateControl({
-        //     positionOptions: {
-        //         enableHighAccuracy: true
-        //     },
-        //     trackUserLocation: true
-        // }));
-        // map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
+        map.addControl(new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true
+        }));
+        map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
         map.doubleClickZoom.enable();
         // map.touchZoomRotate.enable({ around: 'center' });
-
-
-        // var marker = new mapboxgl.Marker()
-        //     .setLngLat([30.5, 50.5])
-        //     .addTo(map);
-        // var popup = new mapboxgl.Popup()
-        //     .setLngLat([state_view.longitude, state_view.latitude])
-        //     .setHTML('<h1>I am Here</h1>')
-        //     .addTo(map)
 
         // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
     }
@@ -1573,6 +1462,89 @@
         })
     }
 
+    function getSaved() {
+        $.ajax({
+            url: url + 'profile/getSaved/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    getSaved()
+
+                } else {
+                    if (res !== null && (("savedGroup" in res && res["savedGroup"].length > 0) || ("savedQuestion" in res && res["savedQuestion"].length > 0))) {
+                        let h2 = document.createElement("h2")
+                        h2.innerHTML = "Bookmarks"
+                        h2.setAttribute('id', 'titles')
+                        h2.style.marginBottom = "30px"
+                        h2.style.textDecoration = "underline"
+                        resSearch.appendChild(h2)
+                    }
+
+                    if (res !== null && "savedGroup" in res) {
+                        if (res["savedGroup"].length > 0) {
+                            let p = document.createElement("p");
+                            let textnode = document.createTextNode("Groups");
+                            p.setAttribute('id', 'titles')
+                            p.appendChild(textnode);
+                            resSearch.appendChild(p)
+                        }
+
+                        res["savedGroup"].forEach(function (element) {
+                            let a = document.createElement("a");
+                            let href = "http://localhost:3001/group?groupid=" + element
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', "group")
+                            let textnode = document.createTextNode(element)
+                            a.appendChild(textnode);
+                            resSearch.appendChild(a)
+                        });
+                    }
+
+                    if (res !== null && "savedQuestion" in res) {
+                        if (res["savedQuestion"].length > 0) {
+                            let p = document.createElement("p");
+                            let textnode = document.createTextNode("Questions");
+                            p.setAttribute('id', 'titles')
+                            p.appendChild(textnode);
+                            resSearch.appendChild(p)
+                        }
+
+                        res["savedQuestion"].forEach(function (element) {
+                            let a = document.createElement("a");
+                            let href = "http://localhost:3001/question?title=" + element
+                            a.setAttribute('href', href)
+                            a.setAttribute('id', "question")
+                            let textnode = document.createTextNode(element)
+                            a.appendChild(textnode);
+                            resSearch.appendChild(a)
+                        });
+                    }
+                }
+            },
+            error: (err) => {
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => getSaved())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
+                } else {
+                    showAlertError(err['err'])
+                }
+            }
+        })
+    }
+
     function ContinueChangePos() {
         sessionStorage.setItem("changePos", JSON.stringify({}))
         window.location.reload()
@@ -1673,7 +1645,6 @@
             }
         })
     }
-    
 
     var AllQuestions = []
     function initQuestions(state_view, x, y) {
@@ -1719,10 +1690,10 @@
             }
         })
     }
+
+    var lastRequestGetData = 0
     
     function getData(state_view){
-        CBviews = JSON.parse(localStorage.getItem("view"))
-        
         if(JSON.parse(sessionStorage.getItem("changePos")) !== null){
             setMapChangePos()
             return
@@ -1742,15 +1713,11 @@
             return
         }
 
-        if (CBviews === null) {
-            let view = {
-                questions: 0,
-                groups: 0,
-                profiles: 1,
-            }
-            localStorage.setItem("view", JSON.stringify(view));
-            CBviews = view
+        let currData = new Date()
+        if(currData - lastRequestGetData < 2000) { // 2 seconds
+            return
         }
+        lastRequestGetData = currData
 
 
         // TODO non dovrei fare la request se profileData['coords'] = [0, 0]

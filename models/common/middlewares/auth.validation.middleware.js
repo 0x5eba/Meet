@@ -87,6 +87,23 @@ function newAccessToken(req) {
     }
 }
 
+var ipCreateAccount = {}
+exports.limitRequest = (req, res, next) => {
+    let remoteip = req.connection.remoteAddress
+    let currDate = new Date()
+    if(ipCreateAccount[remoteip] !== undefined){
+        if(currDate - ipCreateAccount[remoteip] > 21600*1000) { // 6 ore
+            ipCreateAccount[remoteip] = currDate
+            return next()
+        } else {
+            return res.status(500).send({ err: 'Wait to creating another account' });
+        }
+    } else {
+        ipCreateAccount[remoteip] = currDate
+        return next()
+    }
+}
+
 exports.verifyCaptcha = (req, res, next) => {
     if (req.body.recaptcha === undefined || req.body.recaptcha === '' || req.body.recaptcha === null) {
         return res.status(500).send({ err: 'Please select captcha first' });
