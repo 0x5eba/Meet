@@ -4,7 +4,7 @@ Do you feel alone and would you like to meet people around you?
 
 Or do you feel out of place when you travel to another city and would like to know someone to go out with?
 
-This is the website for you. Check this out [sebastienbiollo.com](https://sebastienbiollo.com/login "Meet") 
+This is the website for you. Check this out [sebastienbiollo.com](https://sebastienbiollo.com/ "Meet") 
 
 <img src="https://raw.githubusercontent.com/0x5eba/Meet/master/public/meet.jpg" width="300" height="500">
 
