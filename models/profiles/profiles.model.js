@@ -12,10 +12,10 @@ const ProfileModel = new mongoose.Schema({
     // pic: { data: Buffer, contentType: String },
     pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
     fakePos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
-    // online: { type: Boolean, default: false },
     lastSeen: { type: Number, default: 0 },
     savedGroup: { type: [String], default: [] },
     savedQuestion: { type: [String], default: [] },
+    keyForPrivateMessages: { type: String, default: "" }
 })
 
 const Profile = mongoose.model('Profile', ProfileModel);

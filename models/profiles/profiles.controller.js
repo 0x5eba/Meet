@@ -7,6 +7,7 @@ exports.insert = (req, res, next) => {
     let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
     req.body.password = salt + "$" + hash;
     req.body.permissionLevel = 1;
+    req.body.keyForPrivateMessages = crypto.randomBytes(20).toString('base64');
     ProfileController.createUser(req.body)
         .then((result) => {
             req.body = {

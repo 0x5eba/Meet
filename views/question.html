@@ -226,7 +226,6 @@
     function iamStatus(status) {
         let params = JSON.stringify({
             lastSeen: Date.now(),
-            pos: { x: profileData['coords'][0], y: profileData['coords'][1] }
         })
         $.ajax({
             url: url + 'profile/' + profileData['id'],
