@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 
-    <script src="https://apis.google.com/js/platform.js"></script>
+    <script src="https://apis.google.com/js/platform.js?onload=onLoad"></script>
     <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com">
 
 
@@ -481,6 +481,11 @@
         newAccessToken()
     }, 1700000);
 
+    function onLoad() {
+        gapi.load('auth2', function () {
+            gapi.auth2.init();
+        });
+    }
     function signOut() {
         localStorage.removeItem("authToken")
         var auth2 = gapi.auth2.getAuthInstance();
