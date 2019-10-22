@@ -428,9 +428,9 @@
     var showCookie = JSON.parse(localStorage.getItem("showCookie"))
     var checkLoginAgain = JSON.parse(sessionStorage.getItem("loginAgain"))
     function session(){
-        // if(authToken !== null && authToken['accessToken'] !== undefined){
-        //     window.location.href = "http://localhost:3001/"
-        // }
+        if(authToken !== null && authToken['accessToken'] !== undefined){
+            window.location.href = "http://localhost:3001/"
+        }
         if(showCookie === null){
             $("#cookieConsent").fadeIn(200);
 

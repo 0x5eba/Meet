@@ -129,6 +129,9 @@
                 <h3>Range search</h3>
                 <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="20" />
                 <span id="ex6CurrentSliderValLabel" style="margin-left: 20px"> Km: <span id="ex6SliderVal">26</span></span>
+                
+                <button type="button" class="btn btn-info" onclick="signOut();"
+                    style="border-radius:10px; margin: 10px; margin-left: 0px;">Sign out</button>
             </div>
 
             <div id='createGroup' style="display:none; margin: 20px" class="text-center">
@@ -473,6 +476,16 @@
     window.setInterval(function () {
         newAccessToken()
     }, 1700000);
+
+    function signOut() {
+        localStorage.removeItem("authToken")
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            console.log('User signed out.');
+        });
+        auth2.disconnect();
+        window.location.href = "http://localhost:3001/home"
+    }
 
     var modal = document.getElementById("myModal");
     var resSearch = document.getElementById("res-search");
