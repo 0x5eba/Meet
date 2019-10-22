@@ -27,6 +27,9 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 
+    <script src="https://apis.google.com/js/platform.js"></script>
+    <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com">
+
 
     <!-- <script src="https://unpkg.com/deck.gl@^7.1.0/dist.min.js"></script>
     
@@ -130,6 +133,7 @@
                 <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="20" />
                 <span id="ex6CurrentSliderValLabel" style="margin-left: 20px"> Km: <span id="ex6SliderVal">26</span></span>
                 
+                <br>
                 <button type="button" class="btn btn-info" onclick="signOut();"
                     style="border-radius:10px; margin: 10px; margin-left: 0px;">Sign out</button>
             </div>
@@ -1217,13 +1221,13 @@
             })
             .append("i").attr("class", "fas fa-search fa-2x").style("color", "black")
 
-        map.addControl(new mapboxgl.GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            trackUserLocation: true
-        }));
-        map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
+        // map.addControl(new mapboxgl.GeolocateControl({
+        //     positionOptions: {
+        //         enableHighAccuracy: true
+        //     },
+        //     trackUserLocation: true
+        // }));
+        // map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
         map.doubleClickZoom.enable();
         // map.touchZoomRotate.enable({ around: 'center' });
 
