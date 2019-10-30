@@ -430,6 +430,9 @@
     var rangeView;
     var canUpdateStatus = false
 
+    var map
+    var mapSetted = false
+
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
@@ -863,7 +866,18 @@
             }
         }
 
-        const map = new mapboxgl.Map({
+        if(mapSetted){
+            map.removeSource('earthquakes')
+            map.addSource('earthquakes', {
+                "type": "geojson",
+                "data":  dataToDisplay,
+            })
+
+            // maybe devo aggiungere map.addLayer({
+            return
+        }
+
+        map = new mapboxgl.Map({
             container: 'map',
             style: mapStyle['mapStyle'] + "?optimize=true",
             // interactive: false, // Note: deck.gl will be in charge of interaction and event handling
@@ -1069,6 +1083,8 @@
                 // .setPopup(customPopUp)
                 .addTo(map);
         }
+
+        mapSetted = true
         
         // const deck = new Deck({
         //     canvas: map.getCanvas(),
@@ -1593,7 +1609,7 @@
                     initProfiles(state_view, x, y)
                 } else {
                     AllProfiles = res
-
+                    
                     canUpdateStatus = true
                     setMap(state_view)
                     iamStatus(true)
