@@ -54,16 +54,17 @@
     "setprototypeof": "1.1.0",
     "sha1": "^1.1.1",
     "statuses": "^1.4.0",
-    "turbo360": "latest",
+    "turbo360": "^1.8.68",
     "type-is": "^1.6.16",
     "utils-merge": "1.0.1",
     "vary": "^1.1.2",
-    "vertex360": "latest"
+    "vertex360": "^0.25.45"
   },
   "devDependencies": {
     "express": "latest",
     "nodemon": "^1.17.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "yarn-upgrade-all": "^0.5.2"
   },
   "deploy": [
     "."

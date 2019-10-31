@@ -56,16 +56,26 @@ export default class TriangleLayer extends Layer {
         geometry: new Geometry({
           drawMode: GL.TRIANGLE_FAN,
           vertexCount
-        }),
-        shaderCache: this.context.shaderCache
+        })
       })
     );
   }
 
   draw({uniforms}) {
     const {model} = this.state;
-    const {texture, maxTexture, colorTexture, intensity, threshold} = this.props;
-    model.setUniforms({texture, maxTexture, colorTexture, intensity, threshold}).draw();
+
+    const {texture, maxTexture, colorTexture, intensity, threshold, colorDomain} = this.props;
+    model
+      .setUniforms({
+        ...uniforms,
+        texture,
+        maxTexture,
+        colorTexture,
+        intensity,
+        threshold,
+        colorDomain
+      })
+      .draw();
   }
 }
 
