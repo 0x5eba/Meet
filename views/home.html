@@ -45,6 +45,8 @@
     <link rel="stylesheet" type="text/css" href="localCDN/css/main.css"> -->
     <script src="https://apis.google.com/js/platform.js"></script>
     <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com">
+    <!-- <meta name="google-signin-client_id" content="141087998031-3ks8dqpakedg4oa65oja0n0aa4rv8g3p.apps.googleusercontent.com"> -->
+    
 </head>
 
 <body>
@@ -107,6 +109,9 @@
     </div>
 
     <div id="cookieConsent">
+        <button type="button" class="close">
+            <span id="closeAlert">&times;</span>
+        </button>
         <div style="font-size: 12px; color: #B8B8B8;">
             By using our site, you acknowledge that you have read and understand our <a href="#" target="_blank">Cookie Policy</a> and our <a href="#" target="_blank">Terms of Service</a>.
             This site is protected by reCAPTCHA and the Google
@@ -122,6 +127,18 @@
 
     body {
         background-color: #F1FAEE;
+    }
+
+    #closeAlert {
+        float: right;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: end;
+    }
+    #closeAlert:hover,
+    #closeAlert:focus {
+        color: #000;
+        text-decoration: none;
     }
 
     #cookieConsent {
@@ -432,11 +449,6 @@
         }
         if(showCookie === null){
             $("#cookieConsent").fadeIn(200);
-
-            $("#closeCookieConsent, .cookieConsentOK").click(function () {
-                localStorage.setItem("showCookie", JSON.stringify({ cookie: true }))
-                $("#cookieConsent").fadeOut(200);
-            });
         }
         if(checkLoginAgain !== null){
             sessionStorage.removeItem("loginAgain")
@@ -444,6 +456,11 @@
         }
     }
     session()
+
+    document.getElementById("closeAlert").onclick = function () {
+        localStorage.setItem("showCookie", JSON.stringify({ cookie: true }))
+        $("#cookieConsent").fadeOut(200);
+    }
     
     function showAlertError(error) {
         document.getElementById("showError").style.display = "block";

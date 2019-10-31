@@ -29,6 +29,7 @@
 
     <script src="https://apis.google.com/js/platform.js?onload=onLoad"></script>
     <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com">
+    <!-- <meta name="google-signin-client_id" content="141087998031-3ks8dqpakedg4oa65oja0n0aa4rv8g3p.apps.googleusercontent.com"> -->
 
 
     <!-- <script src="https://unpkg.com/deck.gl@^7.1.0/dist.min.js"></script>
@@ -435,6 +436,8 @@
     var canUpdateStatus = false
 
     var map
+    var markerCoords
+    var markerFakePos
     var mapSetted = false
 
     var authToken = JSON.parse(localStorage.getItem("authToken"))
@@ -742,7 +745,18 @@
         });
     }
 
+    var firstShowPosition = true
+
     function showPosition(position) {
+        // it's call multiple time for no reason
+        if(firstShowPosition){
+            firstShowPosition = false
+        } else {
+            if (profileData['coords'][0] == position.coords.longitude && profileData['coords'][1] == position.coords.latitude) {
+                return
+            }
+        }
+
         const state_view = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -882,13 +896,8 @@
         }
 
         if(mapSetted){
-            map.removeSource('earthquakes')
-            map.addSource('earthquakes', {
-                "type": "geojson",
-                "data":  dataToDisplay,
-            })
-
-            // maybe devo aggiungere map.addLayer({
+            map.getSource('earthquakes').setData(dataToDisplay)
+            markerCoords.setLngLat(profileData['coords'])
             return
         }
 
@@ -905,11 +914,12 @@
         map.addControl(new mapboxgl.AttributionControl({
             compact: true
         }))
-
+        map.doubleClickZoom.enable();
+        
         map.on('load', function () {
             map.addSource('earthquakes', {
                 "type": "geojson",
-                "data":  dataToDisplay,
+                "data": dataToDisplay,
             })
 
             map.addLayer({
@@ -1022,6 +1032,8 @@
                     ]
                 }
             }, 'waterway-label');
+
+            mapSetted = true
         });
 
         // When a click event occurs on a feature in the earthquakes-point layer, open a popup at the
@@ -1086,20 +1098,18 @@
         // ).setHTML(html);
 
         if(profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
-            new mapboxgl.Marker()
+            markerCoords = new mapboxgl.Marker()
                 .setLngLat(profileData['coords'])
                 // .setPopup(customPopUp)
                 .addTo(map);
         }
 
         if (profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0) {
-            new mapboxgl.Marker({ "color": "#b40219" })
+            markerFakePos = new mapboxgl.Marker({ "color": "#b40219" })
                 .setLngLat(profileData['fakePos'])
                 // .setPopup(customPopUp)
                 .addTo(map);
         }
-
-        mapSetted = true
         
         // const deck = new Deck({
         //     canvas: map.getCanvas(),
@@ -1255,7 +1265,7 @@
         //     trackUserLocation: true
         // }));
         // map.addControl(new mapboxgl.FullscreenControl({ container: document.querySelector('body') }));
-        map.doubleClickZoom.enable();
+        // map.doubleClickZoom.enable();
         // map.touchZoomRotate.enable({ around: 'center' });
 
         // CanvasSource, CanvasSourceOptions per i personaggi animati, oppure se sono immagini metti quello per le immagini
