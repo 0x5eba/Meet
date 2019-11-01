@@ -24,7 +24,7 @@ exports.login = (req, res) => {
 
         res.status(201).cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: true,
+            //FORSERVER secure: true,
             SameSite: "None", // Lax
             expires: new Date(Date.now() + (jwtExpireRefreshToken*1000)) // cookie will be removed
         }).send({ id: req.body.userId, accessToken: accessToken });

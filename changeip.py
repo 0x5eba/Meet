@@ -14,6 +14,9 @@ for path in paths:
         for i in f.readlines():
             if replace in i:
                 i = i.replace(replace, IP + ":" + str(PORT))
+            if "141087998031-3ks8dqpakedg4oa65oja0n0aa4rv8g3p.apps.googleusercontent.com" in i:
+                i = i.replace("141087998031-3ks8dqpakedg4oa65oja0n0aa4rv8g3p.apps.googleusercontent.com",
+                              "184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com")
             new_file.append(i)
 
     with open(path, 'w') as f:
@@ -35,3 +38,17 @@ with open("./models/common/config/env.config.js", 'r') as f:
 
 with open("./models/common/config/env.config.js", 'w') as f:
     f.writelines(new_file)
+
+
+paths = glob.glob("./models/*")
+
+for path in paths:
+    new_file = []
+    with open(path, 'r') as f:
+        for i in f.readlines():
+            if "FORSERVER" in i:
+                i = i.replace("//FORSERVER ", "")
+            new_file.append(i)
+
+    with open(path, 'w') as f:
+        f.writelines(new_file)

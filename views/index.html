@@ -28,8 +28,8 @@
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 
     <script src="https://apis.google.com/js/platform.js?onload=onLoad"></script>
-    <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com">
-    <!-- <meta name="google-signin-client_id" content="141087998031-3ks8dqpakedg4oa65oja0n0aa4rv8g3p.apps.googleusercontent.com"> -->
+    <!-- <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com"> -->
+    <meta name="google-signin-client_id" content="141087998031-3ks8dqpakedg4oa65oja0n0aa4rv8g3p.apps.googleusercontent.com">
 
 
     <!-- <script src="https://unpkg.com/deck.gl@^7.1.0/dist.min.js"></script>
@@ -113,11 +113,8 @@
                 <div class="form-group">
                     <select class="form-control" id="mapStyles">
                         <option value='streets-v11' selected>street</option>
-                        <option value='outdoors-v11'>outdoor</option>
                         <option value='light-v10'>light</option>
                         <option value='dark-v10'>dark</option>
-                        <option value='satellite-v9'>satellite</option>
-                        <option value='satellite-streets-v11'>satellite street</option>
                     </select>
                 </div>
 
@@ -521,7 +518,7 @@
         document.getElementById("createGroup").style.display = "none"
         if(rangeView !== JSON.parse(localStorage.getItem("rangeView")).range){
             localStorage.setItem("rangeView", JSON.stringify({ range: rangeView }))
-            window.location.href = "http://localhost:3001/"
+            getData(null)
         }
     }
     document.getElementById("closeModal").onclick = function () {
@@ -724,9 +721,8 @@
                 if (result.state === 'denied') {
                     noGPS()
                 } else {
-                    if (CBviews['profiles'] === 1) {
-                        navigator.geolocation.watchPosition(showPosition, errorGetPosition);
-                    }
+                    navigator.geolocation.watchPosition(showPosition, errorGetPosition);
+
                     // if(profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0){
                     //     showPosition({ coords: { latitude: profileData['coords'][1], longitude: profileData['coords'][0] } })
                     // } else { // vuol dire che all'inizio ha bloccato, poi ha riacconsentito, e quindi e' ancora in [0, 0]
@@ -737,9 +733,7 @@
                 if (result.state === 'denied') {
                     noGPS()
                 } else {
-                    if (CBviews['profiles'] === 1) {
-                        navigator.geolocation.watchPosition(showPosition, errorGetPosition);
-                    }
+                    navigator.geolocation.watchPosition(showPosition, errorGetPosition);
                 }
             }
         });
@@ -1224,8 +1218,9 @@
                     }
                     view[value] = 1
                     localStorage.setItem("view", JSON.stringify(view));
+
+                    getData(null)
                     closeMenu()
-                    reloadPage()
                 });
 
                 slider.destroy()
@@ -1773,17 +1768,26 @@
         }
         lastRequestGetData = currData
 
-
-        // TODO non dovrei fare la request se profileData['coords'] = [0, 0]
-
-
         let x = profileData['coords'][0]
         let y = profileData['coords'][1]
         if(profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0){
             x = profileData['fakePos'][0]
             y = profileData['fakePos'][1]
         } 
+
+        // e' null quando in setting cambio robe, e non ho piu' state_view
+        if(state_view == null){
+            state_view = {
+                latitude: y,
+                longitude: x,
+                zoom: 8,
+                bearing: 0,
+                pitch: 20,
+            }
+        }
         
+        CBviews = JSON.parse(localStorage.getItem("view"))
+
         if (CBviews['groups'] === 1) {
             initGroups(state_view, x, y)
         }
