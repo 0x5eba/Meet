@@ -40,9 +40,7 @@ with open("./models/common/config/env.config.js", 'w') as f:
     f.writelines(new_file)
 
 
-paths = glob.glob("./models/*")
-
-for path in paths:
+for path in ["./models/authorization/routes.config.js", "./models/authorization/controllers/authorization.controller.js"]:
     new_file = []
     with open(path, 'r') as f:
         for i in f.readlines():
