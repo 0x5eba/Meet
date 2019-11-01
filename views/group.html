@@ -75,9 +75,12 @@
 
             <button id="btnSubscribe" type="button" class="btn btn-info" onclick="subscribe()" style="display: none">Subscribe</button>
 
-            <textarea name="text" id="write" placeholder="Write something" wrap="soft" style="display: none"></textarea>
-
-            <!-- <input type="text" id="write" placeholder="Write something"  style="border: 1px solid black; border-radius:10px;"/> -->
+            <div style="display: flex; height: 100%;">
+                <textarea name="text" id="write" placeholder="Write something" wrap="soft" style="display: none"></textarea>
+                <button type="button" class="btn btn-info" id="send-btn">
+                    <img src="icons/iconfinder_Sed-09_2236081.svg" width="50" height="50" style="position: relative; right: 10px; bottom: 7px;">
+                </button>
+            </div>
         </main>
     </div>
 
@@ -110,6 +113,20 @@
         margin: 0 auto;
         box-sizing: border-box;
         transition: all .3s ease;
+    }
+
+    #send-btn {
+        margin-top: 20px;
+        margin-left: 10px;
+        display: inline-block; 
+        align-self: flex-end;
+        text-align:center;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
     }
 
     /* h1, .user-count {
@@ -157,7 +174,8 @@
     }
 
     #write {
-        width: 100%;
+        float: left;
+        width: calc(100% - 60px);
         font: inherit;
         background: #fff;
         border: none;
@@ -443,17 +461,16 @@
         })
     }
 
+    
     function showWrite() {
+        $("#send-btn").click(function () {
+            let write = document.getElementById("write")
+            let val = write.value
+            write.value = ""
+            sendMessage(val)
+        })
         document.getElementById("btnSubscribe").style.display = "none"
-        let write = document.getElementById("write")
         write.style.display = "block"
-        write.addEventListener("keyup", function (event) {
-            if (event.keyCode === 13) {
-                let val = write.value
-                sendMessage(val)
-                write.value = ""
-            }
-        });
     }
     function sendMessage(val){
         let params = JSON.stringify({
