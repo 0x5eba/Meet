@@ -72,4 +72,9 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         ProfileController.searchProfiles,
     ]);
+    app.post('/api/profile/heapmap', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        ProfileController.getTsProfiles,
+    ]);
 };

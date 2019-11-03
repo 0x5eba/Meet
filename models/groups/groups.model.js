@@ -212,3 +212,23 @@ exports.searchGroups = (search) => {
         });
     })
 }
+
+const heapmap = require("../../server/heapmap")
+
+function createDataForTs() {
+    Group.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { pos: 1, _id: 0 })
+        .then(groups => {
+            heapmap.createTsGroups(groups);
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}
+setInterval(() => createDataForTs(), 300000); // 5 min
+createDataForTs()
+
+exports.getTsGroups = () => {
+    return new Promise((resolve, reject) => {
+        resolve(heapmap.getTsGroups())
+    })
+}

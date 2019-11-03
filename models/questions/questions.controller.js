@@ -196,3 +196,13 @@ exports.searchQuestions = (req, res) => {
             res.status(403).send({ err: "Error searching questions" })
         })
 }
+
+exports.getTsQuestions = (req, res) => {
+    QuestionController.getTsQuestions()
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error getting heapmap" })
+        })
+}

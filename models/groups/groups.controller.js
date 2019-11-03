@@ -228,3 +228,13 @@ exports.searchGroups = (req, res) => {
             res.status(403).send({ err: "Error on searching groups" })
         })
 }
+
+exports.getTsGroups = (req, res) => {
+    GroupController.getTsGroups()
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error getting heapmap" })
+        })
+}

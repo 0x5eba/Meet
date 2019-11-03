@@ -206,3 +206,23 @@ exports.searchQuestions = (search) => {
         })
     })
 }
+
+const heapmap = require("../../server/heapmap")
+
+function createDataForTs() {
+    Question.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { pos: 1, _id: 0 })
+        .then(profiles => {
+            heapmap.createTsQuestions(profiles);
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}
+setInterval(() => createDataForTs(), 300000); // 5 min
+createDataForTs()
+
+exports.getTsQuestions = () => {
+    return new Promise((resolve, reject) => {
+        resolve(heapmap.getTsQuestions())
+    })
+}

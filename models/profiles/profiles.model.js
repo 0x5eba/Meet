@@ -211,3 +211,23 @@ exports.searchProfiles = (search) => {
         });
     })
 }
+
+const heapmap = require("../../server/heapmap")
+
+function createDataForTs() {
+    Profile.find({ 'pos.x': { $ne: 0 }, 'pos.y': { $ne: 0 } }, { pos: 1, _id: 0 })
+        .then(profiles => {
+            heapmap.createTsProfiles(profiles);
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}
+setInterval(() => createDataForTs(), 300000); // 5 min
+createDataForTs()
+
+exports.getTsProfiles = () => {
+    return new Promise((resolve, reject) => { 
+        resolve(heapmap.getTsProfiles())
+    })
+}

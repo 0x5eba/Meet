@@ -920,7 +920,8 @@
                 "id": "earthquakes-heat",
                 "type": "heatmap",
                 "source": "earthquakes",
-                "maxzoom": 11,
+                "maxzoom": 12,
+                "minzoom": 7,
                 "paint": {
                     // Increase the heatmap weight based on frequency and property magnitude
                     "heatmap-weight": [
@@ -937,7 +938,7 @@
                         ["linear"],
                         ["zoom"],
                         0, 1,
-                        11, 5
+                        12, 5
                     ],
                     // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
                     // Begin color ramp at 0-stop with a 0-transparancy color
@@ -959,7 +960,7 @@
                         ["linear"],
                         ["zoom"],
                         0, 2,
-                        11, 20
+                        12, 20
                     ],
                     // Transition from heatmap to circle layer by zoom level
                     "heatmap-opacity": [
@@ -967,7 +968,7 @@
                         ["linear"],
                         ["zoom"],
                         7, 1,
-                        11, 0
+                        12, 0
                     ],
                 }
             }, 'waterway-label');
@@ -1024,6 +1025,72 @@
                         7, 0,
                         8, 1
                     ]
+                }
+            }, 'waterway-label');
+
+
+            map.addSource('heapmapSource', {
+                "type": "geojson",
+                "data": {
+                    "type": "FeatureCollection",
+                    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                    "features": []
+                },
+            })
+
+            map.addLayer({
+                "id": "heatmap-heat",
+                "type": "heatmap",
+                "source": "heapmapSource",
+                "maxzoom": 7,
+                "paint": {
+                    // Increase the heatmap weight based on frequency and property magnitude
+                    "heatmap-weight": [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        0, 0,
+                        6, 1
+                    ],
+                    // Increase the heatmap color weight weight by zoom level
+                    // heatmap-intensity is a multiplier on top of heatmap-weight
+                    "heatmap-intensity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 1,
+                        11, 5
+                    ],
+                    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                    // Begin color ramp at 0-stop with a 0-transparancy color
+                    // to create a blur-like effect.
+                    "heatmap-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["heatmap-density"],
+                        0, "rgba(33,102,172,0)",
+                        0.2, "rgb(103,169,207)",
+                        0.4, "rgb(209,229,240)",
+                        0.6, "rgb(253,219,199)",
+                        0.8, "rgb(239,138,98)",
+                        1, "rgb(178,24,43)"
+                    ],
+                    // Adjust the heatmap radius by zoom level
+                    "heatmap-radius": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 5,
+                        11, 30
+                    ],
+                    // Transition from heatmap to circle layer by zoom level
+                    "heatmap-opacity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        7, 1,
+                        11, 0
+                    ],
                 }
             }, 'waterway-label');
 
@@ -1639,6 +1706,42 @@
                 if(err['err'] === "Invalid access token"){
                     newAccessToken(() => initProfiles(state_view, x, y))
                 } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
+                } else {
+                    showAlertError(err['err'])
+                }
+            }
+        })
+
+        $.ajax({
+            url: url + 'profile/heapmap',
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    initProfiles(state_view, x, y)
+                } else {
+                    console.log(res)
+                    if (mapSetted) {
+                        console.log("SET")
+                        map.getSource('heapmapSource').setData(res)
+                    }
+                }
+            },
+            error: (err) => {
+                if (err['err'] === "Invalid access token") {
+                    newAccessToken(() => initProfiles(state_view, x, y))
+                } else if (err['err'] === "Invalid refresh token") {
                     authToken = null
                     localStorage.removeItem("authToken")
                     sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))

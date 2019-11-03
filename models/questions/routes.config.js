@@ -57,6 +57,11 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         QuestionController.searchQuestions,
     ]);
+    app.post('/api/question/heapmap', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        QuestionController.getTsQuestions,
+    ]);
    
 
     /*************************

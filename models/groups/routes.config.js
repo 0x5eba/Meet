@@ -76,6 +76,11 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         GroupController.searchGroups,
     ]);
+    app.post('/api/group/heapmap', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        GroupController.getTsGroups,
+    ]);
 
     /*************************
     *     GROUP MESSAGES     *

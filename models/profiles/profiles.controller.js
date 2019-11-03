@@ -187,3 +187,13 @@ exports.searchProfiles = (req, res) => {
             res.status(403).send({ err: "Error searching profiles" })
         })
 }
+
+exports.getTsProfiles = (req, res) => {
+    ProfileController.getTsProfiles()
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error getting heapmap" })
+        })
+}
