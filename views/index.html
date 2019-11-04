@@ -1059,7 +1059,8 @@
                         ["linear"],
                         ["zoom"],
                         0, 1,
-                        11, 5
+                        3, 2,
+                        7, 2.5,
                     ],
                     // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
                     // Begin color ramp at 0-stop with a 0-transparancy color
@@ -1081,20 +1082,31 @@
                         ["linear"],
                         ["zoom"],
                         0, 5,
-                        11, 30
+                        3, 10,
+                        7, 50
                     ],
                     // Transition from heatmap to circle layer by zoom level
                     "heatmap-opacity": [
                         "interpolate",
                         ["linear"],
                         ["zoom"],
-                        7, 1,
-                        11, 0
+                        0, 0.5,
+                        11, 1
                     ],
                 }
             }, 'waterway-label');
 
             mapSetted = true
+
+            if (CBviews['groups'] === 1) {
+                getHeapmap("group")
+            }
+            else if (CBviews['questions'] === 1) {
+                getHeapmap("question")
+            }
+            else if (CBviews['profiles'] === 1) {
+                getHeapmap("profile")
+            }
         });
 
         // When a click event occurs on a feature in the earthquakes-point layer, open a popup at the
@@ -1715,42 +1727,6 @@
                 }
             }
         })
-
-        $.ajax({
-            url: url + 'profile/heapmap',
-            headers: {
-                'Authorization': authToken['accessToken'],
-                'Content-Type': 'application/json; charset=UTF-8',
-            },
-            credentials: 'include',
-            method: 'POST',
-            dataType: 'json',
-            success: (res) => {
-                if (res["accessToken"] !== undefined) {
-                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
-                    authToken = JSON.parse(localStorage.getItem("authToken"))
-                    initProfiles(state_view, x, y)
-                } else {
-                    console.log(res)
-                    if (mapSetted) {
-                        console.log("SET")
-                        map.getSource('heapmapSource').setData(res)
-                    }
-                }
-            },
-            error: (err) => {
-                if (err['err'] === "Invalid access token") {
-                    newAccessToken(() => initProfiles(state_view, x, y))
-                } else if (err['err'] === "Invalid refresh token") {
-                    authToken = null
-                    localStorage.removeItem("authToken")
-                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
-                    window.location.href = "http://localhost:3001/home"
-                } else {
-                    showAlertError(err['err'])
-                }
-            }
-        })
     }
 
     var Allgroups = []
@@ -1832,6 +1808,40 @@
                 if(err['err'] === "Invalid access token"){
                     newAccessToken(() => initQuestions(state_view, x, y))
                 } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
+                } else {
+                    showAlertError(err['err'])
+                }
+            }
+        })
+    }
+
+    function getHeapmap(name) {
+        $.ajax({
+            url: url + name + '/heapmap',
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    getHeapmap(name)
+                } else {
+                    map.getSource('heapmapSource').setData(res)
+                }
+            },
+            error: (err) => {
+                if (err['err'] === "Invalid access token") {
+                    newAccessToken(() => getHeapmap(name))
+                } else if (err['err'] === "Invalid refresh token") {
                     authToken = null
                     localStorage.removeItem("authToken")
                     sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
