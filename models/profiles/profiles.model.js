@@ -144,6 +144,7 @@ exports.findByPos = (search_x, search_y, range_search, res) => {
                 "properties": {
                     'nickname': "$nickname",
                     'name': "$name",
+                    'lastSeen': "$lastSeen",
                     'surname': "$surname",
                     'id': "$_id",
                     "mag": { $convert: { input: "2", to: "double" } },

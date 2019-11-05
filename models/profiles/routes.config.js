@@ -62,7 +62,7 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         ProfileController.patchByIdBookmarkQuestion
     ]);
-    app.post('/api/profile/allProfiles', [
+    app.post('/api/profile/near', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         ProfileController.allProfiles

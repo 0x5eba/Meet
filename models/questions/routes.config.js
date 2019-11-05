@@ -47,7 +47,7 @@ exports.routesConfig = function (app) {
         QuestionController.removeById
     ]);
 
-    app.post('/api/question/allQuestions', [
+    app.post('/api/question/near', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         QuestionController.allQuestions

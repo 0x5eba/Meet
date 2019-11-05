@@ -39,7 +39,7 @@ exports.routesConfig = function (app) {
         GroupController.removeById
     ]);
 
-    app.post('/api/group/allGroups', [
+    app.post('/api/group/near', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         GroupController.allGroups

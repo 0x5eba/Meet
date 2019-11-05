@@ -147,16 +147,6 @@
     </div>
 
     <div id="cardsObjects">
-
-        RIMUOVI TUTTO QUELLO CHE C'E' DENTRO
-        E METTICI I DATI NUOVI (PROFILI, GRUPPI, DOMANDE)
-        
-
-        <!-- <div class="card">
-            <span class="date">Last Seen</span>
-            <h2>Nickname</h2>
-            <p>Name and surname</p>
-        </div> -->
     </div>
 
     <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="showError" style="display: none;">
@@ -223,7 +213,7 @@
         background: transparent;
     }
     .card .date {
-        color: rgb(255, 7, 110);
+        color: rgb(29, 116, 197);
         font-size:13px;
     }
     .card p {
@@ -1799,59 +1789,16 @@
     }
 
     var AllProfiles = []
-    function initProfiles(state_view, x, y) {
-        let params = JSON.stringify({
-            x: x,
-            y: y,
-            range: rangeView / 100,
-        })
-        $.ajax({
-            url: url + 'profile/allProfiles',
-            headers: {
-                'Authorization': authToken['accessToken'],
-                'Content-Type': 'application/json; charset=UTF-8',
-            },
-            credentials: 'include',
-            method: 'POST',
-            dataType: 'json',
-            data: params,
-            success: (res) => {
-                if (res["accessToken"] !== undefined) {
-                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
-                    authToken = JSON.parse(localStorage.getItem("authToken"))
-                    initProfiles(state_view, x, y)
-                } else {
-                    AllProfiles = res
-                    
-                    canUpdateStatus = true
-                    setMap(state_view)
-                    iamStatus(true)
-                }
-            },
-            error: (err) => {
-                if(err['err'] === "Invalid access token"){
-                    newAccessToken(() => initProfiles(state_view, x, y))
-                } else if(err['err'] === "Invalid refresh token"){
-                    authToken = null
-                    localStorage.removeItem("authToken")
-                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
-                    window.location.href = "http://localhost:3001/home"
-                } else {
-                    showAlertError(err['err'])
-                }
-            }
-        })
-    }
-
     var Allgroups = []
-    function initGroups(state_view, x, y) {
+    var AllQuestions = []
+    function initObjects(name, state_view, x, y){
         let params = JSON.stringify({
             x: x,
             y: y,
             range: rangeView / 100,
         })
         $.ajax({
-            url: url + 'group/allGroups',
+            url: url + name + '/near',
             headers: {
                 'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -1864,9 +1811,16 @@
                 if (res["accessToken"] !== undefined) {
                     localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
                     authToken = JSON.parse(localStorage.getItem("authToken"))
-                    initGroups(state_view, x, y)
+                    initObjects(name, state_view, x, y)
                 } else {
-                    Allgroups = res
+                    if(name === "profile"){
+                        AllProfiles = res
+                    } else if(name === "group"){
+                        Allgroups = res
+                    } else {
+                        AllQuestions = res
+                    }
+                    fillCardsObjects(name)
 
                     canUpdateStatus = true
                     setMap(state_view)
@@ -1874,9 +1828,9 @@
                 }
             },
             error: (err) => {
-                if(err['err'] === "Invalid access token"){
-                    newAccessToken(() => initGroups(state_view, x, y))
-                } else if(err['err'] === "Invalid refresh token"){
+                if (err['err'] === "Invalid access token") {
+                    newAccessToken(() => initObjects(name, state_view, x, y))
+                } else if (err['err'] === "Invalid refresh token") {
                     authToken = null
                     localStorage.removeItem("authToken")
                     sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
@@ -1888,49 +1842,84 @@
         })
     }
 
-    var AllQuestions = []
-    function initQuestions(state_view, x, y) {
-        let params = JSON.stringify({
-            x: x,
-            y: y,
-            range: rangeView / 100,
-        })
-        $.ajax({
-            url: url + 'question/allQuestions',
-            headers: {
-                'Authorization': authToken['accessToken'],
-                'Content-Type': 'application/json; charset=UTF-8',
-            },
-            credentials: 'include',
-            method: 'POST',
-            dataType: 'json',
-            data: params,
-            success: (res) => {
-                if (res["accessToken"] !== undefined) {
-                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
-                    authToken = JSON.parse(localStorage.getItem("authToken"))
-                    initQuestions(state_view, x, y)
-                } else {
-                    AllQuestions = res
+    function timeConverter(UNIX_timestamp) {
+        let a = new Date(UNIX_timestamp);
+        let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        let month = months[a.getMonth()];
+        let date = a.getDate();
+        let hour = a.getHours();
+        let min = a.getMinutes();
+        let time = date + ' ' + month + ' ' + hour + ':' + min;
+        return time;
+    }
+    function fillCardsObjects(name){
+        let cardsObjects = document.getElementById("cardsObjects")
+        cardsObjects.innerHTML = ""
+        if (name === "profile") {
 
-                    canUpdateStatus = true
-                    setMap(state_view)
-                    iamStatus(true)
+            AllProfiles['features'].sort((a, b) => (a.circle > b.circle) ? 1 : -1)
+            for(let a = 0; a < AllProfiles['features'].length; ++a){
+                let profile = AllProfiles['features'][a]['properties']
+                let lastseen = timeConverter(profile["lastSeen"])
+
+                let div = document.createElement("div")
+                div.setAttribute("class", "card")
+                let span = document.createElement("span")
+                span.setAttribute("class", "date")
+                span.innerHTML = lastseen
+                let h2 = document.createElement("h2")
+                h2.innerHTML = profile['nickname']
+                let p = document.createElement("p")
+                p.innerHTML = profile['name'] + " " + profile['surname']
+                div.append(span, h2, p)
+
+                div.onclick = function () {
+                    window.location.href = "http://localhost:3001/profile?nickname=" + profile['id']
                 }
-            },
-            error: (err) => {
-                if(err['err'] === "Invalid access token"){
-                    newAccessToken(() => initQuestions(state_view, x, y))
-                } else if(err['err'] === "Invalid refresh token"){
-                    authToken = null
-                    localStorage.removeItem("authToken")
-                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
-                    window.location.href = "http://localhost:3001/home"
-                } else {
-                    showAlertError(err['err'])
-                }
+
+                cardsObjects.appendChild(div)
             }
-        })
+        } else if (name === "group") {
+
+            Allgroups['features'].sort((a, b) => (a.circle > b.circle) ? 1 : -1)
+            for (let a = 0; a < Allgroups['features'].length; ++a) {
+                let group = Allgroups['features'][a]['properties']
+
+                let div = document.createElement("div")
+                div.setAttribute("class", "card")
+                let h2 = document.createElement("h2")
+                h2.innerHTML = group['name']
+                div.append(h2)
+
+                div.onclick = function () {
+                    window.location.href = "http://localhost:3001/group?groupid=" + group['id']
+                }
+
+                cardsObjects.appendChild(div)
+            }
+        } else {
+            
+            AllQuestions['features'].sort((a, b) => (a.circle > b.circle) ? 1 : -1)
+            for (let a = 0; a < AllQuestions['features'].length; ++a) {
+                let question = AllQuestions['features'][a]['properties']
+
+                let div = document.createElement("div")
+                div.setAttribute("class", "card")
+                let h2 = document.createElement("h2")
+                let title = question['title'].slice(0, 30) + (question['title'].length > 30 ? "..." : "")
+                h2.innerHTML = title
+                let p = document.createElement("p")
+                let details = question['details'].slice(0, 30) + (question['details'].length > 30 ? "..." : "")
+                p.innerHTML = details
+                div.append(h2, p)
+
+                div.onclick = function () {
+                    window.location.href = "http://localhost:3001/question?title=" + question['id']
+                }
+
+                cardsObjects.appendChild(div)
+            }
+        }
     }
 
     function getHeapmap(name) {
@@ -2016,13 +2005,13 @@
         CBviews = JSON.parse(localStorage.getItem("view"))
 
         if (CBviews['groups'] === 1) {
-            initGroups(state_view, x, y)
+            initObjects("group", state_view, x, y)
         }
         else if (CBviews['questions'] === 1) {
-            initQuestions(state_view, x, y)
+            initObjects("question", state_view, x, y)
         }
         else if (CBviews['profiles'] === 1) {
-            initProfiles(state_view, x, y)
+            initObjects("profile", state_view, x, y)
         }
         else {
             window.location.href = "http://localhost:3001/home"
