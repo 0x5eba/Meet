@@ -146,6 +146,19 @@
         </div>
     </div>
 
+    <div id="cardsObjects">
+
+        RIMUOVI TUTTO QUELLO CHE C'E' DENTRO
+        E METTICI I DATI NUOVI (PROFILI, GRUPPI, DOMANDE)
+        
+
+        <!-- <div class="card">
+            <span class="date">Last Seen</span>
+            <h2>Nickname</h2>
+            <p>Name and surname</p>
+        </div> -->
+    </div>
+
     <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" id="showError" style="display: none;">
         <button type="button" class="close">
             <span id="closeAlert">&times;</span>
@@ -188,17 +201,110 @@
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.15); */
     }
 
-    #btn-home {
+    .card {
+        width: 150px;
+        height: 150px;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+        font-family: roboto;
+        text-align: center;
+        overflow: scroll;
+        overflow-x: hidden;
+        padding: 15px;
+        transition: 0.5s ease;
+        cursor: pointer;
+        margin-left: 15px;
+        margin-right: 15px;
+        flex: 0 0 150px;
+    }
+    .card::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+    .card .date {
+        color: rgb(255, 7, 110);
+        font-size:13px;
+    }
+    .card p {
+        color: grey;
+        font-size:15px;
+        font-weight: 300;
+    }
+    .card h2 {
+        margin-top:0px;
+        font-size:20px;
+    }
+    .card:hover {
+        transform: scale(1.15);
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+    }
+
+    #cardsObjects {
+        transition: all 2s ease-out;
+        display: none; 
+        position: absolute;
+        bottom: 40px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 90%;
+        max-width: 700px;
+        max-height: 210px;
+        background:rgba(231, 231, 231, 0.5);
+        padding: 20px;
+        padding-left: 10px;
+        padding-top: 24px;
+        overflow: auto;
+        border-radius: 20px;
+    }
+
+    @-moz-keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { -moz-transform: translateY(0); transform: translateY(0); }
+        40% { -moz-transform: translateY(-7px); transform: translateY(-7px); }
+        60% { -moz-transform: translateY(-4px); transform: translateY(-4px); }
+    }
+    @-webkit-keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { -webkit-transform: translateY(0); transform: translateY(0); }
+        40% { -webkit-transform: translateY(-7px); transform: translateY(-7px); }
+        60% { -webkit-transform: translateY(-4px); transform: translateY(-4px); }
+    }
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { -moz-transform: translateY(0); -ms-transform: translateY(0); -webkit-transform: translateY(0); transform: translateY(0); }
+        40% { -moz-transform: translateY(-7px); -ms-transform: translateY(-7px); -webkit-transform: translateY(-7px); transform: translateY(-7px); }
+        60% { -moz-transform: translateY(-4px); -ms-transform: translateY(-4px); -webkit-transform: translateY(-4px); transform: translateY(-4px); }
+    }
+    .bounce {
+        /* infinite */
+        -moz-animation: bounce 3s; 
+        -webkit-animation: bounce 3s;
+        animation: bounce 3s;
+        animation-delay: 5s;
+    }
+
+    #btn-arrow-up {
         position: absolute;
         left: 50%;
         margin-left: -22px;
-        bottom: 30px;
+        bottom: 70px;
+        border: 0;
+        background: transparent;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
+
+    #btn-home {
+        position: absolute;
+        left: 50%;
+        margin-left: -14px;
+        bottom: 40px;
         border: 0;
         background: transparent;
         background-color: white;
         border-radius: 50px;
-        height: 45px;
-        width: 45px;
+        height: 30px;
+        width: 31px;
     }
 
     #btn-group {
@@ -1202,6 +1308,14 @@
 
         const mainDiv = d3.select('#control-panel').selectAll('div').data([{ text: "home" }]).enter().append('div')
 
+        mainDiv.append('button').attr("id", "btn-arrow-up").attr("class", "bounce")
+            .on('click', d => {
+                document.getElementById("cardsObjects").style.display = "flex"
+                $('#cardsObjects').animate({ top: '55%' })
+                document.getElementById("btn-arrow-up").style.display = "none"
+            })
+            .append("img").attr("src", "icons/iconfinder_double-arrow-up_383150.svg").attr("width", "20").attr("height", "20").style("border-radius", "20%")
+
         // home
         mainDiv.append('button').attr("id", "btn-home")
             .on('click', d => {
@@ -1231,7 +1345,7 @@
                     })
                 }
             })
-            .append("img").attr("src", "icons/iconfinder_gps-not-fixed_326555.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+            .append("img").attr("src", "icons/iconfinder_gps-not-fixed_326555.svg").attr("width", "20").attr("height", "20").style("border-radius", "20%")
         
         // group
         mainDiv.append('button').attr("id", "btn-group")
