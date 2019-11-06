@@ -1,0 +1,31 @@
+{
+  "name": "object-sizeof",
+  "version": "1.5.2",
+  "description": "Sizeof of a JavaScript object in Bytes",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/standard; ./node_modules/.bin/mocha -R tap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/miktam/sizeof.git"
+  },
+  "keywords": [
+    "sizeof",
+    "size",
+    "object",
+    "bytes"
+  ],
+  "author": "Andrei Karpushonak",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "buffer": "^5.4.3"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.1",
+    "should": "^13.2.3",
+    "standard": "^14.3.1"
+  },
+  "types": "index.d.ts"
+}

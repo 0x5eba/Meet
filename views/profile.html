@@ -38,142 +38,109 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" onclick="window.location.href='http://localhost:3001/'">
-            <img style="border-radius:50%;" src="/logo/Infinity Art iPhone Wallpaper.png" width="40" height="40"
-                class="d-inline-block align-top" alt="">
-        </a>
-    </nav>
-
-    <section class="hero-section">
-        <div class="container-fluid">
-            <div class="col-xl-10 offset-xl-1">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="hero-text">
-                            <h2 id='nickname'></h2>
-                            <h3 id='name-surname'></h3>
-                            <p id='bio'></p>
-                        </div>
-                        <div class="hero-info">
-                            <h2>General Info</h2>
-                            <ul>
-                                <li id='lastseen'><span>Last seen</span></li>
-                                <li><span>Position</span><button id='position' type="button" class="btn btn-info">Show on map</button></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div id="main">
+        <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" onclick="window.location.href='http://localhost:3001/'">
+                <img style="border-radius:50%;" src="/logo/Infinity Art iPhone Wallpaper.png" width="40" height="40"
+                    class="d-inline-block align-top" alt="">
+            </a>
+        </nav> -->
+        
+        <div id="div-img">
+            <img src="NoGPS.png" id="img-profile">
+            <button type="button" class="btn" id="btn-edit-profile">Edit info</button>
+            <button type="button" class="btn" id="icon-show-on-map"><img src="icons/iconfinder_map_285662.svg" width="20" height="20" style=""></button>
         </div>
-    </section>
+
+        <div class="info">
+            <p id='name-surname'>Sebastien Biollo</p>
+            <p id='nickname'>0x5eba</p>
+            <p id='lastseen'>Last seen</p>
+            <p id='kmaway'></p>
+            <hr style="border-top: 1px solid rgb(230, 230, 230);">
+            <p id='bio'>asgwerg werg weguiw ehiughwuie5gh934giubfyhg98h3w9gh409tg9283hgtg98w4gh598gtw98g5h987479ggh 8h gh w98q</p>
+        </div>
+
+    </div>
 </body>
 
 </html>
 
 <style>
-    html,body {
+    #main {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        margin-top: 0px;
+        border: 1px solid #888;
+        background-color: #fefefe;
+        /* padding: 20px; */
+        width: 100%;
         height: 100%;
-        background: #f2f7f8;
-        font-family: 'Josefin Sans', sans-serif;
+        max-width: 500px;
+        overflow-y: scroll;
+        overflow: auto;
     }
 
-    h1,h2,h3,h4,h5,h6 {
-        color: #40424a;
-        margin: 0;
-        font-weight: 600;
-        font-family: 'Josefin Sans', sans-serif;
+    .info {
+        margin: 15px;
+        word-wrap: break-word;
+        color: rgb(107, 107, 107);
+    }
+    #name-surname {
+        color: rgb(59, 59, 59);
+        font-weight: bold;
+        font-size: 20px;
+    }
+    #nickname {
+        font-size: 16px;
+    }
+    #last-seen {
+        font-size: 12px;
+    }
+    #icon-show-on-map {
+        position: absolute;
+        text-align: center;
+        margin: 0 auto;
+        display: table-cell;
+        vertical-align: middle;
+        top: 8px;
+        left: 8px;
+        border-radius: 50px;
+        width: 40px;
+        height: 40px;
+        background: white;
+        border: 0;
     }
 
-    h2 {
-        font-size: 48px;
+    #div-img {
+        text-align:center; 
+        margin: 0 auto;
+    }
+    #img-profile {
+        width: 100%; 
+        max-width: 500px; 
+        height: auto;
     }
 
-    h3 {
-        font-size: 30px;
+    #btn-edit-profile {
+        position: absolute;
+        display: none;
+        top: 8px;
+        right: 8px;
+        border-radius: 30px;
+        color: white;
+        background: rgb(121, 121, 121);
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 12px;
     }
 
-    p {
-        font-size: 18px;
-        color: #808181;
-        line-height: 1.8;
-    }
-
-    img {
-        max-width: 100%;
-    }
-
-    input:focus,
-    select:focus,
-    button:focus,
-    textarea:focus {
-        outline: none;
-    }
-
-    a:hover,
-    a:focus {
-        text-decoration: none;
-        outline: none;
-    }
-
-    ul,
-    ol {
-        padding: 0;
-        margin: 0;
-    }
-
-    .hero-section {
-        background: #f2f7f8;
-    }
-
-    .hero-text {
-        margin-bottom: 80px;
-    }
-
-    .hero-text h2 {
-        font-size: 100px;
-        line-height: normal;
-        /* margin-bottom: 20px; */
-    }
-
-    .hero-text h3 {
-        font-size: 50px;
-        line-height: normal;
-        margin-bottom: 20px;
-    }
-
-    .hero-text p {
-        font-size: 33px;
-        line-height: 1.3;
-    }
-
-    .hero-image {
-        padding-top: 70px;
-    }
-
-    .hero-info h2 {
-        margin-bottom: 30px;
-    }
-
-    .hero-info ul {
-        list-style: none;
-    }
-
-    .hero-info ul li {
-        font-size: 24px;
-        color: #808181;
-        margin-bottom: 15px;
-    }
-
-    .hero-info ul li span {
-        color: #40424a;
-        display: inline-block;
-        min-width: 220px;
-    }
-
-    .hero-info ul li:last-child {
-        margin-bottom: 0;
-    }
 </style>
 
 <script>
@@ -298,20 +265,29 @@
     //     document.getElementById("messageError").innerText = error
     // }
 
+    function getDistance(lat1, long1, lat2, long2) {
+        return Math.round(Math.acos(Math.sin(lat2 * Math.PI / 180.0) * Math.sin(lat1 * Math.PI / 180.0) +
+            Math.cos(lat2 * Math.PI / 180.0) * Math.cos(lat1 * Math.PI / 180.0) *
+            Math.cos((long1 - long2) * Math.PI / 180.0)) * 6371);
+    }
+
     function timeConverter(UNIX_timestamp) {
         var a = new Date(UNIX_timestamp);
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var year = a.getFullYear();
         var month = months[a.getMonth()];
         var date = a.getDate();
-        var hour = a.getHours();
-        var min = a.getMinutes();
-        var sec = a.getSeconds();
-        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+        var hour = (a.getHours().length === 1) ? "0" + a.getHours() : a.getHours();
+        var min = (a.getMinutes().length === 1) ? "0" + a.getMinutes() : a.getMinutes();
+        var time = date + ' ' + month + ' ' + hour + ':' + min;
         return time;
     }
 
     function getProfile(profileId) {
+        if(profileId === profileData['id']){
+            $("#btn-edit-profile").show()
+        }
+
         $.ajax({
             url: url + 'profile/' + profileId,
             headers: {
@@ -330,15 +306,18 @@
                     document.getElementById("nickname").innerHTML = profile["nickname"]
                     document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
                     document.getElementById("bio").innerHTML = profile["bio"]
-                    document.getElementById("position").onclick = function () {
+                    document.getElementById("icon-show-on-map").onclick = function () {
                         sessionStorage.setItem("showOnMapProfile", JSON.stringify({ x: profile["pos"].x, y: profile["pos"].y }))
                         window.location.href = "http://localhost:3001/"
                     }
                     if (new Date() - profile["lastSeen"] < 60000) { // 1 minute
-                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span> Is online"
+                        document.getElementById("lastseen").innerHTML = "Online"
                     } else {
-                        document.getElementById("lastseen").innerHTML = "<span>Last seen</span> " + timeConverter(profile["lastSeen"])
+                        document.getElementById("lastseen").innerHTML = timeConverter(profile["lastSeen"])
                     }
+
+                    let dist = getDistance(profile["pos"].x, profile["pos"].y, profileData['coords'][0], profileData['coords'][1])
+                    document.getElementById("kmaway").innerHTML = dist + " km away"
                 }
             },
             error: (err) => {

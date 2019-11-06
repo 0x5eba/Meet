@@ -1465,7 +1465,7 @@
             }
         }
 
-        const map = new mapboxgl.Map({
+        var fakeMap = new mapboxgl.Map({
             container: 'map',
             style: mapStyle['mapStyle'],
             zoom: 1,
@@ -1473,30 +1473,95 @@
             pitch: 0,
             attributionControl: false,
         })
-        map.addControl(new mapboxgl.AttributionControl({
+        fakeMap.addControl(new mapboxgl.AttributionControl({
             compact: true
         }))
-        map.doubleClickZoom.enable();
+        fakeMap.doubleClickZoom.enable();
 
-        map.on('mousemove', function (e) {
+        // fakeMap.on('load', function () {
+        //     fakeMap.addSource('heapmapSource', {
+        //         "type": "geojson",
+        //         "data": heapmap,
+        //     })
+
+        //     fakeMap.addLayer({
+        //         "id": "heatmap-heat",
+        //         "type": "heatmap",
+        //         "source": "heapmapSource",
+        //         "maxzoom": 7,
+        //         "paint": {
+        //             // Increase the heatmap weight based on frequency and property magnitude
+        //             "heatmap-weight": [
+        //                 "interpolate",
+        //                 ["linear"],
+        //                 ["get", "mag"],
+        //                 0, 0,
+        //                 6, 1
+        //             ],
+        //             // Increase the heatmap color weight weight by zoom level
+        //             // heatmap-intensity is a multiplier on top of heatmap-weight
+        //             "heatmap-intensity": [
+        //                 "interpolate",
+        //                 ["linear"],
+        //                 ["zoom"],
+        //                 0, 1,
+        //                 3, 2,
+        //                 7, 2.5,
+        //             ],
+        //             // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+        //             // Begin color ramp at 0-stop with a 0-transparancy color
+        //             // to create a blur-like effect.
+        //             "heatmap-color": [
+        //                 "interpolate",
+        //                 ["linear"],
+        //                 ["heatmap-density"],
+        //                 0, "rgba(33,102,172,0)",
+        //                 0.2, "rgb(103,169,207)",
+        //                 0.4, "rgb(209,229,240)",
+        //                 0.6, "rgb(253,219,199)",
+        //                 0.8, "rgb(239,138,98)",
+        //                 1, "rgb(178,24,43)"
+        //             ],
+        //             // Adjust the heatmap radius by zoom level
+        //             "heatmap-radius": [
+        //                 "interpolate",
+        //                 ["linear"],
+        //                 ["zoom"],
+        //                 0, 5,
+        //                 3, 10,
+        //                 7, 50
+        //             ],
+        //             // Transition from heatmap to circle layer by zoom level
+        //             "heatmap-opacity": [
+        //                 "interpolate",
+        //                 ["linear"],
+        //                 ["zoom"],
+        //                 0, 0.5,
+        //                 11, 1
+        //             ],
+        //         }
+        //     }, 'waterway-label');
+        // });
+
+        fakeMap.on('mousemove', function (e) {
             // map.getCanvas().style.cursor = "url('icons/iconfinder_17_Location_1815566.png'), auto"
-            map.getCanvas().style.cursor = "pointer"
+            fakeMap.getCanvas().style.cursor = "pointer"
         });
 
-        map.on('click', function (e) {
+        fakeMap.on('click', function (e) {
             let coords = e.lngLat   
             let details = "<p style=\"margin-top: 10px;\">Do you want to go here?</p><button type=\"button\" class=\"btn btn-success\" onclick='setFakePos(" + coords['lng'] + "," + coords['lat'] + ")'>Yes</button>"
 
             new mapboxgl.Popup()
                 .setLngLat(coords)
                 .setHTML(details)
-                .addTo(map);
+                .addTo(fakeMap);
         });
 
         if (profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0) {
             new mapboxgl.Marker()
                 .setLngLat(profileData['coords'])
-                .addTo(map);
+                .addTo(fakeMap);
         }
     }
 
@@ -1847,8 +1912,8 @@
         let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         let month = months[a.getMonth()];
         let date = a.getDate();
-        let hour = a.getHours();
-        let min = a.getMinutes();
+        let hour = (a.getHours().length === 1) ? "0" + a.getHours() : a.getHours();
+        let min = (a.getMinutes().length === 1) ? "0" + a.getMinutes() : a.getMinutes();
         let time = date + ' ' + month + ' ' + hour + ':' + min;
         return time;
     }
@@ -1898,7 +1963,7 @@
                 cardsObjects.appendChild(div)
             }
         } else {
-            
+
             AllQuestions['features'].sort((a, b) => (a.circle > b.circle) ? 1 : -1)
             for (let a = 0; a < AllQuestions['features'].length; ++a) {
                 let question = AllQuestions['features'][a]['properties']
@@ -1922,6 +1987,7 @@
         }
     }
 
+    var heapmap = {}
     function getHeapmap(name) {
         $.ajax({
             url: url + name + '/heapmap',
@@ -1938,7 +2004,8 @@
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     getHeapmap(name)
                 } else {
-                    map.getSource('heapmapSource').setData(res)
+                    heapmap = res
+                    map.getSource('heapmapSource').setData(heapmap)
                 }
             },
             error: (err) => {
