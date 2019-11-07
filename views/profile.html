@@ -46,27 +46,89 @@
             </a>
         </nav> -->
         
-        <div id="div-img">
-            <img src="NoGPS.png" id="img-profile">
-            <button type="button" class="btn" id="btn-edit-profile">Edit info</button>
-            <button type="button" class="btn" id="icon-show-on-map"><img src="icons/iconfinder_map_285662.svg" width="20" height="20" style=""></button>
+        <div id="show-profile">
+            <div id="div-img">
+                <img src="NoGPS.png" id="img-profile">
+                <button type="button" class="btn" id="btn-edit-profile">Edit info</button>
+                <button type="button" class="btn" id="icon-show-on-map"><img src="icons/iconfinder_map_285662.svg" width="20" height="20"></button>
+            </div>
+            
+            <div class="info">
+                <p id='name-surname' style="margin: 0px;"></p>
+                <p id='nickname' style="margin: 0px;"></p>
+                <p id='lastseen' style="margin: 0px; font-size: 12"></p>
+                <p id='kmaway' style="margin: 0px; font-size: 12"></p>
+                <hr style="border-top: 1px solid rgb(230, 230, 230);">
+                <p id='bio'></p>
+            </div>
         </div>
 
-        <div class="info">
-            <p id='name-surname'>Sebastien Biollo</p>
-            <p id='nickname'>0x5eba</p>
-            <p id='lastseen'>Last seen</p>
-            <p id='kmaway'></p>
-            <hr style="border-top: 1px solid rgb(230, 230, 230);">
-            <p id='bio'>asgwerg werg weguiw ehiughwuie5gh934giubfyhg98h3w9gh409tg9283hgtg98w4gh598gtw98g5h987479ggh 8h gh w98q</p>
+        <div id="edit-profile">
+            <div style="width: 100%;">
+                <img src="NoGPS.png" id="img-profile" style="border-radius: 50%; width: 150px; height: 150px;"><br>
+                <button class="transparent-btn" id="btn-edit-photo" style="margin-top: 10px; color: rgb(63, 125, 218)">Edit Photo</button>
+            </div>
+            <div class="input-icons">
+                <i class="fa fa-user icon"></i>
+                <input class="myinput" type="text" id='name' name="name" placeholder="Name">
+            </div>
+            <div class="input-icons">
+                <i class="fa fa-user icon"></i>
+                <input class="myinput" type="text" id='surname' name="surname" placeholder="Surname">
+            </div>
+            <textarea name="text" id="textarea-bio" placeholder="Bio" wrap="soft"></textarea>
+            <div style="width: 100%;">
+                <button class="transparent-btn" id="btn-save" style="margin-top: 20px; font-size: 20px; color: rgb(63, 218, 84)">Save</button>
+            </div>
         </div>
-
+        
     </div>
 </body>
 
 </html>
 
 <style>
+    .input-icons { 
+        color: rgb(205, 206, 206);
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        padding-right: 20px;
+    }
+    .myinput {
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: none;
+        border-bottom: 1px solid rgb(180, 179, 179);
+        padding: 7px;
+        padding-left: 2px;
+    }
+    #textarea-bio {
+        width: 80%;
+        font: inherit;
+        background: #fff;
+        margin: 20px;
+        padding: 10px 10px;
+        box-sizing: border-box;
+        /* transition: all .3s ease; */
+        resize:none;
+        border: 1px solid #adacac; 
+        border-radius:10px;
+    }
+    .transparent-btn {
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: none;
+        cursor:pointer;
+        /* color: rgb(126, 129, 129); */
+        color: rgb(216, 66, 66);
+    }
+    #edit-profile {
+        display: none;
+        padding: 20px; 
+        text-align: center;
+    }
+
     #main {
         position: absolute;
         z-index: 1;
@@ -286,6 +348,9 @@
     function getProfile(profileId) {
         if(profileId === profileData['id']){
             $("#btn-edit-profile").show()
+            $("#btn-edit-profile").click(function() {
+                
+            })
         }
 
         $.ajax({
@@ -310,14 +375,14 @@
                         sessionStorage.setItem("showOnMapProfile", JSON.stringify({ x: profile["pos"].x, y: profile["pos"].y }))
                         window.location.href = "http://localhost:3001/"
                     }
-                    if (new Date() - profile["lastSeen"] < 60000) { // 1 minute
-                        document.getElementById("lastseen").innerHTML = "Online"
-                    } else {
-                        document.getElementById("lastseen").innerHTML = timeConverter(profile["lastSeen"])
-                    }
-
+                    let lastseen = document.getElementById("lastseen")
                     let dist = getDistance(profile["pos"].x, profile["pos"].y, profileData['coords'][0], profileData['coords'][1])
-                    document.getElementById("kmaway").innerHTML = dist + " km away"
+                    if (new Date() - profile["lastSeen"] < 60000) { // 1 minute
+                        lastseen.innerHTML = "Online"  + ",  " + dist + " km away"
+                    } else {
+                        lastseen.innerHTML = timeConverter(profile["lastSeen"]) + ",  " + dist + " km away"
+                    }
+                    
                 }
             },
             error: (err) => {

@@ -77,7 +77,7 @@
 
             <div style="display: flex; height: 100%;">
                 <textarea name="text" id="write" placeholder="Write something" wrap="soft" style="display: none"></textarea>
-                <button type="button" class="btn btn-info" id="send-btn">
+                <button type="button" class="btn btn-info" id="send-btn" style="display: none">
                     <img src="icons/iconfinder_Sed-09_2236081.svg" width="50" height="50" style="position: relative; right: 10px; bottom: 7px;">
                 </button>
             </div>
@@ -471,6 +471,7 @@
         })
         document.getElementById("btnSubscribe").style.display = "none"
         write.style.display = "block"
+        document.getElementById("send-btn").style.display = "block"
     }
     function sendMessage(val){
         let params = JSON.stringify({
