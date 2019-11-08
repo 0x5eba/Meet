@@ -80,7 +80,7 @@ exports.patchUser = (id, userData) => {
         Profile.findById(id, function (err, user) {
             if (err) reject(err);
             for (let i in userData) {
-                if (['firstName', 'lastName', 'password', 'pos', 'fakePos', 'lastSeen'].includes(i)){
+                if (['name', 'surname', 'pos', 'bio', 'fakePos', 'lastSeen'].includes(i)){
                     user[i] = userData[i];
                 }
             }

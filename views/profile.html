@@ -49,7 +49,7 @@
         <div id="show-profile">
             <div id="div-img">
                 <img src="NoGPS.png" id="img-profile">
-                <button type="button" class="btn" id="btn-edit-profile">Edit info</button>
+                <button type="button" class="btn" id="btn-edit-profile" onclick="editProfile()">Edit info</button>
                 <button type="button" class="btn" id="icon-show-on-map"><img src="icons/iconfinder_map_285662.svg" width="20" height="20"></button>
             </div>
             
@@ -66,7 +66,7 @@
         <div id="edit-profile">
             <div style="width: 100%;">
                 <img src="NoGPS.png" id="img-profile" style="border-radius: 50%; width: 150px; height: 150px;"><br>
-                <button class="transparent-btn" id="btn-edit-photo" style="margin-top: 10px; color: rgb(63, 125, 218)">Edit Photo</button>
+                <input type="file" id="input-change-photo" accept="image/*" name="photo" style="position: relative; margin-top: 10px; color: rgb(63, 125, 218)">
             </div>
             <div class="input-icons">
                 <i class="fa fa-user icon"></i>
@@ -78,7 +78,7 @@
             </div>
             <textarea name="text" id="textarea-bio" placeholder="Bio" wrap="soft"></textarea>
             <div style="width: 100%;">
-                <button class="transparent-btn" id="btn-save" style="margin-top: 20px; font-size: 20px; color: rgb(63, 218, 84)">Save</button>
+                <button class="transparent-btn" id="btn-save" style="margin-top: 20px; font-size: 20px; color: rgb(63, 218, 84)" onclick="saveProfile()">Save</button>
             </div>
         </div>
         
@@ -206,8 +206,9 @@
 </style>
 
 <script>
-    const url = 'http://localhost:3001/api/';
-    var currentUrl = new URL(window.location.href);
+    const url = 'http://localhost:3001/api/'
+    var currentUrl = new URL(window.location.href)
+    var currProfile
 
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
@@ -318,6 +319,87 @@
         })
     }
 
+    function editProfile(){
+        $("#show-profile").hide()
+        $("#edit-profile").show()
+        $("#name").val(currProfile['name'])
+        $("#surname").val(currProfile['surname'])
+        $("#textarea-bio").val(currProfile['bio'])
+    }
+
+    function saveProfile(){
+        let params = JSON.stringify({
+            name: $("#name").val(),
+            surname: $("#surname").val(),
+            bio: $("#textarea-bio").val(),
+        })
+        $.ajax({
+            url: url + 'profile/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'PATCH',
+            dataType: 'json',
+            data: params,
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    saveProfile()
+                } else {
+                    console.log("Saved")
+                    window.location.reload()
+                }
+            },
+            error: (err) => {
+                if(err['err'] === "Invalid access token"){
+                    newAccessToken(() => saveProfile())
+                } else if(err['err'] === "Invalid refresh token"){
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
+                } else {
+                    // showAlertError(err['err'])
+                    console.log(err)
+                }
+            }
+        })
+    }
+
+    var lastPhotoInserted = null
+    $('#input-change-photo').change(function (){
+        var file = this.files[0]
+        lastPhotoInserted = file
+
+        fetch(img.src)
+        .then(res => res.blob())
+        .then(blob => {
+            var fd = new FormData();
+            fd.append("image", file);
+        })
+        
+        // $.ajax({
+        //     url: url + 'profile/photo/' + profileId,
+        //     headers: {
+        //         'Authorization': authToken['accessToken'],
+        //     },
+        //     processData: false,
+        // contentType: false,
+        //     credentials: 'include',
+        //     method: 'POST',
+        //     data: file,
+        //     success: (res) => {
+                
+        //     },
+        //     error: (err) => {
+        //         console.log(err)
+        //     }
+        // })
+    })
+
     // document.getElementById("closeAlert").onclick = function () {
     //     document.getElementById("showError").style.display = "none"
     //     document.getElementById("messageError").innerHTML = ""
@@ -348,9 +430,6 @@
     function getProfile(profileId) {
         if(profileId === profileData['id']){
             $("#btn-edit-profile").show()
-            $("#btn-edit-profile").click(function() {
-                
-            })
         }
 
         $.ajax({
@@ -368,6 +447,7 @@
                     authToken = JSON.parse(localStorage.getItem("authToken"))
                     getProfile(profileId)
                 } else {
+                    currProfile = profile
                     document.getElementById("nickname").innerHTML = profile["nickname"]
                     document.getElementById("name-surname").innerHTML = profile["name"] + " " + profile["surname"]
                     document.getElementById("bio").innerHTML = profile["bio"]

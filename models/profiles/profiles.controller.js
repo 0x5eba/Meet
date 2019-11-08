@@ -98,7 +98,6 @@ exports.patchById = (req, res) => {
     //     let hash = crypto.createHmac('sha512', salt).update(req.body.password).digest("base64");
     //     req.body.password = salt + "$" + hash;
     // }
-
     ProfileController.patchUser(req.params.userId, req.body)
         .then((result) => {
             res.status(201).send(result);
