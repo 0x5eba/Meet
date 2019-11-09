@@ -196,3 +196,16 @@ exports.getTsProfiles = (req, res) => {
             res.status(403).send({ err: "Error getting heapmap" })
         })
 }
+
+exports.uploadPhoto = (req, res) => {
+    const fileName = req.files.myFile.name
+    const path = __dirname + '/images/' + fileName
+    console.log(req.files)
+    // ProfileController.getTsProfiles()
+    //     .then((result) => {
+    //         res.status(201).send(result);
+    //     })
+    //     .catch(err => {
+    //         res.status(403).send({ err: "Error getting heapmap" })
+    //     })
+}

@@ -3,6 +3,8 @@ var cors = require('cors');
 const app = express()
 app.use(cors())
 const router = express.Router()
+const fileupload = require('express-fileupload')
+app.use(fileupload())
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(express.static(__dirname + '/public/'));

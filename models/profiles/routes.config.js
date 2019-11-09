@@ -77,4 +77,9 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         ProfileController.getTsProfiles,
     ]);
+    app.post('/api/profile/photo/:userId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        ProfileController.uploadPhoto
+    ]);
 };
