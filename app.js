@@ -41,25 +41,6 @@ let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-// const Cities = require("./models/Cities")
-// const Countries = require("./models/Countries")
-// const Languages = require("./models/Languages")
-
-// const cities = require('cities.json')
-// const countriesList = require('countries-list')
-// const countries = countriesList['countries']
-// const languages = countriesList['languagesAll']
-
-// const collections = Object.keys(db.collections)
-// if (!collections.includes('cities')){
-// 	Cities.insertMany(cities)
-// }
-// if (!collections.includes('Countries')) {
-// 	Countries.insertMany(countries)
-// }
-// if (!collections.includes('Languages')) {
-// 	Languages.insertMany(languages)
-// }
 
 const path = require('path');
 router.get('/', function (req, res) {
@@ -83,53 +64,8 @@ router.get('/profile', function (req, res) {
 router.get('/home', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/home.html'));
 });
-// router.get('/chat', function (req, res) {
-// 	res.sendFile(path.join(__dirname + '/views/chat.html'));
-// });
-
-/*
-const FroalaEditor = require(path.join(__dirname + '/public/wysiwyg-editor-node-sdk/lib/froalaEditor.js'));
-router.post('/upload_image', function (req, res) {
-	FroalaEditor.Image.upload(req, '/public/uploads/', function (err, data) {
-		if (err) {
-			return res.send(JSON.stringify(err));
-		}
-		console.log(data)
-		data['link'] = data['link'].replace("/public", "")
-		res.send(data);
-	})
-})
-router.post('/delete_image', function (req, res) {
-	FroalaEditor.Image.delete("/public" + req.body.src, function (err) {
-		if (err) {
-			return res.status(404).end(JSON.stringify(err));
-		}
-		return res.end();
-	})
-})
-router.post('/upload_file', function (req, res) {
-	FroalaEditor.File.upload(req, '/public/uploads/', function (err, data) {
-		if (err) {
-			return res.send(JSON.stringify(err));
-		}
-		data['link'] = data['link'].replace("/public", "")
-		res.send(data);
-	})
-})
-router.post('/delete_file', function (req, res) {
-	FroalaEditor.File.delete("/public" + req.body.src, function (err) {
-		if (err) {
-			return res.status(404).end(JSON.stringify(err));
-		}
-		return res.end();
-	})
-})
-*/
 
 app.use('/', router)
-
-// const api = require('./models/api')
-// app.use('/api', api) // sample API Routes
 
 const fs = require('fs');
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));

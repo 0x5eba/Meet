@@ -65,8 +65,15 @@
 
         <div id="edit-profile">
             <div style="width: 100%;">
-                <img src="NoGPS.png" id="img-profile" style="border-radius: 50%; width: 150px; height: 150px;"><br>
-                <input type="file" id="input-change-photo" accept="image/*" name="photo" style="position: relative; margin-top: 10px; color: rgb(63, 125, 218)">
+                <img src="NoGPS.png" id="img-profile-edit" style="border-radius: 50%; width: 150px; height: 150px;">
+
+                <div class="image-upload" style="margin-top: 10px;">
+                    <label for="input-change-photo" style="color: rgb(68, 133, 207)">
+                        Change photo <img src="icons/iconfinder_179_Upload_183298.svg" />
+                    </label>
+                    <input type="file" id="input-change-photo" accept="image/*" name="photo" />
+                </div>
+                
             </div>
             <div class="input-icons">
                 <i class="fa fa-user icon"></i>
@@ -78,7 +85,7 @@
             </div>
             <textarea name="text" id="textarea-bio" placeholder="Bio" wrap="soft"></textarea>
             <div style="width: 100%;">
-                <button class="transparent-btn" id="btn-save" style="margin-top: 20px; font-size: 20px; color: rgb(63, 218, 84)" onclick="saveProfile()">Save</button>
+                <button class="transparent-btn" id="btn-save" style="margin-top: 20px; font-size: 20px; color: rgb(63, 218, 84)" onclick="sendImage()">Save</button>
             </div>
         </div>
         
@@ -88,6 +95,10 @@
 </html>
 
 <style>
+    .image-upload>input {
+        display: none;
+    }
+
     .input-icons { 
         color: rgb(205, 206, 206);
         justify-content: center;
@@ -184,6 +195,11 @@
         margin: 0 auto;
     }
     #img-profile {
+        width: 100%; 
+        max-width: 500px; 
+        height: auto;
+    }
+    #img-profile-edit{
         width: 100%; 
         max-width: 500px; 
         height: auto;
@@ -369,12 +385,53 @@
         })
     }
 
+    function sendImage() {
+        if(lastPhotoInserted === null){
+            saveProfile()
+            return
+        }
+
+        var formData = new FormData();
+        formData.append("photo", lastPhotoInserted);
+
+        $.ajax({
+            url: url + 'profile/photo/' + profileData['id'],
+            headers: {
+                'Authorization': authToken['accessToken'],
+            },
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+                    sendImage()
+                } else {
+                    saveProfile()
+                }
+            },
+            error: (err) => {
+                if (err['err'] === "Invalid access token") {
+                    newAccessToken(() => sendImage())
+                } else if (err['err'] === "Invalid refresh token") {
+                    authToken = null
+                    localStorage.removeItem("authToken")
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
+                } else {
+                    // showAlertError(err['err'])
+                    console.log(err)
+                }
+            }
+        });
+    }
+
     var lastPhotoInserted = null
     $('#input-change-photo').change(function (){
         var blobFile = this.files[0];
         lastPhotoInserted = blobFile
-        var formData = new FormData();
-        formData.append("fileToUpload", blobFile);
 
         const imageType = /image.*/
 
@@ -387,22 +444,8 @@
             return
         }
 
-        $.ajax({
-            url: url + 'profile/photo/' + profileData['id'],
-            headers: {
-                'Authorization': authToken['accessToken'],
-            },
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: (res) => {
-
-            },
-            error: (err) => {
-                console.log(err)
-            }
-        });
+        var urlImg = window.URL.createObjectURL(blobFile);
+        document.getElementById("img-profile-edit").src = urlImg;
     })
 
     // document.getElementById("closeAlert").onclick = function () {
@@ -468,6 +511,13 @@
                         lastseen.innerHTML = timeConverter(profile["lastSeen"]) + ",  " + dist + " km away"
                     }
                     
+                    let img = profile.pic.data.data
+                    let b64encoded = btoa(new Uint8Array(img).reduce(function (data, byte) {
+                        return data + String.fromCharCode(byte);
+                    }, ''));
+                    let datajpg = "data:image/jpg;base64," + b64encoded;
+                    document.getElementById("img-profile").src = datajpg;
+                    document.getElementById("img-profile-edit").src = datajpg;
                 }
             },
             error: (err) => {

@@ -198,14 +198,12 @@ exports.getTsProfiles = (req, res) => {
 }
 
 exports.uploadPhoto = (req, res) => {
-    const fileName = req.files.myFile.name
-    const path = __dirname + '/images/' + fileName
-    console.log(req.files)
-    // ProfileController.getTsProfiles()
-    //     .then((result) => {
-    //         res.status(201).send(result);
-    //     })
-    //     .catch(err => {
-    //         res.status(403).send({ err: "Error getting heapmap" })
-    //     })
+    var img = { data: req.files.photo.data, contentType: req.files.photo.mimetype }
+    ProfileController.uploadPhoto(req.params.userId, img)
+        .then((result) => {
+            res.status(201).send(result);
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error upload photo" })
+        })
 }

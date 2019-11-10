@@ -9,7 +9,7 @@ const ProfileModel = new mongoose.Schema({
     name: { type: String, trim: true, default: '' },
     surname: { type: String, trim: true, default: '' },
     bio: { type: String, default: '' },
-    // pic: { data: Buffer, contentType: String },
+    pic: { data: Buffer, contentType: String },
     pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
     fakePos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
     lastSeen: { type: Number, default: 0 },
@@ -209,6 +209,19 @@ exports.searchProfiles = (search) => {
         }, { nickname: 1, name: 1, surname: 1 }).limit(20).exec(function (err, profiles) {
             if (err) reject(err);
             resolve(profiles);
+        });
+    })
+}
+
+exports.uploadPhoto = (id, photo) => {
+    return new Promise((resolve, reject) => {
+        Profile.findById(id, function (err, user) {
+            if (err) reject(err);
+            user['pic'] = photo
+            user.save(function (err, updatedUser) {
+                if (err) return reject(err);
+                return resolve(updatedUser);
+            });
         });
     })
 }
