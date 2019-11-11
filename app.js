@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 var cors = require('cors');
 const app = express()
@@ -6,7 +7,8 @@ const router = express.Router()
 const fileupload = require('express-fileupload')
 app.use(fileupload())
 const bodyParser = require('body-parser')
-app.use(bodyParser.json())
+app.use(bodyParser.json({ limit: '5mb' }))
+app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 app.use(express.static(__dirname + '/public/'));
 // app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -36,7 +38,7 @@ QuestionRouter.routesConfig(app);
 const dbRoute = 'mongodb://localhost:27017/meet';
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false);
-mongoose.connect(dbRoute, { useNewUrlParser: true });
+mongoose.createConnection(dbRoute, { useNewUrlParser: true, useUnifiedTopology: true });
 let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -67,9 +69,7 @@ router.get('/home', function (req, res) {
 
 app.use('/', router)
 
-const fs = require('fs');
 var config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-
 app.listen(process.env.PORT || config.port, config.ip, () => {
 	console.log("http://" + config.ip + ":" + config.port)
 })

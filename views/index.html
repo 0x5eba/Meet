@@ -145,7 +145,7 @@
         </div>
     </div>
 
-    <div id="changeView" class="container" style="width: 95%;">
+    <div id="changeView" class="container" style="width: 95%; display: none;">
         <div class="row">
             <div class="col" style="border-right: 2px solid rgb(122, 122, 122);">
                 <button class="transparent-btn" id="view-groups" onclick="changeView('groups')">Groups</button>
@@ -248,12 +248,11 @@
         margin: auto;
         width: 90%;
         max-width: 700px;
-        max-height: 210px;
-        background:rgba(231, 231, 231, 0.5);
-        padding: 20px;
+        max-height: 170px;
+        background:rgba(231, 231, 231, 0.6);
         padding-left: 10px;
-        padding-top: 24px;
-        overflow: auto;
+        padding-top: 10px;
+        overflow-x: auto;
         border-radius: 20px;
     }
 
@@ -793,6 +792,7 @@
 
     var infoIP
     function noGPS(){
+        $("#changeView").hide()
         if(profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0){
 
             // $.ajax({
@@ -918,6 +918,7 @@
         
         profileData['coords'] = [position.coords.longitude, position.coords.latitude] // x, y
         localStorage.setItem("profile", JSON.stringify(profileData))
+        $("#changeView").show()
         getData(state_view)
     }
 
@@ -1478,7 +1479,17 @@
         d3.select('#control-panel').select("#btn-private-chat").remove()
         d3.select('#control-panel').select("#btn-question").remove()
 
+        // se e' in nogps non gli lascio vedere questi bottoni
+        if (profileData['coords'] !== undefined && profileData['coords'][0] === 0 && profileData['coords'][1] === 0) {
+            return
+        }
+
         if (CBviews['groups'] === 1) {
+            // se e' in fakepos non puo' creare gruppi
+            if (profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0) {
+                return
+            } 
+
             // group
             d3.select('#control-panel').append('button').attr("id", "btn-group")
                 .on('click', d => {
@@ -1513,7 +1524,7 @@
             // private-chat
             d3.select('#control-panel').append('button').attr("id", "btn-private-chat")
                 .on('click', d => {
-                    
+
                 })
                 .append("img").attr("src", "icons/iconfinder_chat_103444.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
         }

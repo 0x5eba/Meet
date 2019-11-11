@@ -9,7 +9,7 @@ const ProfileModel = new mongoose.Schema({
     name: { type: String, trim: true, default: '' },
     surname: { type: String, trim: true, default: '' },
     bio: { type: String, default: '' },
-    pic: { data: Buffer, contentType: String },
+    pic: { type: String, default: '' },
     pos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
     fakePos: { x: { type: SchemaTypes.Double, default: 0 }, y: { type: SchemaTypes.Double, default: 0 } },
     lastSeen: { type: Number, default: 0 },
@@ -214,16 +214,16 @@ exports.searchProfiles = (search) => {
 }
 
 exports.uploadPhoto = (id, photo) => {
-    return new Promise((resolve, reject) => {
-        Profile.findById(id, function (err, user) {
-            if (err) reject(err);
-            user['pic'] = photo
-            user.save(function (err, updatedUser) {
-                if (err) return reject(err);
-                return resolve(updatedUser);
-            });
-        });
-    })
+    // return new Promise((resolve, reject) => {
+    //     Profile.findById(id, function (err, user) {
+    //         if (err) reject(err);
+    //         user['pic'] = photo
+    //         user.save(function (err, updatedUser) {
+    //             if (err) return reject(err);
+    //             return resolve(updatedUser);
+    //         });
+    //     });
+    // })
 }
 
 const heapmap = require("../../server/heapmap")
