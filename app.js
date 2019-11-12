@@ -4,8 +4,6 @@ var cors = require('cors');
 const app = express()
 app.use(cors())
 const router = express.Router()
-const fileupload = require('express-fileupload')
-app.use(fileupload())
 const bodyParser = require('body-parser')
 app.use(bodyParser.json({ limit: '5mb' }))
 app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
@@ -30,11 +28,6 @@ app.use(function (req, res, next) {
 	}
 });
 
-AuthorizationRouter.routesConfig(app);
-UsersRouter.routesConfig(app);
-GroupRouter.routesConfig(app);
-QuestionRouter.routesConfig(app);
-
 const dbRoute = 'mongodb://localhost:27017/meet';
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false);
@@ -43,8 +36,43 @@ let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-
 const path = require('path');
+const Grid = require('gridfs-stream');
+
+const mongoURI = 'mongodb://localhost:27017/photo';
+const conn = mongoose.createConnection(mongoURI);
+var gfs;
+conn.once('open', () => {
+	gfs = Grid(conn.db, mongoose.mongo);
+	gfs.collection('uploads');
+});
+
+const crypto = require('crypto');
+const multer = require('multer');
+const GridFsStorage = require('multer-gridfs-storage');
+const storage = new GridFsStorage({
+	url: mongoURI,
+	file: (req, file) => {
+		return new Promise((resolve, reject) => {
+			crypto.randomBytes(32, (err, buf) => {
+				if (err) {
+					return reject(err);
+				}
+				const filename = buf.toString('hex') + path.extname(file.originalname);
+				const fileInfo = {
+					filename: filename,
+					bucketName: 'uploads'
+				};
+				resolve(fileInfo);
+			});
+		});
+	}
+});
+const upload = multer({ storage });
+// app.post('/upload', upload.single('file'), (req, res) => {
+// 	res.json({ filename: req.file.filename });
+// });
+
 router.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/index.html'));
 });
@@ -74,4 +102,13 @@ app.listen(process.env.PORT || config.port, config.ip, () => {
 	console.log("http://" + config.ip + ":" + config.port)
 })
 
-module.exports = app
+module.exports = {
+	gfs,
+	upload,
+	app
+}
+
+AuthorizationRouter.routesConfig(app);
+UsersRouter.routesConfig(app);
+GroupRouter.routesConfig(app);
+QuestionRouter.routesConfig(app);

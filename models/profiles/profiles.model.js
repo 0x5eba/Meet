@@ -18,6 +18,13 @@ const ProfileModel = new mongoose.Schema({
     keyForPrivateMessages: { type: String, default: "" }
 })
 
+var gfs
+var upload
+setTimeout(() => {
+    gfs = require('../../app').gfs
+    upload = require('../../app').upload
+}, 500);
+
 const Profile = mongoose.model('Profile', ProfileModel);
 
 exports.userInfoForAuthenitcate = (nickname) => {
@@ -213,17 +220,29 @@ exports.searchProfiles = (search) => {
     })
 }
 
-exports.uploadPhoto = (id, photo) => {
-    // return new Promise((resolve, reject) => {
-    //     Profile.findById(id, function (err, user) {
-    //         if (err) reject(err);
-    //         user['pic'] = photo
-    //         user.save(function (err, updatedUser) {
-    //             if (err) return reject(err);
-    //             return resolve(updatedUser);
-    //         });
-    //     });
-    // })
+exports.uploadPic = (id, filename) => {
+    return new Promise((resolve, reject) => {
+        Profile.findById(id, function (err, user) {
+            if (err) reject(err);
+
+            if (user['pic'] !== ''){
+                gfs.deleteOne({ filename: user['pic'], root: 'uploads' }, (err, gridStore) => {
+                    if (err) return reject(err);
+                    user['pic'] = filename
+                    user.save(function (err, updatedUser) {
+                        if (err) return reject(err);
+                        return resolve(updatedUser);
+                    });
+                });
+            } else {
+                user['pic'] = filename
+                user.save(function (err, updatedUser) {
+                    if (err) return reject(err);
+                    return resolve(updatedUser);
+                });
+            }
+        });
+    })
 }
 
 const heapmap = require("../../server/heapmap")

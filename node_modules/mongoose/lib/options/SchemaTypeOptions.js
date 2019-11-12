@@ -23,12 +23,7 @@ class SchemaTypeOptions {
   }
 }
 
-const opts = {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: null
-};
+const opts = require('./propertyOptions');
 
 /**
  * The type to cast this path to.
@@ -107,7 +102,8 @@ Object.defineProperty(SchemaTypeOptions.prototype, 'ref', opts);
 Object.defineProperty(SchemaTypeOptions.prototype, 'select', opts);
 
 /**
- * If truthy, Mongoose will build an index on this path when the model is
+ * If [truthy](https://masteringjs.io/tutorials/fundamentals/truthy), Mongoose will
+ * build an index on this path when the model is
  * compiled.
  *
  * @api public
@@ -120,7 +116,8 @@ Object.defineProperty(SchemaTypeOptions.prototype, 'select', opts);
 Object.defineProperty(SchemaTypeOptions.prototype, 'index', opts);
 
 /**
- * If truthy, Mongoose will build a unique index on this path when the
+ * If [truthy](https://masteringjs.io/tutorials/fundamentals/truthy), Mongoose
+ * will build a unique index on this path when the
  * model is compiled. [The `unique` option is **not** a validator](/docs/validation.html#the-unique-option-is-not-a-validator).
  *
  * @api public
@@ -133,7 +130,8 @@ Object.defineProperty(SchemaTypeOptions.prototype, 'index', opts);
 Object.defineProperty(SchemaTypeOptions.prototype, 'unique', opts);
 
 /**
- * If truthy, Mongoose will disallow changes to this path once the document
+ * If [truthy](https://masteringjs.io/tutorials/fundamentals/truthy), Mongoose will
+ * disallow changes to this path once the document
  * is saved to the database for the first time. Read more about [immutability in Mongoose here](http://thecodebarbarian.com/whats-new-in-mongoose-5-6-immutable-properties.html).
  *
  * @api public
@@ -146,7 +144,8 @@ Object.defineProperty(SchemaTypeOptions.prototype, 'unique', opts);
 Object.defineProperty(SchemaTypeOptions.prototype, 'immutable', opts);
 
 /**
- * If truthy, Mongoose will build a sparse index on this path.
+ * If [truthy](https://masteringjs.io/tutorials/fundamentals/truthy), Mongoose will
+ * build a sparse index on this path.
  *
  * @api public
  * @property sparse
@@ -158,7 +157,8 @@ Object.defineProperty(SchemaTypeOptions.prototype, 'immutable', opts);
 Object.defineProperty(SchemaTypeOptions.prototype, 'sparse', opts);
 
 /**
- * If truthy, Mongoose will build a text index on this path.
+ * If [truthy](https://masteringjs.io/tutorials/fundamentals/truthy), Mongoose
+ * will build a text index on this path.
  *
  * @api public
  * @property text

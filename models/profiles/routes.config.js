@@ -7,6 +7,30 @@ const config = require('../common/config/env.config');
 const ADMIN = config.permissionLevels.ADMIN;
 const FREE = config.permissionLevels.NORMAL_USER;
 
+const path = require('path');
+const crypto = require('crypto');
+const multer = require('multer');
+const GridFsStorage = require('multer-gridfs-storage');
+const storage = new GridFsStorage({
+    url: 'mongodb://localhost:27017/photo',
+    file: (req, file) => {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(32, (err, buf) => {
+                if (err) {
+                    return reject(err);
+                }
+                const filename = buf.toString('hex') + path.extname(file.originalname);
+                const fileInfo = {
+                    filename: filename,
+                    bucketName: 'uploads'
+                };
+                resolve(fileInfo);
+            });
+        });
+    }
+});
+const upload = multer({ storage });
+
 exports.routesConfig = function (app) {
     app.post('/api/profile/create', [
         ValidationMiddleware.limitRequest,
@@ -77,9 +101,11 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         ProfileController.getTsProfiles,
     ]);
-    app.post('/api/profile/photo/:userId', [
+    app.post('/api/profile/uploadPic/:userId', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
-        ProfileController.uploadPhoto
+        PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
+        upload.single('file'),
+        ProfileController.uploadPic
     ]);
 };

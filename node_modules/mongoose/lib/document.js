@@ -184,6 +184,10 @@ utils.each(
 
 Document.prototype.constructor = Document;
 
+for (const i in EventEmitter.prototype) {
+  Document[i] = EventEmitter.prototype[i];
+}
+
 /**
  * The documents schema.
  *
@@ -1161,6 +1165,21 @@ Document.prototype.$set = function $set(path, val, type, options) {
       // a single nested doc. That's to make sure we get the correct context.
       // Otherwise we would double-call the setter, see gh-7196.
       val = schema.applySetters(val, this, false, priorVal);
+    }
+
+    if (schema.$isMongooseDocumentArray &&
+        Array.isArray(val) &&
+        val.length > 0 &&
+        val[0] != null &&
+        val[0].$__ != null &&
+        val[0].$__.populated != null) {
+      const populatedPaths = Object.keys(val[0].$__.populated);
+      for (const populatedPath of populatedPaths) {
+        this.populated(path + '.' + populatedPath,
+          val.map(v => v.populated(populatedPath)),
+          val[0].$__.populated[populatedPath].options);
+      }
+      didPopulate = true;
     }
 
     if (!didPopulate && this.$__.populated) {
@@ -2817,6 +2836,13 @@ Document.prototype.$toObject = function(options, json) {
     minimize: _minimize
   });
 
+  if (utils.hasUserDefinedProperty(options, 'getters')) {
+    cloneOptions.getters = options.getters;
+  }
+  if (utils.hasUserDefinedProperty(options, 'virtuals')) {
+    cloneOptions.virtuals = options.virtuals;
+  }
+
   const depopulate = options.depopulate ||
     get(options, '_parentOptions.depopulate', false);
   // _isNested will only be true if this is not the top level document, we
@@ -2833,6 +2859,10 @@ Document.prototype.$toObject = function(options, json) {
   options.minimize = _minimize;
 
   cloneOptions._parentOptions = options;
+  cloneOptions._skipSingleNestedGetters = true;
+
+  const gettersOptions = Object.assign({}, cloneOptions);
+  gettersOptions._skipSingleNestedGetters = false;
 
   // remember the root transform function
   // to save it from being overwritten by sub-transform functions
@@ -2841,16 +2871,15 @@ Document.prototype.$toObject = function(options, json) {
   let ret = clone(this._doc, cloneOptions) || {};
 
   if (options.getters) {
-    applyGetters(this, ret, cloneOptions);
-    // applyGetters for paths will add nested empty objects;
-    // if minimize is set, we need to remove them.
+    applyGetters(this, ret, gettersOptions);
+
     if (options.minimize) {
       ret = minimize(ret) || {};
     }
   }
 
-  if (options.virtuals || options.getters && options.virtuals !== false) {
-    applyVirtuals(this, ret, cloneOptions, options);
+  if (options.virtuals || (options.getters && options.virtuals !== false)) {
+    applyVirtuals(this, ret, gettersOptions, options);
   }
 
   if (options.versionKey === false && this.schema.options.versionKey) {
@@ -2970,7 +2999,6 @@ Document.prototype.$toObject = function(options, json) {
  *
  * If you want to skip transformations, use `transform: false`:
  *
- *     if (!schema.options.toObject) schema.options.toObject = {};
  *     schema.options.toObject.hide = '_id';
  *     schema.options.toObject.transform = function (doc, ret, options) {
  *       if (options.hide) {
@@ -2986,7 +3014,26 @@ Document.prototype.$toObject = function(options, json) {
  *     doc.toObject({ hide: 'secret _id', transform: false });// { _id: 'anId', secret: 47, name: 'Wreck-it Ralph' }
  *     doc.toObject({ hide: 'secret _id', transform: true }); // { name: 'Wreck-it Ralph' }
  *
- * Transforms are applied _only to the document and are not applied to sub-documents_.
+ * If you pass a transform in `toObject()` options, Mongoose will apply the transform
+ * to [subdocuments](/docs/subdocs.html) in addition to the top-level document.
+ * Similarly, `transform: false` skips transforms for all subdocuments.
+ * Note that this is behavior is different for transforms defined in the schema:
+ * if you define a transform in `schema.options.toObject.transform`, that transform
+ * will **not** apply to subdocuments.
+ *
+ *     const memberSchema = new Schema({ name: String, email: String });
+ *     const groupSchema = new Schema({ members: [memberSchema], name: String, email });
+ *     const Group = mongoose.model('Group', groupSchema);
+ *
+ *     const doc = new Group({
+ *       name: 'Engineering',
+ *       email: 'dev@mongoosejs.io',
+ *       members: [{ name: 'Val', email: 'val@mongoosejs.io' }]
+ *     });
+ *
+ *     // Removes `email` from both top-level document **and** array elements
+ *     // { name: 'Engineering', members: [{ name: 'Val' }] }
+ *     doc.toObject({ transform: (doc, ret) => { delete ret.email; return ret; } });
  *
  * Transforms, like all of these options, are also available for `toJSON`. See [this guide to `JSON.stringify()`](https://thecodebarbarian.com/the-80-20-guide-to-json-stringify-in-javascript.html) to learn why `toJSON()` and `toObject()` are separate functions.
  *
@@ -3143,12 +3190,7 @@ function applyGetters(self, json, options) {
       v = cur[part];
       if (ii === last) {
         const val = self.get(path);
-        // Ignore single nested docs: getters will run because of `clone()`
-        // before `applyGetters()` in `$toObject()`. Quirk because single
-        // nested subdocs are hydrated docs in `_doc` as opposed to POJOs.
-        if (val != null && val.$__ == null) {
-          branch[part] = clone(val, options);
-        }
+        branch[part] = clone(val, options);
       } else if (v == null) {
         if (part in cur) {
           branch[part] = v;

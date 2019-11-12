@@ -197,9 +197,8 @@ exports.getTsProfiles = (req, res) => {
         })
 }
 
-exports.uploadPhoto = (req, res) => {
-    var img = { data: req.files.photo.data, contentType: req.files.photo.mimetype }
-    ProfileController.uploadPhoto(req.params.userId, img)
+exports.uploadPic = (req, res) => {
+    ProfileController.uploadPic(req.params.userId, req.file.filename)
         .then((result) => {
             res.status(201).send(result);
         })
