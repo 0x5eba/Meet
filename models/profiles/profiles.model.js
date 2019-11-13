@@ -254,9 +254,12 @@ exports.getPic = (req, res) => {
             return res.status(404).send({ err: "No file exists" });
         }
         const readstream = gfs.createReadStream(file.filename);
+        readstream.on('error', () => {
+            res.status(404).send({ err: "Error getting the fiel" });
+        })
         // readstream.pipe(res);
         readstream.on('data', (chunk) => {
-            res.json({ image: chunk.toString('base64') });
+            res.send({ image: chunk.toString('base64') });
         })
     });
 }

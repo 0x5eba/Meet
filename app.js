@@ -5,8 +5,9 @@ const app = express()
 app.use(cors())
 const router = express.Router()
 const bodyParser = require('body-parser')
-app.use(bodyParser.json({ limit: '5mb' }))
-app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
+app.use(bodyParser.json())
+// app.use(bodyParser.json({ limit: '5mb' }))
+// app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 app.use(express.static(__dirname + '/public/'));
 // app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -59,9 +60,9 @@ router.get('/profile', function (req, res) {
 router.get('/home', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/home.html'));
 });
-router.get('/chat', function (req, res) {
-	res.sendFile(path.join(__dirname + '/views/chat.html'));
-});
+// router.get('/chat', function (req, res) {
+// 	res.sendFile(path.join(__dirname + '/views/chat.html'));
+// });
 
 app.use('/', router)
 
