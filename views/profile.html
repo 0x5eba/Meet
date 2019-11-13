@@ -516,12 +516,21 @@
                             url: url + 'profile/getPic/' + profile.pic,
                             headers: {
                                 'Authorization': authToken['accessToken'],
+                                'Content-Type': 'image/jpg',
+                            },
+                            xhrFields: {
+                                responseType: 'blob'
                             },
                             credentials: 'include',
                             method: 'GET',
                             success: (res) => {
-                                document.getElementById("img-profile").src = 'data:image/jpg;base64,' + res.image;
-                                document.getElementById("img-profile-edit").src = 'data:image/jpg;base64,' + res.image;
+                                var reader = new FileReader();
+                                reader.readAsDataURL(res);
+                                reader.onloadend = function () {
+                                    var base64data = reader.result;
+                                    document.getElementById("img-profile").src = base64data;
+                                    document.getElementById("img-profile-edit").src = base64data;
+                                }
                             },
                             error: (err) => {
                                 console.log(res)
