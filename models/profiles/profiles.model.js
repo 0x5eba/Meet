@@ -255,12 +255,22 @@ exports.getPic = (req, res) => {
         }
         const readstream = gfs.createReadStream(file.filename);
         readstream.on('error', () => {
-            res.status(404).send({ err: "Error getting the fiel" });
+            res.status(404).send({ err: "Error getting the file" });
         })
         // readstream.pipe(res);
+        // readstream.on('data', (chunk) => {
+        //     res.json({ image: chunk.toString('base64') });
+        // })
+
+        const bufs = [];
         readstream.on('data', (chunk) => {
-            res.send({ image: chunk.toString('base64') });
-        })
+            bufs.push(chunk);
+        });
+        readstream.on('end', function () {
+            const fbuf = Buffer.concat(bufs);
+            const base64 = fbuf.toString('base64');
+            res.status(201).send({ image: base64 })
+        });
     });
 }
 
