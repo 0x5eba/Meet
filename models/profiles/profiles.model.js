@@ -259,23 +259,10 @@ exports.getPic = (req, res) => {
             res.status(404).send({ err: "Error getting the file" });
         })
         readstream.pipe(res);
-        // readstream.on('data', (chunk) => {
-        //     res.json({ image: chunk.toString('base64') });
-        // })
 
         readstream.on('end', function () {
             res.status(201).end()
         })
-
-        // const bufs = [];
-        // readstream.on('data', (chunk) => {
-        //     bufs.push(chunk);
-        // });
-        // readstream.on('end', function () {
-        //     const fbuf = Buffer.concat(bufs);
-        //     const base64 = fbuf.toString('base64');
-        //     res.status(201).send({ image: base64 })
-        // });
     });
 }
 

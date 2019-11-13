@@ -48,7 +48,7 @@
         
         <div id="show-profile">
             <div id="div-img">
-                <img src="NoGPS.png" id="img-profile">
+                <img id="img-profile">
                 <button type="button" class="btn" id="btn-edit-profile" onclick="editProfile()">Edit info</button>
                 <button type="button" class="btn" id="icon-show-on-map"><img src="icons/iconfinder_map_285662.svg" width="20" height="20"></button>
             </div>
@@ -65,7 +65,7 @@
 
         <div id="edit-profile">
             <div style="width: 100%;">
-                <img src="NoGPS.png" id="img-profile-edit" style="border-radius: 50%; width: 150px; height: 150px;">
+                <img id="img-profile-edit" style="border-radius: 50%; width: 150px; height: 150px;">
 
                 <div class="image-upload" style="margin-top: 10px;">
                     <label for="input-change-photo" style="color: rgb(68, 133, 207)">
@@ -536,6 +536,9 @@
                                 console.log(res)
                             }
                         })
+                    } else {
+                        document.getElementById("img-profile").src = "NoGPS.png";
+                        document.getElementById("img-profile-edit").src = "NoGPS.png";
                     }
                 }
             },
