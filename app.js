@@ -31,47 +31,12 @@ app.use(function (req, res, next) {
 const dbRoute = 'mongodb://localhost:27017/meet';
 const mongoose = require('mongoose')
 mongoose.set('useFindAndModify', false);
-mongoose.createConnection(dbRoute, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(dbRoute, { useNewUrlParser: true });
 let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const path = require('path');
-const Grid = require('gridfs-stream');
-
-const mongoURI = 'mongodb://localhost:27017/photo';
-const conn = mongoose.createConnection(mongoURI);
-var gfs;
-conn.once('open', () => {
-	gfs = Grid(conn.db, mongoose.mongo);
-	gfs.collection('uploads');
-});
-
-const crypto = require('crypto');
-const multer = require('multer');
-const GridFsStorage = require('multer-gridfs-storage');
-const storage = new GridFsStorage({
-	url: mongoURI,
-	file: (req, file) => {
-		return new Promise((resolve, reject) => {
-			crypto.randomBytes(32, (err, buf) => {
-				if (err) {
-					return reject(err);
-				}
-				const filename = buf.toString('hex') + path.extname(file.originalname);
-				const fileInfo = {
-					filename: filename,
-					bucketName: 'uploads'
-				};
-				resolve(fileInfo);
-			});
-		});
-	}
-});
-const upload = multer({ storage });
-// app.post('/upload', upload.single('file'), (req, res) => {
-// 	res.json({ filename: req.file.filename });
-// });
 
 router.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/index.html'));
@@ -94,6 +59,9 @@ router.get('/profile', function (req, res) {
 router.get('/home', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/home.html'));
 });
+router.get('/chat', function (req, res) {
+	res.sendFile(path.join(__dirname + '/views/chat.html'));
+});
 
 app.use('/', router)
 
@@ -103,9 +71,7 @@ app.listen(process.env.PORT || config.port, config.ip, () => {
 })
 
 module.exports = {
-	gfs,
-	upload,
-	app
+	app,
 }
 
 AuthorizationRouter.routesConfig(app);

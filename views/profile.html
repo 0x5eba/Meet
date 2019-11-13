@@ -392,10 +392,10 @@
         }
 
         var formData = new FormData();
-        formData.append("photo", lastPhotoInserted);
+        formData.append("file", lastPhotoInserted);
 
         $.ajax({
-            url: url + 'profile/photo/' + profileData['id'],
+            url: url + 'profile/uploadPic/' + profileData['id'],
             headers: {
                 'Authorization': authToken['accessToken'],
             },
@@ -511,13 +511,23 @@
                         lastseen.innerHTML = timeConverter(profile["lastSeen"]) + ",  " + dist + " km away"
                     }
                     
-                    let img = profile.pic.data.data
-                    let b64encoded = btoa(new Uint8Array(img).reduce(function (data, byte) {
-                        return data + String.fromCharCode(byte);
-                    }, ''));
-                    let datajpg = "data:image/jpg;base64," + b64encoded;
-                    document.getElementById("img-profile").src = datajpg;
-                    document.getElementById("img-profile-edit").src = datajpg;
+                    if(profile.pic !== ""){
+                        $.ajax({
+                            url: url + 'profile/getPic/' + profile.pic,
+                            headers: {
+                                'Authorization': authToken['accessToken'],
+                            },
+                            credentials: 'include',
+                            method: 'GET',
+                            success: (res) => {
+                                document.getElementById("img-profile").src = 'data:image/jpg;base64,' + res.image;
+                                document.getElementById("img-profile-edit").src = 'data:image/jpg;base64,' + res.image;
+                            },
+                            error: (err) => {
+                                console.log(res)
+                            }
+                        })
+                    }
                 }
             },
             error: (err) => {

@@ -17,7 +17,7 @@ const storage = new GridFsStorage({
         return new Promise((resolve, reject) => {
             crypto.randomBytes(32, (err, buf) => {
                 if (err) {
-                    return reject(err);
+                    return reject({ err: "Error upload photo" });
                 }
                 const filename = buf.toString('hex') + path.extname(file.originalname);
                 const fileInfo = {
@@ -107,5 +107,10 @@ exports.routesConfig = function (app) {
         PermissionMiddleware.onlySameUserOrAdminCanDoThisAction,
         upload.single('file'),
         ProfileController.uploadPic
+    ]);
+    app.get('/api/profile/getPic/:filename', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        ProfileController.getPic
     ]);
 };

@@ -18,12 +18,15 @@ const ProfileModel = new mongoose.Schema({
     keyForPrivateMessages: { type: String, default: "" }
 })
 
-var gfs
-var upload
-setTimeout(() => {
-    gfs = require('../../app').gfs
-    upload = require('../../app').upload
-}, 500);
+const Grid = require('gridfs-stream');
+const mongoURI = 'mongodb://localhost:27017/photo';
+const conn = mongoose.createConnection(mongoURI);
+var gfs;
+conn.once('open', () => {
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection('uploads');
+})
+
 
 const Profile = mongoose.model('Profile', ProfileModel);
 
@@ -226,7 +229,7 @@ exports.uploadPic = (id, filename) => {
             if (err) reject(err);
 
             if (user['pic'] !== ''){
-                gfs.deleteOne({ filename: user['pic'], root: 'uploads' }, (err, gridStore) => {
+                gfs.remove({ filename: user['pic'], root: 'uploads' }, (err, gridStore) => {
                     if (err) return reject(err);
                     user['pic'] = filename
                     user.save(function (err, updatedUser) {
@@ -243,6 +246,23 @@ exports.uploadPic = (id, filename) => {
             }
         });
     })
+}
+
+exports.getPic = (req, res) => {
+    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+        if (!file || file.length === 0) {
+            return res.status(404).send({ err: "No file exists" });
+        }
+        try {
+            const readstream = gfs.createReadStream(file.filename);
+            // readstream.pipe(res);
+            readstream.on('data', (chunk) => {
+                res.json({ image: chunk.toString('base64') });
+            })
+        } catch {
+            return res.status(404).send({ err: "No file exists" });
+        }
+    });
 }
 
 const heapmap = require("../../server/heapmap")

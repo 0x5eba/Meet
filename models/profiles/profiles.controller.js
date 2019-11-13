@@ -206,3 +206,7 @@ exports.uploadPic = (req, res) => {
             res.status(403).send({ err: "Error upload photo" })
         })
 }
+
+exports.getPic = (req, res) => {
+    ProfileController.getPic(req, res)
+}

@@ -2,15 +2,15 @@ const mongoose = require('mongoose')
 require('mongoose-double')(mongoose);
 mongoose.set('useCreateIndex', true);
 
-ObjectId = require('mongodb').ObjectID;
+// var SchemaTypes = mongoose.Schema.Types;
+// var ObjectId = SchemaTypes.ObjectId;
 
-var SchemaTypes = mongoose.Schema.Types;
 const ChatModel = new mongoose.Schema({
     members: { type: [String], require: true, minlength: 2, default: [] },
     lastMessageTimestamp: { type: Number, default: 0 },
     messages: { 
         type: [{
-            // _id: false,
+            _id: false,
             sender: { type: String, require: true, minlength: 2, default: "" },
             nickname: { type: String, require: true },
             time: { type: Number, default: 0 },
