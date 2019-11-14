@@ -21,6 +21,8 @@
     <script src="localCDN/jquery.js"></script>
     <script src="localCDN/popper.js"></script>
     <script src="localCDN/bootstrap.js"></script>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/browser-image-compression@latest/dist/browser-image-compression.js"></script>
 <!--     
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
@@ -391,41 +393,91 @@
             return
         }
 
-        var formData = new FormData();
-        formData.append("file", lastPhotoInserted);
+        var options = {
+            maxSizeMB: 0.5,
+            // maxWidthOrHeight: 720,
+            useWebWorker: true
+        }
+        imageCompression(lastPhotoInserted, options)
+            .then(function (compressedFile) {
+                // console.log('compressedFile instanceof Blob', compressedFile instanceof Blob); // true
+                // console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`); // smaller than maxSizeMB
 
-        $.ajax({
-            url: url + 'profile/uploadPic/' + profileData['id'],
-            headers: {
-                'Authorization': authToken['accessToken'],
-            },
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: (res) => {
-                if (res["accessToken"] !== undefined) {
-                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
-                    authToken = JSON.parse(localStorage.getItem("authToken"))
-                    sendImage()
-                } else {
-                    saveProfile()
-                }
-            },
-            error: (err) => {
-                if (err['err'] === "Invalid access token") {
-                    newAccessToken(() => sendImage())
-                } else if (err['err'] === "Invalid refresh token") {
-                    authToken = null
-                    localStorage.removeItem("authToken")
-                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
-                    window.location.href = "http://localhost:3001/home"
-                } else {
-                    // showAlertError(err['err'])
-                    console.log(err)
-                }
-            }
-        });
+                var formData = new FormData();
+                formData.append("file", compressedFile);
+
+                $.ajax({
+                    url: url + 'profile/uploadPic/' + profileData['id'],
+                    headers: {
+                        'Authorization': authToken['accessToken'],
+                    },
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: (res) => {
+                        if (res["accessToken"] !== undefined) {
+                            localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                            authToken = JSON.parse(localStorage.getItem("authToken"))
+                            sendImage()
+                        } else {
+                            saveProfile()
+                        }
+                    },
+                    error: (err) => {
+                        if (err['err'] === "Invalid access token") {
+                            newAccessToken(() => sendImage())
+                        } else if (err['err'] === "Invalid refresh token") {
+                            authToken = null
+                            localStorage.removeItem("authToken")
+                            sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                            window.location.href = "http://localhost:3001/home"
+                        } else {
+                            // showAlertError(err['err'])
+                            console.log(err)
+                        }
+                    }
+                });
+            })
+            .catch(function (error) {
+                console.log(error.message);
+            });
+
+        // var formData = new FormData();
+        // formData.append("file", lastPhotoInserted);
+
+        // $.ajax({
+        //     url: url + 'profile/uploadPic/' + profileData['id'],
+        //     headers: {
+        //         'Authorization': authToken['accessToken'],
+        //     },
+        //     type: "POST",
+        //     data: formData,
+        //     processData: false,
+        //     contentType: false,
+        //     success: (res) => {
+        //         if (res["accessToken"] !== undefined) {
+        //             localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+        //             authToken = JSON.parse(localStorage.getItem("authToken"))
+        //             sendImage()
+        //         } else {
+        //             saveProfile()
+        //         }
+        //     },
+        //     error: (err) => {
+        //         if (err['err'] === "Invalid access token") {
+        //             newAccessToken(() => sendImage())
+        //         } else if (err['err'] === "Invalid refresh token") {
+        //             authToken = null
+        //             localStorage.removeItem("authToken")
+        //             sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+        //             window.location.href = "http://localhost:3001/home"
+        //         } else {
+        //             // showAlertError(err['err'])
+        //             console.log(err)
+        //         }
+        //     }
+        // });
     }
 
     var lastPhotoInserted = null

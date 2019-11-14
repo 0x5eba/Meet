@@ -2151,9 +2151,9 @@
             showSubscribers(state_view, groupId)
             return
         }
-
+        
         let currData = new Date()
-        if(currData - lastRequestGetData < 2000) { // 2 seconds
+        if(currData - lastRequestGetData < 1000) { // 1 seconds
             return
         }
         lastRequestGetData = currData

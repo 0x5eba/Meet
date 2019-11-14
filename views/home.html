@@ -50,7 +50,7 @@
 </head>
 
 <body>
-    <div class="modal fade bd-example-modal-md"tabindex="-1" role="dialog" id="exampleModalCenter" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" id="exampleModalCenter" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md">
             <div class="modal-content">
                 <div class="modal-header" style="background: #edeeee;">
@@ -91,7 +91,8 @@
 
     <div id="modal-content">
         <div id="flat-img">
-            <img src="logo.jpg" style="width: 80%; height: auto;" />
+            <!-- <img src="logo.jpg" style="width: 80%; height: auto;" /> -->
+            <img src="icons/undraw_destinations_fpv7.svg" style="width: 80%; height: auto; padding-top: 20px;" />
         </div>
         <div id="div-title-deatils-start">
             <p id="title">Meet</p>
@@ -126,7 +127,13 @@
 <style type="text/css">
 
     body {
-        background-color: #F1FAEE;
+        /* background-color: #F1FAEE; */
+        /* filter: blur(8px); */
+        background: url("background/andrew-stutesman-l68Z6eF2peA-unsplash.jpg");
+        /* background: url("background/jamie-davies-i7mv3c9gi1M-unsplash.jpg"); */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
     }
 
     #closeAlert {
@@ -144,9 +151,8 @@
     #cookieConsent {
         background-color: rgba(20,20,20,0.8);
         min-height: 26px;
-        font-size: 14px;
+        font-size: 12px;
         color: #ccc;
-        line-height: 26px;
         padding: 8px 0 8px 30px;
         font-family: "Trebuchet MS",Helvetica,sans-serif;
         position: fixed;
@@ -155,6 +161,7 @@
         right: 0;
         display: none;
         z-index: 2;
+        line-height: 1.6;
     }
     #cookieConsent a {
         color: #4B8EE7;
@@ -369,7 +376,7 @@
             right: 0;
             margin: auto;
             width: 80%;
-            height: 85%;
+            height: 60%;
             max-width: 1000px;
             max-height: 700px;
             /* max-width: 2000px;
@@ -379,9 +386,9 @@
             border-radius: 10px;
             background-color: white;
 
-            -webkit-box-shadow: -10px 10px 15px -4px rgba(133,133,133,1);
-            -moz-box-shadow: -10px 10px 15px -4px rgba(133,133,133,1);
-            box-shadow: -10px 10px 15px -4px rgba(133,133,133,1);
+            -webkit-box-shadow: -10px 10px 15px -4px rgb(133,133,133);
+            -moz-box-shadow: -10px 10px 15px -4px rgb(133,133,133);
+            box-shadow: -10px 10px 15px -4px rgb(80, 80, 80);
         }
 
         #div-title-deatils-start {
