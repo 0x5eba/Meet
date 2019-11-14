@@ -60,6 +60,9 @@ router.get('/profile', function (req, res) {
 router.get('/home', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/home.html'));
 });
+router.get('/chat', function (req, res) {
+	res.sendFile(path.join(__dirname + '/views/chat2.html'));
+});
 // router.get('/chat', function (req, res) {
 // 	res.sendFile(path.join(__dirname + '/views/chat.html'));
 // });
