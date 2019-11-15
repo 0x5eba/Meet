@@ -44,35 +44,20 @@
                 <hr/>
             </div>
             <div class="col" style="border: 1px solid #bd1212;" id="chat">
-                <div id="infoChat">
-                    <p>srgfqwer</p>
-                </div>
+                <header id="infoChat">
+                    <div class="col-3" style=" padding: 0px;">
+                        <img src="2787860.jpg" class="img-profile">
+                    </div>
+                    <div class="col" style="padding: 0px; padding-right: 10px;">
+                        <h1 class="title">ethryjrtyjdfgrtukyt</h1>
+                    </div>
+                </header>
                 <div id="messages">
-                    <p>ciasdgao</p>
                     <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciao</p>
-                    <p>ciaoerhehthhhhrhrt</p>
-
                 </div>
-                <div id="write">
-                    <textarea id="textarea" name="text" placeholder="Message" wrap="soft"></textarea>
-                </div>
+                <footer id="write">
+                    <textarea id="textarea" name="text" placeholder="Write a message..." wrap="soft"></textarea>
+                </footer>
             </div>
         </div>
     </div>
@@ -84,55 +69,55 @@
 <style>
 
     #infoChat {
+        display: inline-flex;
         height: 70px; 
         width: 100%;
-        position: absolute;
         margin: 0px;
         left: 0px;
         background: white;
-        text-align: center;
     }
 
     #messages {
         width: 100%;
-        background: rgb(128, 128, 128);
-        /* padding-top: 70px; */
+        background: rgb(231, 231, 231);
         overflow-y: auto;
-        height: calc(100%-70px);
-        max-height: calc(100%-70px);
-        min-height: calc(100%-70px);
+        position:absolute;
+        top: 70px;
+        bottom:50px;
+        left:0;
+        right:0;
+    }
+
+    #write {
+        height: 50px; 
+        width: 100%;
+        margin: 0px;
+        background: white;
+
+        text-align: center;
+        position:absolute;
+        bottom:0;
+        left:0;
+        right:0;
     }
 
     #textarea {
-        position: relative;
-        /* height: auto; */
-        height: 60px;
-        width: 80%;
+        height: 50px;
+        width: 90%;
         font: inherit;
         background: #fff;
         border: none;
-        /* margin-top: 20px; */
-        padding: 10px 10px;
+        padding: 14px 10px;
         box-sizing: border-box;
         transition: all .3s ease;
         resize:none;
-        border: 1px solid #545454; 
-        border-radius:10px;
+        /* border-left: 1px solid #545454; 
+        border-right: 1px solid #545454;  */
+        /* overflow-y: hidden; */
     }
 
     .message {
 
-    }
-
-    #write {
-        height: 70px; 
-        width: 100%;
-        position: absolute;
-        margin: 0px;
-        left: 0px;
-        bottom: 0px;
-        background: white;
-        text-align: center;
     }
 
     hr {
@@ -152,6 +137,14 @@
         margin: auto;
         width: 100%;
         height: 50px;
+    }
+
+    #persons {
+        padding-top: 20px;
+        -ms-flex: 0 0 400px;
+        flex: 0 0 400px;
+        overflow-y: auto;
+        max-height: 100%;
     }
 
     .img-profile{
@@ -199,19 +192,6 @@
         height: 80%; 
     }
 
-    #persons {
-        padding-top: 20px;
-        -ms-flex: 0 0 400px;
-        flex: 0 0 400px;
-        overflow-y: auto;
-        max-height: 100%;
-    }
-
-    #chat {
-        max-height: 100%;
-        width: 100%;
-    }
-
     ::-webkit-scrollbar {
         width: 0px;
         background: transparent;
@@ -253,3 +233,7 @@
     }
 
 </style>
+
+<script>
+
+</script>
