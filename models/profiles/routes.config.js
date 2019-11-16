@@ -46,6 +46,11 @@ exports.routesConfig = function (app) {
         ProfileController.uniqueNicknameForGoogle,
         AuthControllerMiddleware.login
     ]);
+    app.post('/api/profile/freeStart', [
+        // ValidationMiddleware.limitRequest,
+        ValidationMiddleware.verifyCaptcha,
+        AuthControllerMiddleware.freeStart,
+    ]);
     app.get('/api/profiles', [
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(ADMIN),

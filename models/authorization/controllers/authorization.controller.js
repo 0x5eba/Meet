@@ -26,10 +26,33 @@ exports.login = (req, res) => {
             httpOnly: true,
             //FORSERVER secure: true,
             SameSite: "None", // Lax
-            expires: new Date(Date.now() + (jwtExpireRefreshToken*1000)) // cookie will be removed
+            // expires: new Date(Date.now() + (jwtExpireRefreshToken*1000)) // cookie will be removed
         }).send({ id: req.body.userId, accessToken: accessToken });
 
     } catch (err) {
         res.status(500).send({err: "Login falied"});
+    }
+};
+
+exports.freeStart = (req, res) => {
+    try {
+        req.body = {
+            salt: randtoken.uid(128),
+            permissionLevel: FREE,
+        }
+
+        let accessToken = jwt.sign(req.body, jwtSecret, { expiresIn: jwtExpireAccessToken });
+
+        let refreshToken = jwt.sign(req.body, jwtSecret2, { expiresIn: jwtExpireRefreshToken });
+
+        res.status(201).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            //FORSERVER secure: true,
+            SameSite: "None", // Lax
+            // expires: new Date(Date.now() + (jwtExpireRefreshToken*1000)) // cookie will be removed
+        }).send({ accessToken: accessToken });
+
+    } catch (err) {
+        res.status(500).send({ err: "Error get started" });
     }
 };

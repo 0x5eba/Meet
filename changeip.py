@@ -40,7 +40,7 @@ with open("./models/common/config/env.config.js", 'w') as f:
     f.writelines(new_file)
 
 
-for path in ["./models/authorization/routes.config.js", "./models/authorization/controllers/authorization.controller.js"]:
+for path in ["./models/authorization/routes.config.js", "./models/authorization/controllers/authorization.controller.js", "./models/common/middlewares/auth.validation.middleware.js"]:
     new_file = []
     with open(path, 'r') as f:
         for i in f.readlines():

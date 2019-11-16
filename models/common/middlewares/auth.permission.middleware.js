@@ -4,6 +4,9 @@ const adminPermission = require('../config/env.config')['permissionLevels']['ADM
 
 exports.minimumPermissionLevelRequired = (required_permission_level) => {
     return (req, res, next) => {
+        if (req.jwt === undefined || req.jwt.permissionLevel === undefined){
+            return res.status(403).send({ err: "Wrong permissions" });
+        }
         let user_permission_level = parseInt(req.jwt.permissionLevel);
         if (user_permission_level === adminPermission || user_permission_level === required_permission_level) {
             return next();
@@ -14,6 +17,9 @@ exports.minimumPermissionLevelRequired = (required_permission_level) => {
 };
 
 exports.onlySameUserOrAdminCanDoThisAction = (req, res, next) => {
+    if (req.jwt === undefined || req.jwt.permissionLevel === undefined) {
+        return res.status(403).send({ err: "Wrong permissions" });
+    }
     let user_permission_level = parseInt(req.jwt.permissionLevel);
     let userId = req.jwt.userId;
     if (req.params && req.params.userId && userId === req.params.userId) {

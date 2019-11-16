@@ -14,11 +14,7 @@ const client = new OAuth2Client(CLIENT_ID);
 
 
 exports.verifyRefresh = (req, res) => {
-    if (newAccessToken(req)){
-        return res.status(201).send(req.accessToken)
-    } else {
-        return res.status(400).send({ err: 'Invalid refresh token'});
-    }
+    return newAccessToken(req, res);
 };
 
 exports.validJWTNeeded = (req, res, next) => {
@@ -29,27 +25,25 @@ exports.validJWTNeeded = (req, res, next) => {
                 return res.status(401).send({ err: 'Invalid access token' });
             } else {
                 jwt.verify(authorization[1], jwtSecret, function (err, decoded) {
-                    if (err) if (!newAccessToken(req)) return res.status(401).send({ err: 'Invalid refresh token' });
+                    if (err) return res.status(400).send({ err: 'Invalid refresh token' });
                     req.jwt = decoded
-                    return next();
+                    var current_time = new Date().getTime() / 1000;
+                    if (current_time > decoded.exp) {
+                        newAccessToken(req, res);
+                    } else {
+                        return next();
+                    }
                 })
             }
-
         } catch (err) {
-            console.log("validJWTNeeded", err)
             return res.status(403).send({err: "Invalid access token"});
         }
-
     } else {
-        if(newAccessToken(req)) {
-            return res.status(201).send(req.accessToken)
-        } else {
-            return res.status(400).send({ err: 'Invalid refresh token' });
-        }
+        return newAccessToken(req, res);
     }
 };
 
-function newAccessToken(req) {
+function newAccessToken(req, res) {
     var cookieRefreshToken = null;
     let rc = req.headers.cookie;
     rc && rc.split(';').forEach(function (cookie) {
@@ -63,27 +57,52 @@ function newAccessToken(req) {
         // qui devi controllare se refresh token e' valido, se lo e' crea un nuovo accesstoken e mettilo in req, poi fai next()
         try {
             jwt.verify(cookieRefreshToken, jwtSecret2, function (err, decoded) {
-                if (err) return false
-                req.jwt = decoded
-                req.jwt = {
-                    userId: req.jwt.userId,
-                    nickname: req.jwt.nickname,
-                    salt: randtoken.uid(128),
-                    permissionLevel: req.jwt.permissionLevel,
-                }
-                let accessToken = jwt.sign(req.jwt, jwtSecret, { expiresIn: jwtExpireAccessToken });
+                if (err) return res.status(400).send({ err: 'Invalid refresh token' });
+                var current_time = new Date().getTime() / 1000;
+                if (current_time > decoded.exp) {
+                    /* expired */ 
+                    try {
+                        req.body = {
+                            userId: decoded.userId,
+                            nickname: decoded.nickname,
+                            salt: randtoken.uid(128),
+                            permissionLevel: decoded.permissionLevel,
+                        }
+                        let accessToken = jwt.sign(req.body, jwtSecret, { expiresIn: jwtExpireAccessToken });
 
-                req.accessToken = {"accessToken": accessToken }
+                        let refreshToken = jwt.sign(req.body, jwtSecret2, { expiresIn: jwtExpireRefreshToken });
+
+                        return res.status(201).cookie('refreshToken', refreshToken, {
+                            httpOnly: true,
+                            //FORSERVER secure: true,
+                            SameSite: "None", // Lax
+                            // expires: new Date(Date.now() + (jwtExpireRefreshToken*1000)) // cookie will be removed
+                        }).send({ accessToken: accessToken });
+
+                    } catch (err) {
+                        return res.status(400).send({ err: 'Invalid refresh token' });
+                    }
+                } else {
+                    req.jwt = decoded
+                    req.jwt = {
+                        userId: req.jwt.userId,
+                        nickname: req.jwt.nickname,
+                        salt: randtoken.uid(128),
+                        permissionLevel: req.jwt.permissionLevel,
+                    }
+                    let accessToken = jwt.sign(req.jwt, jwtSecret, { expiresIn: jwtExpireAccessToken });
+
+                    req.accessToken = { "accessToken": accessToken }
+
+                    return res.status(201).send(req.accessToken)
+                }
             })
         } catch (err) {
-            console.log("newAccessToken", err)
-            return false
+            return res.status(400).send({ err: 'Invalid refresh token' });
         }
-
-        return true
     } else {
         // tokene expired, quindi mandagli un messaggio che deve ri loggare
-        return false
+        return res.status(400).send({ err: 'Invalid refresh token' });
     }
 }
 

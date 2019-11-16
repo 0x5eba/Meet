@@ -27,6 +27,10 @@
                     //  profile.getEmail(), profile.getId(), profile.getName()
                     loginWithGoogle(token, id_token, profile.getEmail())
                 }
+
+                document.getElementById('btn-start').addEventListener('click', function (event) {
+                    freeStart(token)
+                });
             });
         });
     </script>
@@ -43,7 +47,7 @@
         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <!-- <link rel="stylesheet" type="text/css" href="localCDN/css/util.css">
     <link rel="stylesheet" type="text/css" href="localCDN/css/main.css"> -->
-    <script src="https://apis.google.com/js/platform.js"></script>
+    <script src="https://apis.google.com/js/platform.js?onload=onLoad"></script>
     <!-- <meta name="google-signin-client_id" content="184507738418-664h9ifot6obetrd887dp5hgi5opopr2.apps.googleusercontent.com"> -->
     <meta name="google-signin-client_id" content="141087998031-3ks8dqpakedg4oa65oja0n0aa4rv8g3p.apps.googleusercontent.com">
     
@@ -89,6 +93,9 @@
         </div>
     </div>
 
+    <div id="background-image">
+    </div>
+
     <div id="modal-content">
         <div id="flat-img">
             <!-- <img src="logo.jpg" style="width: 80%; height: auto;" /> -->
@@ -96,18 +103,20 @@
         </div>
         <div id="div-title-deatils-start">
             <p id="title">Meet</p>
-            <p style="font-size: 15px; color: rgb(107, 100, 100);">Would you like to meet people around you, even when you are traveling?</p>
-            <!-- <button id="btn-start" onclick="startWithoutLogin()">GET STARTED</button> -->
-            <button id="btn-start" onclick="registerCss()">GET STARTED</button>
+            <p style="font-size: 15px; color: rgb(107, 100, 100);">Would you like to meet people around you, even when you
+                are traveling?</p>
+            <!-- <button id="btn-start" onclick="registerCss()">GET STARTED</button> -->
+            <button id="btn-start">GET STARTED</button>
         </div>
-        <!--<div id="div-btn-register">
-             <button id="btn-info" class="transparent-btn">Info</button>
+        <div id="div-btn-register">
+            <button id="btn-info" class="transparent-btn">Info</button> 
             <button id="btn-register" onclick="registerCss()" data-toggle="modal"
                 data-target="#exampleModalCenter">Sign up</button>
-        </div>-->
+        </div>
         <!-- <div id="bottom-div">
-        </div> -->
+                    </div> -->
     </div>
+    
 
     <div id="cookieConsent">
         <button type="button" class="close">
@@ -126,25 +135,17 @@
 
 <style type="text/css">
 
-    body {
-        /* background-color: #F1FAEE; */
-        /* filter: blur(8px); */
-        background: url("background/andrew-stutesman-l68Z6eF2peA-unsplash.jpg");
-        /* background: url("background/jamie-davies-i7mv3c9gi1M-unsplash.jpg"); */
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-
     #closeAlert {
         float: right;
-        font-size: 20px;
+        font-size: 25px;
         font-weight: bold;
         text-align: end;
+        padding-right: 5px;
+        color: rgb(255, 255, 255);
     }
     #closeAlert:hover,
     #closeAlert:focus {
-        color: #000;
+        color: rgb(255, 255, 255);
         text-decoration: none;
     }
 
@@ -295,6 +296,8 @@
         visibility: collapse !important;
     }
 
+
+    /* mobile */ 
     @media only screen and (max-width:1000px) {
 
         body {
@@ -361,6 +364,10 @@
             /* background-color: Transparent;
             background-repeat:no-repeat; */
             border: none;
+        }
+
+        #btn-info {
+            display: none;
         }
     }
 
@@ -439,6 +446,25 @@
             margin-right: 7%;
             cursor:pointer;
         }
+
+        #background-image {
+            position: fixed;
+            left: 0;
+            right: 0;
+            z-index: 0;
+            display: block;
+            background-image: url('background/andrew-stutesman-l68Z6eF2peA-unsplash.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            width: 100%;
+            height: 100%;
+            -webkit-filter: blur(3px);
+            -moz-filter: blur(3px);
+            -o-filter: blur(3px);
+            -ms-filter: blur(3px);
+            filter: blur(3px);
+        }
     }
 </style>
 
@@ -450,6 +476,7 @@
     var profileData = JSON.parse(localStorage.getItem("profile"))
     var showCookie = JSON.parse(localStorage.getItem("showCookie"))
     var checkLoginAgain = JSON.parse(sessionStorage.getItem("loginAgain"))
+    var registerNewAccount = JSON.parse(sessionStorage.getItem("registerNewAccount"))
     function session(){
         if(authToken !== null && authToken['accessToken'] !== undefined){
             window.location.href = "http://localhost:3001/"
@@ -461,8 +488,55 @@
             sessionStorage.removeItem("loginAgain")
             loginCss()
         }
+        if(registerNewAccount !== null){
+            sessionStorage.removeItem("registerNewAccount")
+            registerCss()
+        }
     }
     session()
+
+    function freeStart(token) {
+        sessionStorage.clear()
+        localStorage.clear()
+
+        let params = JSON.stringify({
+            recaptcha: token
+        })
+
+        $.ajax({
+            url: url + 'profile/freeStart',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            method: 'POST',
+            dataType: 'json',
+            data: params,
+            success: (res) => {
+
+                localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
+
+                localStorage.setItem("noaccount", JSON.stringify({}))
+                localStorage.setItem("chooseFirstPlace", JSON.stringify({}))
+                localStorage.setItem("profile", JSON.stringify({}))
+
+                let view = {
+                    questions: 0,
+                    groups: 0,
+                    profiles: 1,
+                }
+                localStorage.setItem("view", JSON.stringify(view));
+
+                localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+
+                localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
+
+                window.location.href = "http://localhost:3001/"
+            },
+            error: (err) => {
+                showAlertError(err['err'])
+            }
+        })
+    }
 
     document.getElementById("closeAlert").onclick = function () {
         localStorage.setItem("showCookie", JSON.stringify({ cookie: true }))
@@ -493,6 +567,17 @@
         document.getElementById("div-btn-sign-in").style.display = "block"
         $('#change-sign-up').removeClass("btn-activate")
         $('#change-sign-in').addClass("btn-activate")
+    }
+
+    function onLoad() {
+        gapi.load('auth2', function () {
+            gapi.auth2.init();
+            // var auth2 = gapi.auth2.getAuthInstance();
+            // auth2.signOut().then(function () {
+            //     console.log('User signed out.');
+            // });
+            // auth2.disconnect();
+        });
     }
 
     function loginWithGoogle(token, id_token, nickname){

@@ -53,10 +53,19 @@
                     </div>
                 </header>
                 <div id="messages">
-                    <p>ciao</p>
+                    <div class="message">
+                        <img src="2787860.jpg" width="50px" height="50px" style="border-radius: 50px;">
+                        <p>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</p>
+                    </div>
+                    <div class="myMessage">
+                        <p>ciao2</p>
+                    </div>
                 </div>
                 <footer id="write">
                     <textarea id="textarea" name="text" placeholder="Write a message..." wrap="soft"></textarea>
+                    <button type="button" class="btn btn-info" id="send-btn">
+                        <img src="icons/iconfinder_Sed-09_2236081.svg" width="50" height="50" style="position: relative; right: 10px; bottom: 7px;">
+                    </button>
                 </footer>
             </div>
         </div>
@@ -67,6 +76,16 @@
 </html>
 
 <style>
+
+    #send-btn {
+        text-align:center;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+    }
 
     #infoChat {
         display: inline-flex;
@@ -103,7 +122,7 @@
 
     #textarea {
         height: 50px;
-        width: 90%;
+        width: 80%;
         font: inherit;
         background: #fff;
         border: none;
@@ -117,7 +136,28 @@
     }
 
     .message {
+        display: flex;
+        height: auto;
+        width: 80%;
+        min-height: 50px;
+        background: white;
+        border-radius: 10px;
+        padding: 5px;
+        margin: 5px;
+        word-break: break-all;
+    }
 
+    .myMessage {
+        display: flex;
+        float: right;
+        width: 80%;
+        height: auto;
+        min-height: 50px;
+        background: white;
+        border-radius: 10px;
+        padding: 5px;
+        margin: 5px;
+        word-break: break-all;
     }
 
     hr {

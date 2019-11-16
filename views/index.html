@@ -61,7 +61,7 @@
 
 <body>
     <div id="no-gps" style="display: none; text-align:center; position: relative; width: 100%; height: 100%;">
-        <img src="NoGPS.png" width="100%" height="100%" style="filter: brightness(40%);">
+        <img src="NoGPS.png" width="100%" height="100%" style="filter: brightness(40%); object-fit: cover;">
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%;">  
             <h1 style="margin: 30px; color: white">Welcome!</h1>
             <p style="margin: 10px; color: white">To use the map is necessary the access to your location</p>
@@ -71,6 +71,17 @@
             <br>
             <button style="margin: 20px; margin-top: 0; font-size: 12px; border-radius: 20px; background-color: #e7e7e7; opacity: 0.5;" type="button" 
                 class="btn" onclick="withoutPosition()">Continue without GPS</button>
+        </div>
+    </div>
+
+    <div id="noaccount" style="display: none; text-align:center; position: relative; width: 100%; height: 100%; z-index: 999;">
+        <img src="NoGPS.png" width="100%" height="100%" style="filter: brightness(40%); object-fit: cover;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%;">
+            <h1 style="margin: 30px; color: white">Welcome!</h1>
+            <p style="margin: 10px; color: white">Choose a place to visit</p>
+            <button style="margin: 20px; font-size: 20px; background-color: #008CBA; border-radius: 20px; color: white"
+                type="button" class="btn" onclick="closeWelocomeDiv()"> Continue
+            </button>
         </div>
     </div>
 
@@ -132,7 +143,8 @@
                 <span id="ex6CurrentSliderValLabel" style="margin-left: 20px"> Km: <span id="ex6SliderVal">26</span></span>
                 
                 <br>
-                <button type="button" class="btn" id="signup-btn" onclick="signOut();">Sign out</button>
+                <button type="button" class="btn" id="signout-btn" onclick="signOut();">Sign out</button>
+                <button type="button" class="btn" id="signup-btn" onclick="registerNewAccount();">Sign up</button>
             </div>
 
             <div id='createGroup' style="display:none; margin: 20px" class="text-center">
@@ -174,6 +186,10 @@
 </html>
 
 <style type="text/css">
+    body {
+        overflow: hidden,
+    }
+
     #map {
         position: absolute;
         top: 0;
@@ -287,7 +303,8 @@
         color: rgb(49, 49, 49); 
     }
 
-    #signup-btn {
+    #signout-btn {
+        display: none;
         border-radius:10px; 
         position: absolute;
         bottom: 0; 
@@ -295,6 +312,21 @@
         border: 1.5px solid rgb(199, 198, 198); 
         background:rgb(251, 251, 251); 
         color: rgb(90, 90, 90);
+    }
+
+    #signup-btn {
+        display: none;
+        position: absolute;
+        bottom: 0; 
+        right: 0; 
+        background-color: #E63946;
+        color: white;
+        font-size: 17px;
+        border-radius: 30px;
+        padding-left: 20px;
+        padding-right: 20px;
+        height: 40px;
+        cursor:pointer;
     }
 
     @-moz-keyframes bounce {
@@ -596,13 +628,29 @@
 
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
-    function session(){
-        if(authToken === null){
-            window.location.href = "http://localhost:3001/home"
-        }
-        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
-        newAccessToken(() => handlePermission())
+    var noaccount = JSON.parse(localStorage.getItem("noaccount"))
+    var chooseFirstPlace = JSON.parse(localStorage.getItem("chooseFirstPlace"))
+    function session(){
+        if(noaccount !== null){
+            rangeView = JSON.parse(localStorage.getItem("rangeView")).range
+
+            if(chooseFirstPlace !== null) {
+                $("#noaccount").show()
+                setMapChangePos()
+            } else {
+                $("#changeView").show()
+                getData(null)
+            }
+
+        } else {
+            if (authToken === null) {
+                window.location.href = "http://localhost:3001/home"
+            }
+            rangeView = JSON.parse(localStorage.getItem("rangeView")).range
+
+            newAccessToken(() => handlePermission())
+        }
     }
     session()
 
@@ -612,7 +660,6 @@
         $.ajax({
             url: url + 'auth/refresh',
             headers: {
-                // 'Authorization': authToken['accessToken'],
                 'Content-Type': 'application/json; charset=UTF-8',
             },
             credentials: 'include',
@@ -659,6 +706,12 @@
         catch (err) {
             
         }
+        window.location.href = "http://localhost:3001/home"
+    }
+
+    function registerNewAccount() {
+        localStorage.removeItem("authToken");
+        sessionStorage.setItem("registerNewAccount", JSON.stringify({}))
         window.location.href = "http://localhost:3001/home"
     }
 
@@ -832,6 +885,7 @@
 
             profileData['coords'] = [state_view.longitude, state_view.latitude] // x, y
             localStorage.setItem("profile", JSON.stringify(profileData))
+            $("#changeView").show()
             getData(state_view)
 
         } else {
@@ -950,7 +1004,7 @@
             return
         }
 
-        if (profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0){
+        if (noaccount === null && profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0){
             state_view.longitude = profileData['fakePos'][0]
             state_view.latitude = profileData['fakePos'][1]
             state_view.zoom = 8
@@ -979,7 +1033,7 @@
                 }
             }
         }
-        else if (CBviews['profiles'] === 1 && profileData['coords'] !== undefined && (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)) {
+        else if (noaccount === null && CBviews['profiles'] === 1 && profileData['coords'] !== undefined && (profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0)) {
             // senza dover rifare la request al db, aggiorno solo le coordinate dell'utente temporaneamente, anche se nel db gia' sono giuste
             let foundProfile = false
             for (let a = 0; a < AllProfiles.features.length; ++a) {
@@ -1052,9 +1106,13 @@
 
         if(mapSetted){
             map.getSource('earthquakes').setData(dataToDisplay)
-            markerCoords.setLngLat(profileData['coords'])
+            if (profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0) {
+                markerCoords.setLngLat(profileData['coords'])
+            }
             getHeapmap(optionViews.slice(0, -1))
-            changeBtnView()
+            if (noaccount === null) {
+                changeBtnView()
+            }
             return
         }
 
@@ -1363,7 +1421,9 @@
         //     },
         // })
         
-        changeBtnView()
+        if (noaccount === null) {
+            changeBtnView()
+        }
 
         const mainDiv = d3.select('#control-panel').selectAll('div').data([{ text: "home" }]).enter().append('div')
 
@@ -1415,9 +1475,17 @@
             })
             .append("img").attr("src", "icons/iconfinder_50_location_map_pointer_travel_4308078.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
 
-        //setting
+        //settings
         mainDiv.append('button').attr("id", "btn-setting")
             .on('click', d => {
+                $("#signout-btn").hide()
+                $("#signup-btn").hide()
+                if(noaccount === null){
+                    $("#signout-btn").show()
+                } else {
+                    $("#signup-btn").show()
+                }
+                
                 modal.style.display = "block"
                 resSearch.style.display = "block"
                 document.getElementById("menu").style.display = "block"
@@ -1523,11 +1591,11 @@
         }
         else if (CBviews['profiles'] === 1) {
             // private-chat
-            d3.select('#control-panel').append('button').attr("id", "btn-private-chat")
-                .on('click', d => {
+            // d3.select('#control-panel').append('button').attr("id", "btn-private-chat")
+            //     .on('click', d => {
 
-                })
-                .append("img").attr("src", "icons/iconfinder_chat_103444.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
+            //     })
+            //     .append("img").attr("src", "icons/iconfinder_chat_103444.svg").attr("width", "30").attr("height", "30").style("border-radius", "20%")
         }
     }
 
@@ -1536,7 +1604,6 @@
 
         mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
 
-        let mapStyle = JSON.parse(localStorage.getItem("mapStyle"))
         let optionsStreet = document.getElementById('mapStyles').getElementsByTagName('option')
         let street = mapStyle['mapStyle'].split("/")
         street = street[street.length - 1]
@@ -1632,7 +1699,12 @@
 
         fakeMap.on('click', function (e) {
             let coords = e.lngLat   
-            let details = "<p style=\"margin-top: 10px;\">Do you want to go here?</p><button type=\"button\" class=\"btn btn-success\" onclick='setFakePos(" + coords['lng'] + "," + coords['lat'] + ")'>Yes</button>"
+            var details = ""
+            if(noaccount !== null){
+                details = "<p style=\"margin-top: 10px;\">Do you want to go here?</p><button type=\"button\" class=\"btn btn-success\" onclick='setFakePosNoAccount(" + coords['lng'] + "," + coords['lat'] + ")'>Yes</button>"
+            } else {
+                details = "<p style=\"margin-top: 10px;\">Do you want to go here?</p><button type=\"button\" class=\"btn btn-success\" onclick='setFakePos(" + coords['lng'] + "," + coords['lat'] + ")'>Yes</button>"
+            }
 
             new mapboxgl.Popup()
                 .setLngLat(coords)
@@ -1640,7 +1712,7 @@
                 .addTo(fakeMap);
         });
 
-        if (profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0) {
+        if (noaccount === null && profileData['coords'] !== undefined && profileData['coords'][0] !== 0 && profileData['coords'][1] !== 0) {
             new mapboxgl.Marker()
                 .setLngLat(profileData['coords'])
                 .addTo(fakeMap);
@@ -1690,6 +1762,19 @@
         })
     }
 
+    function setFakePosNoAccount(x, y) {
+        localStorage.removeItem("chooseFirstPlace")
+        profileData['fakePos'] = [x, y]
+        profileData['coords'] = [0, 0]
+        localStorage.setItem("profile", JSON.stringify(profileData))
+        reloadPage()
+    }
+
+    function closeWelocomeDiv() {
+        $("#map_controller").show()
+        $("#noaccount").hide()
+    }
+
 
     var offline = false
     $(document).mouseleave(function (e) {
@@ -1707,12 +1792,17 @@
             offline = false
         }
     });
-    window.setInterval(function () {
-        if (offline === false && canUpdateStatus === true) {
-            iamStatus(true)
-        }
-    }, 45000);
+    if(noaccount !== null){
+        window.setInterval(function () {
+            if (offline === false && canUpdateStatus === true) {
+                iamStatus(true)
+            }
+        }, 45000);
+    }
     function iamStatus(status) {
+        if (noaccount !== null) {
+            return
+        }
         let params = JSON.stringify({
             lastSeen: Date.now(),
             pos: { x: profileData['coords'][0], y: profileData['coords'][1] }
@@ -1842,6 +1932,9 @@
     }
 
     function getSaved() {
+        if (noaccount !== null) {
+            return
+        }
         $.ajax({
             url: url + 'profile/getSaved/' + profileData['id'],
             headers: {
