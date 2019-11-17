@@ -1,16 +1,20 @@
-const GroupController = require('./chat.model');
+const ChatController = require('./chat.model');
 const getProfilePosFromProfile = require('../profiles/profiles.controller')['profilePos']
 const showSubsOnMapFromProfile = require('../profiles/profiles.model')['subsOnMap']
 const getProfileNicknameFromProfile = require('../profiles/profiles.model')['getNickname']
 const crypto = require('crypto');
 var escapeRegExp = require('lodash.escaperegexp');
 
+exports.getChats = (userId) => {
+    return ChatController.getChats(userId)
+}
+
 exports.insert = (req, res) => {
     req.body = {
         name: req.body.name,
         pos: req.body.pos,
     }
-    GroupController.createGroup(req.body)
+    ChatController.createGroup(req.body)
         .then((result) => {
             res.status(201).send({id: result._id});
         })
@@ -20,7 +24,7 @@ exports.insert = (req, res) => {
 };
 
 exports.uniqueName = (req, res, next) => {
-    GroupController.findByName(req.body.name)
+    ChatController.findByName(req.body.name)
         .then((group) => {
             if (group) {
                 res.status(403).send({ err: 'Name already taken' });
@@ -49,7 +53,7 @@ exports.getProfileNickname = (req, res, next) => {
 };
 
 exports.list = (req, res) => {
-    GroupController.list()
+    ChatController.list()
         .then((result) => {
             res.status(200).send(result);
         })
@@ -59,7 +63,7 @@ exports.list = (req, res) => {
 };
 
 exports.getById = (req, res) => {
-    GroupController.findById(req.params.groupId)
+    ChatController.findById(req.params.groupId)
         .then((result) => {
             res.status(200).send(result);
         })
@@ -69,7 +73,7 @@ exports.getById = (req, res) => {
 };
 
 exports.getName = (req, res) => {
-    GroupController.getNameById(req.params.groupId) 
+    ChatController.getNameById(req.params.groupId) 
         .then((result) => {
             res.status(200).send(result);
         })
@@ -79,7 +83,7 @@ exports.getName = (req, res) => {
 }
 
 exports.getByIdPeopleOnline = (req, res) => {
-    GroupController.peopleOnline(req.params.groupId)
+    ChatController.peopleOnline(req.params.groupId)
         .then((result) => {
             res.status(200).send(result);
         })
@@ -89,7 +93,7 @@ exports.getByIdPeopleOnline = (req, res) => {
 };
 
 exports.getByIdnOnline = (req, res) => {
-    GroupController.nOnline(req.params.groupId)
+    ChatController.nOnline(req.params.groupId)
         .then((result) => {
             res.status(200).send(result[0]);
         })
@@ -102,7 +106,7 @@ exports.patchById = (req, res) => {
     let type = req.body.type
     if (type === "peopleOnline") {
         if (req.body.operation === "addToSet") {
-            GroupController.patchGroupAddToSet(req.params.groupId, req.params.userId, "peopleOnline")
+            ChatController.patchGroupAddToSet(req.params.groupId, req.params.userId, "peopleOnline")
                 .then((result) => {
                     res.status(201).send({});
                 })
@@ -111,7 +115,7 @@ exports.patchById = (req, res) => {
                 })
         } 
         else if (req.body.operation === "pullToSet") {
-            GroupController.patchGroupPullToSet(req.params.groupId, req.params.userId, "peopleOnline")
+            ChatController.patchGroupPullToSet(req.params.groupId, req.params.userId, "peopleOnline")
                 .then((result) => {
                     res.status(201).send({});
                 })
@@ -121,7 +125,7 @@ exports.patchById = (req, res) => {
         }
     } 
     else if (type === "subscribers") {
-        GroupController.patchGroupAddToSet(req.params.groupId, req.params.userId, "subscribers")
+        ChatController.patchGroupAddToSet(req.params.groupId, req.params.userId, "subscribers")
             .then((result) => {
                 res.status(201).send({});
             })
@@ -132,7 +136,7 @@ exports.patchById = (req, res) => {
 };
 
 exports.removeById = (req, res) => {
-    GroupController.removeById(req.params.groupId)
+    ChatController.removeById(req.params.groupId)
         .then((result)=>{
             res.status(201).send({});
         })
@@ -146,7 +150,7 @@ exports.getProfilePos = (req, res, next) => {
 };
 
 exports.getIsSub = (req, res) => {
-    GroupController.isSub(req.params.groupId, req.params.userId)
+    ChatController.isSub(req.params.groupId, req.params.userId)
         .then((result) => {
             if(result === null){
                 res.status(201).send({});
@@ -165,11 +169,11 @@ exports.allGroups = (req, res) => {
     let search_y = query.y
     let range_search = query.range * query.range // ^ 2
 
-    GroupController.findByPos(search_x, search_y, range_search, res)
+    ChatController.findByPos(search_x, search_y, range_search, res)
 };
 
 exports.getAllSubs = (req, res, next) => {
-    GroupController.subscribers(req.params.groupId)
+    ChatController.subscribers(req.params.groupId)
         .then((subs) => {
             if (!subs) {
                 res.status(403).send({ err: 'Group not found' });
@@ -188,7 +192,7 @@ exports.getShowSubs = (req, res) => {
 };
 
 exports.getMessagesWithLimit = (req, res) => {
-    GroupController.messagesSorted(req.params.groupId)
+    ChatController.messagesSorted(req.params.groupId)
         .then((result) => {
             messages = result['messages'].slice(-req.body.limit)
             res.status(201).send({messages: messages});
@@ -199,7 +203,7 @@ exports.getMessagesWithLimit = (req, res) => {
 };
 
 exports.checkLastMessage = (req, res) => {
-    GroupController.getLastMessageTimestamp(req.params.groupId, req.body.lastTime)
+    ChatController.getLastMessageTimestamp(req.params.groupId, req.body.lastTime)
         .then((result) => {
             res.status(201).send(result);
         })
@@ -209,7 +213,7 @@ exports.checkLastMessage = (req, res) => {
 };
 
 exports.writeMessage = (req, res) => {
-    GroupController.createMessages(req.params.groupId, req.params.userId, req.body.nickname, req.body.data, Date.now())
+    ChatController.createMessages(req.params.groupId, req.params.userId, req.body.nickname, req.body.data, Date.now())
         .then((result) => {
             res.status(201).send({res: result});
         })
@@ -220,7 +224,7 @@ exports.writeMessage = (req, res) => {
 
 exports.searchGroups = (req, res) => {
     search = escapeRegExp(req.body.search)
-    GroupController.searchGroups(search)
+    ChatController.searchGroups(search)
         .then((result) => {
             res.status(201).send(result);
         })
@@ -230,7 +234,7 @@ exports.searchGroups = (req, res) => {
 }
 
 exports.getTsGroups = (req, res) => {
-    GroupController.getTsGroups()
+    ChatController.getTsGroups()
         .then((result) => {
             res.status(201).send(result);
         })

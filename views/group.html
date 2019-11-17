@@ -293,19 +293,19 @@
 
     var answersChat;
 
+    var noaccount = JSON.parse(localStorage.getItem("noaccount"))
+
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
-    function session(){
-        if(authToken === null){
+    function session() {
+        if (authToken === null) {
             window.location.href = "http://localhost:3001/home"
         }
-        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
-
         refreshToken()
     }
     session()
 
-    function refreshToken(first=false) {
+    function refreshToken() {
         $.ajax({
             url: url + 'auth/refresh',
             headers: {

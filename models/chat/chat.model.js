@@ -22,6 +22,17 @@ const ChatModel = new mongoose.Schema({
 
 const Chat = mongoose.model('Chat', ChatModel)
 
+
+exports.getChats = (userId) => {
+    return new Promise((resolve, reject) => {
+        Chat.find({ members: { $in: [userId] } }, { messages: 1 }, function (err, chats) {
+            if (err) reject(err);
+            resolve(chats);
+        });
+    })
+}
+
+
 exports.findById = (id) => {
     return new Promise((resolve, reject) => {
         Chat.findById(id, function (err, group) {

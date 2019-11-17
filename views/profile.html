@@ -228,14 +228,14 @@
     var currentUrl = new URL(window.location.href)
     var currProfile
 
+    var noaccount = JSON.parse(localStorage.getItem("noaccount"))
+
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
     function session(){
-        if(authToken === null){
+        if (authToken === null) {
             window.location.href = "http://localhost:3001/home"
         }
-        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
-
         refreshToken(true)
     }
     session()
@@ -294,11 +294,13 @@
             offline = false
         }
     });
-    window.setInterval(function () {
-        if (offline === false) {
-            iamStatus(true)
-        }
-    }, 45000);
+    if(noaccount === null){
+        window.setInterval(function () {
+            if (offline === false) {
+                iamStatus(true)
+            }
+        }, 45000);
+    }
     function iamStatus(status) {
         let params = JSON.stringify({
             lastSeen: Date.now(),

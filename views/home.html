@@ -393,9 +393,10 @@
             border-radius: 10px;
             background-color: white;
 
-            -webkit-box-shadow: -10px 10px 15px -4px rgb(133,133,133);
+            /* -webkit-box-shadow: -10px 10px 15px -4px rgb(133,133,133);
             -moz-box-shadow: -10px 10px 15px -4px rgb(133,133,133);
-            box-shadow: -10px 10px 15px -4px rgb(80, 80, 80);
+            box-shadow: -10px 10px 15px -4px rgb(80, 80, 80); */
+            box-shadow: -5px 5px 5px 0 rgba(0,0,0,.15), 0 3px 10px 0 rgba(0,0,0,.25);
         }
 
         #div-title-deatils-start {
@@ -459,11 +460,11 @@
             background-size: cover;
             width: 100%;
             height: 100%;
-            -webkit-filter: blur(3px);
-            -moz-filter: blur(3px);
-            -o-filter: blur(3px);
-            -ms-filter: blur(3px);
-            filter: blur(3px);
+            -webkit-filter: blur(2px);
+            -moz-filter: blur(2px);
+            -o-filter: blur(2px);
+            -ms-filter: blur(2px);
+            filter: blur(2px);
         }
     }
 </style>
@@ -515,8 +516,8 @@
 
                 localStorage.setItem("authToken", JSON.stringify({ Authorization: "Bearer " + res['accessToken'] }))
 
-                localStorage.setItem("noaccount", JSON.stringify({}))
-                localStorage.setItem("chooseFirstPlace", JSON.stringify({}))
+                localStorage.setItem("noaccount", JSON.stringify({ noaccount: true }))
+                localStorage.setItem("chooseFirstPlace", JSON.stringify({ chooseFirstPlace: true }))
                 localStorage.setItem("profile", JSON.stringify({}))
 
                 let view = {

@@ -632,6 +632,11 @@
     var noaccount = JSON.parse(localStorage.getItem("noaccount"))
     var chooseFirstPlace = JSON.parse(localStorage.getItem("chooseFirstPlace"))
     function session(){
+        if (authToken === null) {
+            window.location.href = "http://localhost:3001/home"
+        }
+        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
+
         if(noaccount !== null){
             rangeView = JSON.parse(localStorage.getItem("rangeView")).range
 
@@ -644,11 +649,6 @@
             }
 
         } else {
-            if (authToken === null) {
-                window.location.href = "http://localhost:3001/home"
-            }
-            rangeView = JSON.parse(localStorage.getItem("rangeView")).range
-
             newAccessToken(() => handlePermission())
         }
     }
@@ -1792,7 +1792,7 @@
             offline = false
         }
     });
-    if(noaccount !== null){
+    if(noaccount === null){
         window.setInterval(function () {
             if (offline === false && canUpdateStatus === true) {
                 iamStatus(true)
@@ -1800,9 +1800,6 @@
         }, 45000);
     }
     function iamStatus(status) {
-        if (noaccount !== null) {
-            return
-        }
         let params = JSON.stringify({
             lastSeen: Date.now(),
             pos: { x: profileData['coords'][0], y: profileData['coords'][1] }
@@ -1913,7 +1910,6 @@
 
                     canUpdateStatus = true
                     setMap(state_view)
-                    iamStatus(true)
                 }
             },
             error: (err) => {
@@ -2064,7 +2060,6 @@
 
                     canUpdateStatus = true
                     setMap(state_view)
-                    iamStatus(true)
                 }
             },
             error: (err) => {

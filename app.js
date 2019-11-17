@@ -16,6 +16,7 @@ const UsersRouter = require('./models/profiles/routes.config');
 const GroupRouter = require('./models/groups/routes.config');
 const QuestionRouter = require('./models/questions/routes.config');
 
+
 app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', 'https://sebastienbiollo.com');
 	res.header('Access-Control-Allow-Credentials', 'true');
@@ -82,3 +83,5 @@ AuthorizationRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
 GroupRouter.routesConfig(app);
 QuestionRouter.routesConfig(app);
+
+require("./server/websocket.js")

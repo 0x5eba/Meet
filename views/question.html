@@ -149,19 +149,22 @@
 
     var coordToUse = "coords"
 
+    var noaccount = JSON.parse(localStorage.getItem("noaccount"))
+
     var authToken = JSON.parse(localStorage.getItem("authToken"))
     var profileData = JSON.parse(localStorage.getItem("profile"))
-    function session(){
-        if(authToken === null){
+    function session() {
+        if (authToken === null) {
             window.location.href = "http://localhost:3001/home"
         }
-        rangeView = JSON.parse(localStorage.getItem("rangeView")).range
-
         refreshToken()
+        if (noaccount !== null) {
+            $("#buttonSaveQuestion").hide()
+        }
     }
     session()
 
-    function refreshToken(first=false) {
+    function refreshToken() {
         $.ajax({
             url: url + 'auth/refresh',
             headers: {
@@ -218,12 +221,16 @@
             offline = false
         }
     });
-    window.setInterval(function () {
-        if (offline === false) {
-            iamStatus(true)
-        }
-    }, 45000);
+    if(noaccount === null){
+        console.log(noaccount === null)
+        window.setInterval(function () {
+            if (offline === false) {
+                iamStatus(true)
+            }
+        }, 45000);
+    }
     function iamStatus(status) {
+        console.log(noaccount === null)
         let params = JSON.stringify({
             lastSeen: Date.now(),
         })
@@ -366,6 +373,9 @@
     }
 
     function saveQuestion() {
+        if(noaccount !== null){
+            return
+        }
         $.ajax({
             url: url + 'profile/bookmarkQuestion/' + profileData['id'] + "&" + question["_id"],
             headers: {
@@ -400,6 +410,9 @@
     }
 
     function askQuestion() {
+        if (noaccount !== null) {
+            return
+        }
         let title = document.getElementById("title").value
         title = title.trim()
 
@@ -695,6 +708,9 @@
     }
 
     function updateVoteAnswer(el, vote) {
+        if (noaccount !== null) {
+            return
+        }
         let params = JSON.stringify({
             vote: vote
         })
@@ -850,6 +866,9 @@
 
 
     function createAnswer(level, idParent, data, input) {
+        if (noaccount !== null) {
+            return
+        }
         if (data === "<p><br></p>") {
             alert("Write something")
             return
