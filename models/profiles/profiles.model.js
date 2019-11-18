@@ -15,7 +15,7 @@ const ProfileModel = new mongoose.Schema({
     lastSeen: { type: Number, default: 0 },
     savedGroup: { type: [String], default: [] },
     savedQuestion: { type: [String], default: [] },
-    keyForPrivateMessages: { type: String, default: "" }
+    chats: { type: [String], default: [] } // chat ids
 })
 
 const Grid = require('gridfs-stream');

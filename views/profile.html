@@ -558,7 +558,12 @@
                         window.location.href = "http://localhost:3001/"
                     }
                     let lastseen = document.getElementById("lastseen")
-                    let dist = getDistance(profile["pos"].x, profile["pos"].y, profileData['coords'][0], profileData['coords'][1])
+                    if(profileData['coords'][0] === 0 && profileData['coords'][1] === 0){
+                        var dist = getDistance(profile["pos"].x, profile["pos"].y, profileData['fakePos'][0], profileData['fakePos'][1])
+                    } else {
+                        var dist = getDistance(profile["pos"].x, profile["pos"].y, profileData['coords'][0], profileData['coords'][1])
+                    }
+                    
                     if (new Date() - profile["lastSeen"] < 60000) { // 1 minute
                         lastseen.innerHTML = "Online"  + ",  " + dist + " km away"
                     } else {

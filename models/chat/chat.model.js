@@ -8,6 +8,9 @@ mongoose.set('useCreateIndex', true);
 const ChatModel = new mongoose.Schema({
     members: { type: [String], require: true, minlength: 2, default: [] },
     lastMessageTimestamp: { type: Number, default: 0 },
+    lastMessage: { type: String, default: "" },
+    pic: { type: String, default: "" },
+    title: { type: String, default: "" },
     messages: { 
         type: [{
             _id: false,
@@ -17,7 +20,7 @@ const ChatModel = new mongoose.Schema({
             message: { type: String, require: true, minlength: 1, default: "" },
         }],
         default: [] 
-    }
+    },
 })
 
 const Chat = mongoose.model('Chat', ChatModel)
@@ -32,110 +35,64 @@ exports.getChats = (userId) => {
     })
 }
 
+exports.createChat = (data) => {
+    return new Promise((resolve, reject) => {
+        const chat = new Chat(data);
+        chat.save(function (err, chat) {
+            if (err) return reject(err);
+            resolve(chat);
+        });
+    })
+};
 
 exports.findById = (id) => {
     return new Promise((resolve, reject) => {
-        Chat.findById(id, function (err, group) {
+        Chat.findById(id, function (err, chat) {
             if (err) reject(err);
-            resolve(group);
-        });
-    })
-};
-
-exports.getNameById = (id) => {
-    return new Promise((resolve, reject) => {
-        Chat.findById(id, { name: 1 }, function (err, group) {
-            if (err) reject(err);
-            resolve(group);
-        });
-    })
-};
-
-exports.subscribers = (id) => {
-    return new Promise((resolve, reject) => {
-        Chat.findById(id, { subscribers: 1, _id: 0 }, function (err, group) {
-            if (err) reject(err);
-            resolve(group);
-        });
-    })
-};
-
-exports.peopleOnline = (id) => {
-    return new Promise((resolve, reject) => {
-        Chat.findById(id, { peopleOnline: 1 , _id: 0}, function (err, group) {
-            if (err) reject(err);
-            resolve(group);
-        });
-    })
-};
-
-exports.nOnline = (id) => {
-    return new Promise((resolve, reject) => {
-        Chat.aggregate([{ $project: { nOnline: 1, nOnline: { $size: '$members' } } }, { $match: { _id: ObjectId(id) } }], function (err, group) {
-            if (err) reject(err);
-            resolve(group);
-        });
-    })
-};
-
-exports.createGroup = (data) => {
-    return new Promise((resolve, reject) => {
-        const group = new Chat(data);
-        group.save(function (err, group) {
-            if (err) return reject(err);
-            resolve(group);
+            resolve(chat);
         });
     })
 };
 
 exports.list = () => {
     return new Promise((resolve, reject) => {
-        Chat.find({}, function (err, group) {
+        Chat.find({}, function (err, chat) {
             if (err) reject(err);
-            resolve(group);
+            resolve(chat);
         });
     })
 };
 
-exports.patchGroupAddToSet = (groupId, userId, type) => {
+exports.patchchatAddToSet = (chatId, userId, type) => {
     return new Promise((resolve, reject) => {
-        Chat.findByIdAndUpdate(groupId, { $addToSet: { [type]: userId } }, function (err, group) {
+        Chat.findByIdAndUpdate(chatId, { $addToSet: { [type]: userId } }, function (err, chat) {
             if (err) reject(err);
-            resolve(group);
+            resolve(chat);
         });
     })
 };
 
-exports.patchGroupPullToSet = (groupId, userId, type) => {
+exports.patchchatPullToSet = (chatId, userId, type) => {
     return new Promise((resolve, reject) => {
-        Chat.findByIdAndUpdate(groupId, { $pull: { [type]: userId } }, function (err, group) {
+        Chat.findByIdAndUpdate(chatId, { $pull: { [type]: userId } }, function (err, chat) {
             if (err) reject(err);
-            resolve(group);
+            resolve(chat);
         });
     })
 };
 
-exports.removeById = (groupId) => {
+exports.removeById = (chatId) => {
     return new Promise((resolve, reject) => {
-        Chat.remove({ _id: groupId}, (err, group) => {
+        Chat.remove({ _id: chatId}, (err, chat) => {
             if (err) reject(err);
-            resolve(group);
+            resolve(chat);
         });
     });
 };
 
-exports.isSub = (groupId, userId) => {
+exports.messagesSorted = (chatId) => {
     return new Promise((resolve, reject) => {
-        Chat.findOne({ _id: groupId, subscribers: { $in: [userId] } }, function (err, group) {
-            if (err) reject(err);
-            resolve(group);
-        });
-    });
-};
-
-exports.messagesSorted = (groupId) => {
-    return new Promise((resolve, reject) => {
-        Chat.findById(groupId, { "messages": 1 })
+        Chat.findById(chatId, { "messages": 1 })
             .sort({ "messages.time": 'desc' }).exec(function (err, messages) {
                 if (err) reject(err);
                 resolve(messages);
@@ -143,16 +100,16 @@ exports.messagesSorted = (groupId) => {
     });
 };
 
-exports.getLastMessageTimestamp = (groupId, lastTime) => {
+exports.getLastMessageTimestamp = (chatId, lastTime) => {
     return new Promise((resolve, reject) => {
-        Chat.findById(groupId, { "lastMessageTimestamp": 1, _id: 0 }, function (err, lastMessageTimestamp){
+        Chat.findById(chatId, { "lastMessageTimestamp": 1, _id: 0 }, function (err, lastMessageTimestamp){
             if (err) reject(err);
             resolve(lastMessageTimestamp);
         })
     });
 };
 
-exports.createMessages = (groupId, userId, nickname, data, timestamp) => {
+exports.createMessages = (chatId, userId, nickname, data, timestamp) => {
     message = {
         sender: userId,
         nickname: nickname,
@@ -161,18 +118,9 @@ exports.createMessages = (groupId, userId, nickname, data, timestamp) => {
     }
     
     return new Promise((resolve, reject) => {
-        Chat.findByIdAndUpdate(groupId, { $push: { messages: message }, lastMessageTimestamp: timestamp }, function (err, message) {
+        Chat.findByIdAndUpdate(chatId, { $push: { messages: message }, lastMessageTimestamp: timestamp }, function (err, message) {
             if (err) reject(err);
             resolve(message);
         })
     });
 };
-
-exports.searchGroups = (search) => {
-    return new Promise((resolve, reject) => {
-        Chat.find({ name: { "$regex": new RegExp("^" + search.toLowerCase(), "i") } }, { name: 1 }).limit(20).exec(function (err, groups) {
-            if (err) reject(err);
-            resolve(groups);
-        });
-    })
-}

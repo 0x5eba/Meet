@@ -2,6 +2,8 @@ var webSocketsServerPort = 1337;
 var webSocketServer = require('websocket').server;
 
 const ChatController = require("../models/chat/chat.controller.js")
+const ProfilesController = require("../models/profiles/profiles.controller.js")
+
 
 const jwt = require('jsonwebtoken')
 const config = require('../models/common/config/env.config.js')
@@ -38,8 +40,6 @@ wsServer.on('request', function (request) {
                     return
                 }
                 jwt.verify(authorization[1], jwtSecret, function (err, decoded) {
-                    console.log(decoded)
-
                     if (err) connection.close()
                     var current_time = new Date().getTime() / 1000;
                     if (current_time > decoded.exp) {

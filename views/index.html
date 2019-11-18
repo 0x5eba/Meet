@@ -159,9 +159,9 @@
 
     <div id="changeView" class="container" style="width: 95%; display: none;">
         <div class="row">
-            <div class="col" style="border-right: 2px solid rgb(122, 122, 122);">
+            <!-- <div class="col" style="border-right: 2px solid rgb(122, 122, 122);">
                 <button class="transparent-btn" id="view-groups" onclick="changeView('groups')">Groups</button>
-            </div>
+            </div> -->
             <div class="col" style="border-right: 2px solid rgb(122, 122, 122);">
                 <button class="transparent-btn" id="view-profiles" onclick="changeView('profiles')">Profiles</button>
             </div>
@@ -1600,6 +1600,7 @@
     }
 
     function setMapChangePos() {
+        getHeapmap("profile", true)
         sessionStorage.removeItem("changePos")
 
         mapboxgl.accessToken = 'pk.eyJ1IjoiMHg1ZWJhIiwiYSI6ImNrMDZ6bXF1dTAyNnYzYnBhbXpwa2hiZzUifQ.pkLDhr0wnSJpWv7K5MwEHQ'
@@ -1617,7 +1618,7 @@
         var fakeMap = new mapboxgl.Map({
             container: 'map',
             style: mapStyle['mapStyle'],
-            zoom: 1,
+            zoom: 2,
             bearing: 0,
             pitch: 0,
             attributionControl: false,
@@ -1627,70 +1628,72 @@
         }))
         fakeMap.doubleClickZoom.enable();
 
-        // fakeMap.on('load', function () {
-        //     fakeMap.addSource('heapmapSource', {
-        //         "type": "geojson",
-        //         "data": heapmap,
-        //     })
+        fakeMap.on('load', function () {
+            fakeMap.addSource('heapmapSource', {
+                "type": "geojson",
+                "data": heapmap,
+            })
 
-        //     fakeMap.addLayer({
-        //         "id": "heatmap-heat",
-        //         "type": "heatmap",
-        //         "source": "heapmapSource",
-        //         "maxzoom": 7,
-        //         "paint": {
-        //             // Increase the heatmap weight based on frequency and property magnitude
-        //             "heatmap-weight": [
-        //                 "interpolate",
-        //                 ["linear"],
-        //                 ["get", "mag"],
-        //                 0, 0,
-        //                 6, 1
-        //             ],
-        //             // Increase the heatmap color weight weight by zoom level
-        //             // heatmap-intensity is a multiplier on top of heatmap-weight
-        //             "heatmap-intensity": [
-        //                 "interpolate",
-        //                 ["linear"],
-        //                 ["zoom"],
-        //                 0, 1,
-        //                 3, 2,
-        //                 7, 2.5,
-        //             ],
-        //             // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
-        //             // Begin color ramp at 0-stop with a 0-transparancy color
-        //             // to create a blur-like effect.
-        //             "heatmap-color": [
-        //                 "interpolate",
-        //                 ["linear"],
-        //                 ["heatmap-density"],
-        //                 0, "rgba(33,102,172,0)",
-        //                 0.2, "rgb(103,169,207)",
-        //                 0.4, "rgb(209,229,240)",
-        //                 0.6, "rgb(253,219,199)",
-        //                 0.8, "rgb(239,138,98)",
-        //                 1, "rgb(178,24,43)"
-        //             ],
-        //             // Adjust the heatmap radius by zoom level
-        //             "heatmap-radius": [
-        //                 "interpolate",
-        //                 ["linear"],
-        //                 ["zoom"],
-        //                 0, 5,
-        //                 3, 10,
-        //                 7, 50
-        //             ],
-        //             // Transition from heatmap to circle layer by zoom level
-        //             "heatmap-opacity": [
-        //                 "interpolate",
-        //                 ["linear"],
-        //                 ["zoom"],
-        //                 0, 0.5,
-        //                 11, 1
-        //             ],
-        //         }
-        //     }, 'waterway-label');
-        // });
+            fakeMap.addLayer({
+                "id": "heatmap-heat",
+                "type": "heatmap",
+                "source": "heapmapSource",
+                // "maxzoom": 7,
+                "paint": {
+                    // Increase the heatmap weight based on frequency and property magnitude
+                    "heatmap-weight": [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "mag"],
+                        0, 0,
+                        6, 1
+                    ],
+                    // Increase the heatmap color weight weight by zoom level
+                    // heatmap-intensity is a multiplier on top of heatmap-weight
+                    "heatmap-intensity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 1,
+                        3, 2,
+                        7, 2.5,
+                    ],
+                    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                    // Begin color ramp at 0-stop with a 0-transparancy color
+                    // to create a blur-like effect.
+                    "heatmap-color": [
+                        "interpolate",
+                        ["linear"],
+                        ["heatmap-density"],
+                        0, "rgba(33,102,172,0)",
+                        0.2, "rgb(103,169,207)",
+                        0.4, "rgb(209,229,240)",
+                        0.6, "rgb(253,219,199)",
+                        0.8, "rgb(239,138,98)",
+                        1, "rgb(255, 79, 103)"
+                    ],
+                    // Adjust the heatmap radius by zoom level
+                    "heatmap-radius": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 5,
+                        3, 10,
+                        7, 30
+                    ],
+                    // Transition from heatmap to circle layer by zoom level
+                    "heatmap-opacity": [
+                        "interpolate",
+                        ["linear"],
+                        ["zoom"],
+                        0, 0.5,
+                        11, 1
+                    ],
+                }
+            }, 'waterway-label');
+
+            
+        });
 
         fakeMap.on('mousemove', function (e) {
             // map.getCanvas().style.cursor = "url('icons/iconfinder_17_Location_1815566.png'), auto"
@@ -2172,7 +2175,7 @@
     }
 
     var heapmap = {}
-    function getHeapmap(name) {
+    function getHeapmap(name, isFakeMap=false) {
         $.ajax({
             url: url + name + '/heapmap',
             headers: {
@@ -2189,7 +2192,11 @@
                     getHeapmap(name)
                 } else {
                     heapmap = res
-                    map.getSource('heapmapSource').setData(heapmap)
+                    if(isFakeMap) {
+                        
+                    } else {
+                        map.getSource('heapmapSource').setData(heapmap)
+                    }
                 }
             },
             error: (err) => {

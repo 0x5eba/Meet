@@ -68,7 +68,7 @@
 
     <div id='showGroup' style="display:none;">
         <main>
-            <a href="javascript:void(0)" class="user-count" id="user-count" onclick="updatePeopleOnline();">0</a>
+            <!-- <a href="javascript:void(0)" id="user-count" onclick="updatePeopleOnline();">0</a> -->
             <h3 id="nameGroup" style="margin: 10px; margin-left: 0px; overflow-wrap: break-word;"></h3>
 
             <section class="chat" id='chat'></section>
@@ -129,13 +129,7 @@
         width: 45px;
     }
 
-    /* h1, .user-count {
-        margin: 0;
-        padding: 10px 0;
-        font-size: 32px;
-    } */
-
-    .user-count {
+    #user-count {
         float: right;
         font-size: 25px;
         box-sizing: border-box;
@@ -347,13 +341,13 @@
         checkIfSubscribed()
         getGroupName()
 
-        iamOnline()
+        // iamOnline()
         loadMoreMessages()
 
         window.setInterval(function () {
             if(offline === false){
                 checkNewMessage()
-                updateNOnline()
+                // updateNOnline()
             }
         }, 2000);
 
@@ -424,6 +418,9 @@
     }
 
     function checkIfSubscribed() {
+        if (noaccount !== null) {
+            return
+        }
         $.ajax({
             url: url + 'group/isSub/' + groupId + "&" + profileData['id'],
             headers: {
@@ -513,6 +510,9 @@
     }
 
     function subscribe() {
+        if (noaccount !== null) {
+            return
+        }
         let params = JSON.stringify({
             type: "subscribers",
         })
@@ -556,6 +556,9 @@
     }
 
     function saveGroup(){
+        if (noaccount !== null) {
+            return
+        }
         $.ajax({
             url: url + 'profile/bookmarkGroup/' + profileData['id'] + "&" + groupId,
             headers: {
@@ -605,11 +608,13 @@
             offline = false
         }
     });
-    window.setInterval(function () {
-        if (offline === false) {
-            iamStatus(true)
-        }
-    }, 45000);
+    if (noaccount !== null) {
+        window.setInterval(function () {
+            if (offline === false) {
+                iamStatus(true)
+            }
+        }, 45000);
+    }
     function iamStatus(status) {
         let params = JSON.stringify({
             lastSeen: Date.now(),
@@ -648,7 +653,7 @@
         })
     }
 
-    $(document).mouseleave(function (e) {
+    /*$(document).mouseleave(function (e) {
         if (offline === false) {
             iamOffline()
             offline = true
@@ -736,7 +741,7 @@
                 }
             }
         })
-    }
+    }*/
 
     function loadMoreMessages() {
         limit += 30

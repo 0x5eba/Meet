@@ -15,7 +15,14 @@ const AuthorizationRouter = require('./models/authorization/routes.config');
 const UsersRouter = require('./models/profiles/routes.config');
 const GroupRouter = require('./models/groups/routes.config');
 const QuestionRouter = require('./models/questions/routes.config');
+const ChatRouter = require('./models/chat/routes.config');
 
+
+AuthorizationRouter.routesConfig(app);
+UsersRouter.routesConfig(app);
+GroupRouter.routesConfig(app);
+QuestionRouter.routesConfig(app);
+ChatRouter.routesConfig(app)
 
 app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', 'https://sebastienbiollo.com');
@@ -79,9 +86,4 @@ module.exports = {
 	app,
 }
 
-AuthorizationRouter.routesConfig(app);
-UsersRouter.routesConfig(app);
-GroupRouter.routesConfig(app);
-QuestionRouter.routesConfig(app);
-
-require("./server/websocket.js")
+// require("./server/websocket.js")
