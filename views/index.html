@@ -74,14 +74,20 @@
         </div>
     </div>
 
-    <div id="noaccount" style="display: none; text-align:center; position: relative; width: 100%; height: 100%; z-index: 999;">
-        <img src="NoGPS.png" width="100%" height="100%" style="filter: brightness(40%); object-fit: cover;">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%;">
-            <h1 style="margin: 30px; color: white">Welcome!</h1>
-            <p style="margin: 10px; color: white">Choose a place to visit</p>
-            <button style="margin: 20px; font-size: 20px; background-color: #008CBA; border-radius: 20px; color: white"
-                type="button" class="btn" onclick="closeWelocomeDiv()"> Continue
-            </button>
+    <div id="noaccount" style="display: none;">
+        <div class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" id="exampleModalCenter"
+            aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content" style="border-color: rgb(255, 255, 255);">
+                    <div class="modal-body" style="width: 100%; text-align:center; ">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h1 style="margin: 10px; margin-bottom: 30px;">Welcome!</h1>
+                        <h5 style="margin: 10px;">Choose a place to visit</h5>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -91,8 +97,8 @@
         <div id="control-panel"></div>
     </div>
 
-    <div id="myModal" class="modal">
-        <div class="modal-content" id="modal-content">
+    <div id="myModal" class="mymodal">
+        <div class="mymodal-content" id="mymodal-content">
             <button type="button" class="close">
                 <span id="closeModal">&times;</span>
             </button>
@@ -128,15 +134,6 @@
                         <option value='dark-v10'>dark</option>
                     </select>
                 </div>
-
-                <!-- <h3>View on map</h3>
-                <div class="form-group">
-                    <select class="form-control" id="CBviews">
-                        <option value='profiles' selected>profiles</option>
-                        <option value='groups'>groups</option>
-                        <option value='questions'>questions</option>
-                    </select>
-                </div> -->
 
                 <h3>Range search</h3>
                 <input id="ex5" type="text" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="20" style="width: 60%;" />
@@ -289,6 +286,7 @@
         border-radius: 25px;
         background:rgba(255, 255, 255);
         margin-top: 5px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     .transparent-btn {
@@ -375,6 +373,7 @@
         border-radius: 50px;
         height: 30px;
         width: 31px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     #btn-private-chat {
@@ -388,6 +387,7 @@
         border-radius: 50px;
         height: 45px;
         width: 45px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     #btn-group {
@@ -401,6 +401,7 @@
         border-radius: 50px;
         height: 45px;
         width: 45px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     #btn-question {
@@ -414,6 +415,7 @@
         border-radius: 50px;
         height: 45px;
         width: 45px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     #btn-setting {
@@ -427,6 +429,7 @@
         border-radius: 50px;
         height: 45px;
         width: 45px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     #btn-changePos {
@@ -440,6 +443,7 @@
         border-radius: 50px;
         height: 45px;
         width: 45px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     #btn-search {
@@ -453,6 +457,7 @@
         border-radius: 50px;
         height: 45px;
         width: 45px;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
     }
 
     /* body,
@@ -500,7 +505,7 @@
     }
 
 
-    .modal {
+    .mymodal {
         position: absolute;
         display: none;
         /* position: fixed; */
@@ -519,7 +524,8 @@
         /* Black w/ opacity */
     }
 
-    .modal-content {
+    .mymodal-content {
+        border-radius: 7px;
         display: inline-block;
         position: fixed;
         top: 0;
@@ -642,6 +648,7 @@
 
             if(chooseFirstPlace !== null) {
                 $("#noaccount").show()
+                $(".modal").modal();
                 setMapChangePos()
             } else {
                 $("#changeView").show()

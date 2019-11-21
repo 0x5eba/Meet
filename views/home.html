@@ -109,7 +109,7 @@
             <button id="btn-start">GET STARTED</button>
         </div>
         <div id="div-btn-register">
-            <button id="btn-info" class="transparent-btn">Info</button> 
+            <!-- <button id="btn-info" class="transparent-btn">Info</button>  -->
             <button id="btn-register" onclick="registerCss()" data-toggle="modal"
                 data-target="#exampleModalCenter">Sign up</button>
         </div>
@@ -323,6 +323,7 @@
             z-index: 3;
             width: 300px;
             height: 250px;
+            margin-top: 30px;
         }
 
         #title {
@@ -342,24 +343,29 @@
         }
 
         #div-btn-register {
+            position: absolute;
+            top: 10px;
+            right: 5%;
             z-index: 2;
-            text-align:center; 
             justify-content: center;
             align-items: center;
-            width:100%; 
+            text-align: right;
+            width: 100%; 
             padding: 0;
         }
 
         #btn-register {
             z-index: 3;
             border: 0;
-            background: linear-gradient(rgb(250, 252, 255), rgb(184, 215, 255));
-            color: rgb(71, 71, 71);
+            background-color: rgb(230, 87, 98);
+            color: white;
+            /* background: linear-gradient(rgb(250, 252, 255), rgb(184, 215, 255));
+            color: rgb(71, 71, 71); */
             font-size: 16px;
             border-radius: 30px;
             padding-left: 15px;
             padding-right: 15px;
-            height: 35px;
+            height: 30px;
             cursor: pointer;
             /* background-color: Transparent;
             background-repeat:no-repeat; */
@@ -612,7 +618,7 @@
                 }
                 localStorage.setItem("view", JSON.stringify(view));
 
-                localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+                localStorage.setItem("rangeView", JSON.stringify({ range: 50 }))
 
                 localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
 
@@ -664,7 +670,7 @@
                     }
                     localStorage.setItem("view", JSON.stringify(view));
 
-                    localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+                    localStorage.setItem("rangeView", JSON.stringify({ range: 50 }))
 
                     localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
 
@@ -717,7 +723,7 @@
                     }
                     localStorage.setItem("view", JSON.stringify(view));
 
-                    localStorage.setItem("rangeView", JSON.stringify({ range: 20 }))
+                    localStorage.setItem("rangeView", JSON.stringify({ range: 50 }))
 
                     localStorage.setItem("mapStyle", JSON.stringify({ mapStyle: 'mapbox://styles/mapbox/streets-v11' }));
 

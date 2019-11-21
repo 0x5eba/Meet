@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const multer = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
 const storage = new GridFsStorage({
-    url: 'mongodb://localhost:27017/photo',
+    url: 'mongodb://localhost:27017/meet',
     file: (req, file) => {
         return new Promise((resolve, reject) => {
             crypto.randomBytes(32, (err, buf) => {
@@ -117,5 +117,11 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         PermissionMiddleware.minimumPermissionLevelRequired(FREE),
         ProfileController.getPic
-    ]);
+    ]); 
+    app.get('/api/profile/getPicById/:userId', [
+        ValidationMiddleware.validJWTNeeded,
+        PermissionMiddleware.minimumPermissionLevelRequired(FREE),
+        ProfileController.getFilenamePic,
+        ProfileController.getPic
+    ]); 
 };

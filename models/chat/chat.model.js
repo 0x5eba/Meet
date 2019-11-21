@@ -7,8 +7,8 @@ mongoose.set('useCreateIndex', true);
 
 const ChatModel = new mongoose.Schema({
     members: { type: [String], require: true, minlength: 2, default: [] },
-    lastMessageTimestamp: { type: Number, default: 0 },
-    lastMessage: { type: String, default: "" },
+    // lastMessageTimestamp: { type: Number, default: 0 },
+    // lastMessage: { type: String, default: "" },
     pic: { type: String, default: "" },
     title: { type: String, default: "" },
     messages: { 
@@ -24,14 +24,33 @@ const ChatModel = new mongoose.Schema({
 })
 
 const Chat = mongoose.model('Chat', ChatModel)
-
+// var person = new Chat({
+//     "members": [
+//         "5da0b87fe4bc3f74718c5854",
+//         "5d8ccc22a7926ba0df0b66c4"
+//     ],
+//     messages: [
+//         {
+//             sender: "5d8ccc22a7926ba0df0b66c4",
+//             nickname: "ciao",
+//             message: "hola",
+//         },
+//         {
+//             sender: "5da0b87fe4bc3f74718c5854",
+//             nickname: "sbiollo@gmail.com",
+//             message: "yooo",
+//         }
+//     ]
+// });
+// person.save()
 
 exports.getChats = (userId) => {
     return new Promise((resolve, reject) => {
-        Chat.find({ members: { $in: [userId] } }, { messages: 1 }, function (err, chats) {
-            if (err) reject(err);
-            resolve(chats);
-        });
+        Chat.find({ members: { $in: [userId] } })
+            .sort({ "messages.time": 'desc' }).exec(function (err, messages) {
+                if (err) reject(err);
+                resolve(messages);
+            });
     })
 }
 

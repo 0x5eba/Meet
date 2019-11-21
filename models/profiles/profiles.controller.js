@@ -210,3 +210,17 @@ exports.uploadPic = (req, res) => {
 exports.getPic = (req, res) => {
     ProfileController.getPic(req, res)
 }
+
+exports.getFilenamePic = (req, res, next) => {
+    ProfileController.getFilenamePic(req.params.userId)
+        .then((result) => {
+            if(result.pic === undefined) {
+                res.status(403).send({ err: "Error get pic profile" })
+            }
+            req.params.filename = result.pic
+            return next()
+        })
+        .catch(err => {
+            res.status(403).send({ err: "Error get pic profile" })
+        })
+}

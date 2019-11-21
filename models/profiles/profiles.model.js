@@ -18,10 +18,11 @@ const ProfileModel = new mongoose.Schema({
     chats: { type: [String], default: [] } // chat ids
 })
 
-const Grid = require('gridfs-stream');
-const mongoURI = 'mongodb://localhost:27017/photo';
-const conn = mongoose.createConnection(mongoURI);
-var gfs;
+let Grid = require('gridfs-stream');
+let mongoURI = 'mongodb://localhost:27017/meet';
+mongoose.createConnection(mongoURI);
+let conn = mongoose.connection;
+let gfs;
 conn.once('open', () => {
     gfs = Grid(conn.db, mongoose.mongo);
     gfs.collection('uploads');
@@ -253,6 +254,7 @@ exports.getPic = (req, res) => {
         if (!file || file.length === 0) {
             return res.status(404).send({ err: "No file exists" });
         }
+        
         const readstream = gfs.createReadStream(file.filename);
         res.header({ 'Content-type': "image/jpg" });
         readstream.on('error', () => {
@@ -264,6 +266,15 @@ exports.getPic = (req, res) => {
             res.status(201).end()
         })
     });
+}
+
+exports.getFilenamePic = (id) => {
+    return new Promise((resolve, reject) => {
+        Profile.findById(id, { pic: 1 }, function (err, user) {
+            if (err) reject(err);
+            resolve(user);
+        });
+    })
 }
 
 const heapmap = require("../../server/heapmap")

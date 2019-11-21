@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Chat</title>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-148651561-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA-148651561-1');
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" type="text/css" href="localCDN/bootstrap.css">
+    <!-- <link rel="stylesheet" type="text/css" href="localCDN/fontawesome.css"> -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+        integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <script src="localCDN/jquery.js"></script>
+    <script src="localCDN/popper.js"></script>
+    <script src="localCDN/bootstrap.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <div class="row" id="maindiv">
+            <div class="col" style="padding: 0px;" id="div-persons">
+                <div class="active-cyan-3 active-cyan-4 mb-4" style="padding: 20px; padding-bottom: 0px;">
+                    <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+                </div>
+
+                <div id="persons">
+                    <div class="row person">
+                        <div class="col-xs-2 align-self-center" style="margin-left: 5px; margin-right: 10px; padding: 0px;">
+                            <img src="2787860.jpg" class="img-profile">
+                        </div>
+                        <div class="col text-truncate" style="padding: 0px; padding-right: 10px; padding-top: 5px; align-items: center;">
+                            <p style="font-size: 10px; float: right;">Yesterday</p>
+                            <div class="title" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                                ethryjrtyjdfgrtuuyi;yu;yui;uyiokyt</div>
+                            <p style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-size: 14px;">
+                                cityiluuyilyuililuliuaoyui;lyu;</p>
+                        </div>
+                    </div>
+                    <hr />
+                    
+                    <div class="row person">
+                        <div class="col-xs-2 align-self-center" style="margin-left: 5px; margin-right: 10px; padding: 0px;">
+                            <img src="2787860.jpg" class="img-profile">
+                        </div>
+                        <div class="col text-truncate" style="padding: 0px; padding-right: 10px; padding-top: 5px; align-items: center;">
+                            <p style="font-size: 10px; float: right;">Yesterday</p>
+                            <div class="title" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                                ethryjrtyjdfgrtuuyi;yu;yui;uyiokyt</div>
+                            <p style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-size: 14px;">
+                                cityiluuyilyuililuliuaoyui;lyu;</p>
+                        </div>
+                    </div>
+                    <hr />
+                </div>
+            </div>
+            <div class="col text-truncate" style="padding: 0px;" id="chat">
+                <header id="infoChat">
+                    <div style=" padding: 0px; padding-left: 5px; padding-right: 10px;">
+                        <img src="2787860.jpg" class="img-profile">
+                    </div>
+                    <h1 class="title" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">ethryjrtyjdfgrtukyt</h1>
+                </header>
+                <div id="messages">
+                    <!-- <div class="row">
+                        <div class="myMessage">
+                            <p style="padding-left: 10px; font-size: 12px;">Hey ciao</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-2 align-self-end" style="margin: 10px; margin-top: 5px; margin-left: 15px;">
+                            <img src="2787860.jpg" width="50px" height="50px" style="border-radius: 50px;">
+                        </div>
+                        <div class="col" style="padding-right:0; padding-left:0;">
+                            <div class="message">
+                                <div class="col">
+                                    <div class="row">
+                                        <p style="padding-left: 10px; font-size: 14px; font-weight: bold;">Abdul</p>
+                                    </div>
+                                    <div class="row">
+                                        <p style="padding-left: 10px; font-size: 12px;">
+                                            wegwra
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="myMessage">
+                        <p style="padding-left: 10px; font-size: 12px;">Hey ciao</p>
+                    </div> -->
+                </div>
+                <footer id="write">
+                    <textarea id="textarea" name="text" placeholder="Write a message" wrap="soft"></textarea>
+                    <button type="button" class="btn btn-info" id="send-btn">
+                        <img src="icons/iconfinder_Sed-09_2236081.svg" width="50" height="50" style="position: relative;">
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </div>
+    
+</body>
+
+</html>
+
+<style>
+
+    body {
+        background-image: url('/background/annie-spratt-0ZPSX_mQ3xI-unsplash.jpg');
+        /* background-position: center; */
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    #send-btn {
+        text-align:center;
+        justify-content: center;
+        align-items: center;
+        border: 0;
+        background: transparent;
+        background-color: white;
+        border-radius: 50px;
+        height: 45px;
+        width: 45px;
+        height: auto;
+        margin-left: 2px;
+        margin-right: 10px;
+        bottom:0;
+        left:0;
+        right:0;
+    }
+
+    #infoChat {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70px; 
+        width: 100%;
+        left: 0px;
+        background: white;
+        border-bottom: 1px solid #dfdfdf; 
+    }
+
+    #messages {
+        width: 100%;
+        background: #F2F2F2;
+        overflow-y: auto;
+        position:absolute;
+        top: 70px;
+        bottom: 70px;
+        left:0;
+        right:0;
+        padding: 7px;
+        padding-bottom: 10px;
+    }
+
+    #write {
+        display: flex;
+        height: 50px; 
+        width: 100%;
+        margin: 0px;
+        background: white;
+        height: auto;
+        text-align: center;
+        position:absolute;
+        bottom:0;
+        left:0;
+        right:0;
+        border-top: 1px solid #dfdfdf; 
+    }
+
+    #textarea {
+        height: 49px;
+        width: calc(90% - 25px);
+        font: inherit;
+        background: #fff;
+        border: none;
+        padding: 14px 20px;
+        box-sizing: border-box;
+        transition: all .3s ease;
+        resize:none;
+        height: auto;
+        word-break: break-all;
+    }
+
+    .message {
+        display: flex;
+        height: auto;
+        width: 90%;
+        background: white;
+        border-radius: 10px;
+        padding: 12px;
+        margin: 5px;
+        margin-bottom: 5px;
+        word-break: break-all;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
+    }
+
+    .myMessage {
+        float: right;
+        width: 90%;
+        height: auto;
+        background: #DCF8C6;
+        border-radius: 10px;
+        padding: 12px;
+        margin: 5px;
+        margin-bottom: 10px;
+        word-break: break-all;
+        box-shadow: 0 1px 0.5px rgba(0,0,0,.13);
+    }
+
+    hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid rgb(226, 226, 226);
+        margin: 1em 0;
+        padding: 0;
+        width: 80%;
+        margin: auto;
+        /* margin-top: 10px; */
+        margin-bottom: 3px;
+    }
+
+    .person {
+        margin: auto;
+        width: 100%;
+        min-height: 60px;
+        /* display: flex; */
+        justify-content: center;
+        /* align-items: center; */
+    }
+
+    #div-persons {
+        padding-top: 20px;
+        -ms-flex: 0 0 400px;
+        flex: 0 0 400px;
+        overflow-y: auto;
+        max-height: 100%;
+        border-right: 1px solid #dfdfdf; 
+        background: white;
+    }
+
+    .img-profile{
+        border-radius: 50%; 
+        width: 50px;
+        height: 50px;
+        /* margin-top: 7px; */
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .title {
+        /* margin-top: 7px; */
+        font-size: 16px;
+        font-weight: bold;
+        /* float: left; */
+    }
+
+    .active-cyan-4 input[type=text]:focus:not([readonly]) {
+        border: 1px solid #4dabe1;
+        box-shadow: 0 0 0 1px #4dabe1;
+    }
+    .active-cyan-3 input[type=text] {
+        border: 1px solid #4dabe1;
+        box-shadow: 0 0 0 1px #4dabe1;
+    }
+
+    #container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    #maindiv {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 80%; 
+        height: 95%;  
+        box-shadow: 0 1px 1px 0 rgba(0,0,0,.06), 0 2px 5px 0 rgba(0,0,0,.2);
+        word-break: break-all;
+    }
+
+    ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+    
+    .data-message {
+        padding-left: 10px; 
+        font-size: 12px;
+    }
+
+    .div-img-message {
+        margin: 10px; 
+        margin-top: 5px; 
+        margin-left: 15px;
+    }
+
+    .p-nickname {
+        padding-left: 10px; 
+        font-size: 14px; 
+        font-weight: bold;
+    }
+
+    @media only screen and (max-width:1500px) {
+        #maindiv {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 90%; 
+            height: 90%; 
+        }
+    }
+
+    @media only screen and (max-width:1000px) {
+        #maindiv {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 100%; 
+            height: 100%; 
+        }
+
+        #chat {
+            min-width:100%;
+            display: none;
+        }
+
+        #div-persons {
+            min-width:100%;
+        }
+    }
+
+</style>
+
+<script>
+    window.WebSocket = window.WebSocket || window.MozWebSocket;
+    const url = 'http://localhost:3001/api/';
+
+    var noaccount = JSON.parse(localStorage.getItem("noaccount"))
+
+    var authToken = JSON.parse(localStorage.getItem("authToken"))
+    var profileData = JSON.parse(localStorage.getItem("profile"))
+    function session() {
+        if (authToken === null) {
+            window.location.href = "http://localhost:3001/home"
+        }
+        refreshToken()
+    }
+    session()
+
+    function refreshToken() {
+        $.ajax({
+            url: url + 'auth/refresh',
+            headers: {
+                'Authorization': authToken['accessToken'],
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            credentials: 'include',
+            method: 'POST',
+            dataType: 'json',
+            success: (res) => {
+                if (res["accessToken"] !== undefined) {
+                    localStorage.setItem("authToken", JSON.stringify({ accessToken: "Bearer " + res['accessToken'] }))
+                    authToken = JSON.parse(localStorage.getItem("authToken"))
+
+                    openWebSocket()
+
+                } else {
+                    sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                    window.location.href = "http://localhost:3001/home"
+                }
+            },
+            error: (err) => {
+                sessionStorage.setItem("loginAgain", JSON.stringify({ loginAgain: true }))
+                window.location.href = "http://localhost:3001/home"
+            }
+        })
+    }
+    window.setInterval(function () {
+        refreshToken()
+    }, 1700000);
+    
+    function openWebSocket() {
+        var connection = new WebSocket('ws://localhost:1337');
+
+        connection.onopen = function () {
+            connection.send(JSON.stringify({ type: "auth", data: { accessToken: authToken['accessToken'] } }));
+        };
+        connection.onerror = function (error) {
+        };
+        connection.onmessage = function (message) {
+            try {
+                var json = JSON.parse(message.data);
+            } catch (e) {
+                return
+            }
+
+            if(json.type === "getChats"){
+                let chats = json.data
+
+                let persons = document.getElementById("persons")
+                persons.innerHTML = ""
+
+                // <div class="row person">
+                //     <div class="col-xs-2 align-self-center" style="margin-left: 5px; margin-right: 10px; padding: 0px;">
+                //         <img src="2787860.jpg" class="img-profile">
+                //     </div>
+                //     <div class="col text-truncate" style="padding: 0px; padding-right: 10px; padding-top: 5px; align-items: center;">
+                //         <p style="font-size: 10px; float: right;">Yesterday</p>
+                //         <div class="title" style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                //             ethryjrtyjdfgrtuuyi;yu;yui;uyiokyt</div>
+                //         <p style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; font-size: 14px;">
+                //             cityiluuyilyuililuliuaoyui;lyu;</p>
+                //     </div>
+                // </div>
+                // <hr />
+
+                // let div = document.createElement("div")
+                // div.className = "row person"
+
+                // let div2 = document.createElement("div")
+                // div2.className = "col-xs-2 align-self-center"
+
+
+                for(let a = 0; a < chats.length; ++a) {
+                    let messages = chats[a]["messages"]
+
+                    let divMessages = document.getElementById("messages")
+                    divMessages.innerHTML = ""
+
+                    console.log(chats[a])
+
+                    for (let b = 0; b < messages.length; ++b) {
+                        if (messages[b]["sender"] !== profileData["id"]) {
+                            let div1 = document.createElement("div")
+                            div1.className = "row"
+
+                            let div2 = document.createElement("div")
+                            div2.className = "col-xs-2 align-self-end div-img-message"
+                            let img = document.createElement("img")
+                            img.setAttribute("width", "50px")
+                            img.setAttribute("height", "50px")
+                            img.style.borderRadius = "50px"
+
+                            div2.append(img)
+
+                            $.ajax({
+                                url: url + 'profile/getPicById/' + messages[b]["sender"],
+                                headers: {
+                                    'Authorization': authToken['accessToken'],
+                                    'Content-Type': 'image/jpg',
+                                },
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                credentials: 'include',
+                                method: 'GET',
+                                success: (res) => {
+                                    var reader = new FileReader();
+                                    reader.readAsDataURL(res);
+                                    reader.onloadend = function () {
+                                        var base64data = reader.result;
+                                        img.src = base64data;
+                                    }
+                                },
+                                error: (err) => {
+                                    console.log(err)
+                                    img.src = "NoGPS.png";
+                                }
+                            })
+
+                            let div3 = document.createElement("div")
+                            div3.className = "col"
+                            div3.style.paddingRight = "0px"
+                            div3.style.paddingLeft = "0px"
+
+                            let div4 = document.createElement("div")
+                            div4.className = "message"
+
+                            let div5 = document.createElement("div")
+                            div5.className = "col"
+
+                            let div6 = document.createElement("div")
+                            div6.className = "row"
+                            let p1 = document.createElement("p")
+                            p1.className = "p-nickname"
+                            p1.innerHTML = messages[b]["nickname"]
+                            div6.append(p1)
+
+                            let div7 = document.createElement("div")
+                            div7.className = "row"
+                            let p2 = document.createElement("p")
+                            p2.className = "data-message"
+                            p2.innerHTML = messages[b]["message"]
+                            div7.append(p2)
+
+                            div5.append(div6, div7)
+                            div4.append(div5)
+                            div3.append(div4)
+
+                            div1.append(div2, div3)
+                            divMessages.append(div1)
+                        } else {
+                            let div = document.createElement("div")
+                            div.className = "row"
+                            let div2 = document.createElement("div")
+                            div2.className = "myMessage"
+                            let p = document.createElement("p")
+                            p.className = "data-message"
+                            p.innerHTML = messages[b]["message"]
+                            div2.append(p)
+                            div.append(div2)
+                            divMessages.append(div)
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    var element = document.getElementById("messages");
+    element.scrollTop = element.scrollHeight - element.clientHeight;
+    
+
+</script>

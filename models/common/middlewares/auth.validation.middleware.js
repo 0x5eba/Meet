@@ -124,7 +124,9 @@ exports.limitRequest = (req, res, next) => {
 }
 
 exports.verifyCaptcha = (req, res, next) => {
+    console.log("OK2")
     if (req.body.recaptcha === undefined || req.body.recaptcha === '' || req.body.recaptcha === null) {
+        console.log("WTF")
         return res.status(500).send({ err: 'Please select captcha first' });
     }
     const secretKey = '6Ld5r7sUAAAAACT8sYktCkwGEC-9piie7xEhNaXO';
@@ -143,6 +145,7 @@ exports.verifyCaptcha = (req, res, next) => {
                     return res.status(500).send({ err: 'Failed captcha verification' });
                 }
             } catch (e) {
+                console.log(e)
                 return res.status(500).send({ err: 'Failed captcha verification from Google' });
             }
         });

@@ -15,7 +15,7 @@ const jwtSecret = config.jwtSecret
 
 var server = http.createServer();
 server.listen(webSocketsServerPort, function () {
-    console.log("Websocket listening on port " + webSocketsServerPort);
+    // console.log("Websocket listening on port " + webSocketsServerPort);
 });
 var wsServer = new webSocketServer({
     httpServer: server
@@ -23,7 +23,7 @@ var wsServer = new webSocketServer({
 var clients = {};
 
 wsServer.on('request', function (request) {
-    console.log((new Date()) + ' Connection from origin ' + request.origin + '.');
+    // console.log((new Date()) + ' Connection from origin ' + request.origin + '.');
     // if (request.origin !== "http://localhost:3001" || request.origin !== "https://sebastienbiollo.com"){
     //     return
     // }
@@ -34,34 +34,47 @@ wsServer.on('request', function (request) {
         if (message.type === 'utf8') {
             message = JSON.parse(message.utf8Data)
 
-            if (message['accessToken'] !== undefined){
-                let authorization = message['accessToken'].split(' ');
-                if (authorization[0] !== 'Bearer') {
-                    return
-                }
-                jwt.verify(authorization[1], jwtSecret, function (err, decoded) {
-                    if (err) connection.close()
-                    var current_time = new Date().getTime() / 1000;
-                    if (current_time > decoded.exp) {
-                        connection.close()
+            if(message.type === "auth"){
+                message = message.data
+                if (message['accessToken'] !== undefined) {
+                    let authorization = message['accessToken'].split(' ');
+                    if (authorization[0] !== 'Bearer') {
+                        return
                     }
+                    jwt.verify(authorization[1], jwtSecret, function (err, decoded) {
+                        if (err) connection.close()
+                        var current_time = new Date().getTime() / 1000;
+                        if (current_time > decoded.exp) {
+                            connection.close()
+                        }
+                        
+                        userId = decoded['userId']
+                        clients[userId] = connection
 
-                    userId = decoded['userId']
-                    clients[userId] = connection
-
-                    ChatController.getChats(userId)
-                        .then((result) => {
-                            connection.sendUTF(JSON.stringify(result))
-                        })
-                        .catch(err => {
-                            
-                        })
-
-                    
-                })
+                        ChatController.getChats(userId)
+                            .then((result) => {
+                                let send = JSON.stringify({
+                                    type: "getChats",
+                                    data: result
+                                })
+                                connection.sendUTF(send)
+                            })
+                            .catch(err => {
+                                sendError(connection, err)
+                            })
+                    })
+                }
             }
         }
     });
+
+    function sendError(connection, err) {
+        let send = JSON.stringify({
+            type: "Error",
+            data: err
+        })
+        connection.sendUTF(send)
+    }
 
     connection.on('close', function (connection) {
         delete clients[userId]

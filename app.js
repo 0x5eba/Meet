@@ -18,11 +18,11 @@ const QuestionRouter = require('./models/questions/routes.config');
 const ChatRouter = require('./models/chat/routes.config');
 
 
+ChatRouter.routesConfig(app);
 AuthorizationRouter.routesConfig(app);
-UsersRouter.routesConfig(app);
 GroupRouter.routesConfig(app);
 QuestionRouter.routesConfig(app);
-ChatRouter.routesConfig(app)
+UsersRouter.routesConfig(app);
 
 app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', 'https://sebastienbiollo.com');
@@ -69,7 +69,7 @@ router.get('/home', function (req, res) {
 	res.sendFile(path.join(__dirname + '/views/home.html'));
 });
 router.get('/chat', function (req, res) {
-	res.sendFile(path.join(__dirname + '/views/chat2.html'));
+	res.sendFile(path.join(__dirname + '/views/chat.html'));
 });
 // router.get('/chat', function (req, res) {
 // 	res.sendFile(path.join(__dirname + '/views/chat.html'));
@@ -86,4 +86,4 @@ module.exports = {
 	app,
 }
 
-// require("./server/websocket.js")
+require("./server/websocket.js")
