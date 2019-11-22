@@ -961,7 +961,6 @@
     var firstShowPosition = true
 
     function showPosition(position) {
-        // it's call multiple time for no reason
         if(firstShowPosition){
             firstShowPosition = false
         } else {
@@ -1010,7 +1009,6 @@
             setMapChangePos()
             return
         }
-
         if (noaccount === null && profileData['fakePos'] !== undefined && profileData['fakePos'][0] !== 0 && profileData['fakePos'][1] !== 0){
             state_view.longitude = profileData['fakePos'][0]
             state_view.latitude = profileData['fakePos'][1]
@@ -1808,6 +1806,7 @@
                 iamStatus(true)
             }
         }, 45000);
+        iamStatus(true)
     }
     function iamStatus(status) {
         let params = JSON.stringify({
