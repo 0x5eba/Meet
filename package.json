@@ -29,7 +29,7 @@
     "encodeurl": "^1.0.2",
     "escape-html": "^1.0.3",
     "etag": "^1.8.1",
-    "express-fileupload": "^1.1.6-alpha.6",
+    "express-fileupload": "^1.1.9",
     "express-recaptcha": "^5.0.1",
     "finalhandler": "1.1.1",
     "formidable": "^1.2.1",
